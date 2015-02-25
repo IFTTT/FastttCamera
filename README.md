@@ -6,6 +6,10 @@
 
 ![FastttCamera](https://raw.githubusercontent.com/IFTTT/FastttCamera/master/Docs/fastttcamera-portrait.gif)
 
+`FastttCamera` powers the camera in the new [Do Camera](https://ifttt.com/products/do/camera) app for iOS from [IFTTT](https://ifttt.com/wtf).
+
+[![App Store](https://raw.githubusercontent.com/IFTTT/FastttCamera/master/Docs/Download_on_the_App_Store_Badge.svg)](https://itunes.apple.com/us/app/do-camera-by-ifttt/id905998167)
+
 #### Major headaches that `FastttCamera` automatically handles for you:
 
 ##### `AVFoundation` Headaches
