@@ -242,12 +242,16 @@ CGFloat const kFocusSquareSize = 50.f;
 
 - (void)_startRunning
 {
-    [_session startRunning];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [_session startRunning];
+    });
 }
 
 - (void)_stopRunning
 {
-    [_session stopRunning];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [_session stopRunning];
+    });
 }
 
 - (void)_insertPreviewLayerInView:(UIView *)rootView
@@ -282,6 +286,19 @@ CGFloat const kFocusSquareSize = 50.f;
 #if !TARGET_IPHONE_SIMULATOR
     AVCaptureDeviceInput *deviceInput = [AVCaptureDeviceInput deviceInputWithDevice:device error:nil];
     [_session addInput:deviceInput];
+    
+    switch (device.position) {
+        case AVCaptureDevicePositionBack:
+            _cameraDevice = FastttCameraDeviceRear;
+            break;
+            
+        case AVCaptureDevicePositionFront:
+            _cameraDevice = FastttCameraDeviceFront;
+            break;
+            
+        default:
+            break;
+    }
 #endif
     
     NSDictionary *outputSettings = @{AVVideoCodecKey:AVVideoCodecJPEG};
