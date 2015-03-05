@@ -8,6 +8,10 @@
 
 @import UIKit;
 
+/**
+ *  Public class to hold a captured image object, used in FastttCameraDelegate callbacks
+ *  as the image is being cropped, scaled, and normalized.
+ */
 @interface FastttCapturedImage : NSObject
 
 /**

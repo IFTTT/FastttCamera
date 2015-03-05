@@ -58,7 +58,9 @@
     [self.confirmButton setTitle:@"Use Photo"
                         forState:UIControlStateNormal];
     
-    self.confirmButton.enabled = NO;
+    if (!self.capturedImage.isNormalized) {
+        self.confirmButton.enabled = NO;
+    }
     
     [self.view addSubview:self.confirmButton];
     [self.confirmButton mas_makeConstraints:^(MASConstraintMaker *make) {

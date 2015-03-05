@@ -9,16 +9,38 @@
 @import UIKit;
 @import AVFoundation;
 
+/**
+ *  Private category used by FastttCamera for processing UIImages.
+ */
 @interface UIImage (FastttCamera)
 
 /**
- *  Crops the captured image to the visible area of the preview layer.
+ *  Calculates a crop rect for the aperture fitting into the preview bounds with aspect fill.
+ *
+ *  @param previewBounds  The bounds of the view displaying the camera preview.
+ *  @param apertureBounds The bounds of the camera's output.
+ *
+ *  @return The CGRect to use for cropping the camera's captured image to match the camera preview.
+ */
++ (CGRect)fastttCropRectFromPreviewBounds:(CGRect)previewBounds apertureBounds:(CGRect)apertureBounds;
+
+/**
+ *  Calculates a crop rect for cropping the captured image to the visible area of the preview layer.
  *
  *  @param previewLayer The preview layer of the camera's live preview.
  *
- *  @return The cropped image.
+ *  @return The CGRect to use for cropping the camera's captured image to match the camera preview.
  */
-- (UIImage *)fastttCroppedToPreviewLayerBounds:(AVCaptureVideoPreviewLayer *)previewLayer;
+- (CGRect)fastttCropRectFromPreviewLayer:(AVCaptureVideoPreviewLayer *)previewLayer;
+
+/**
+ *  Calculates a crop rect for the image fitting into the preview bounds with aspect fill.
+ *
+ *  @param previewBounds  The bounds of the view displaying the camera preview.
+ *
+ *  @return The CGRect to use for cropping the camera's captured image to match the camera preview.
+ */
+- (CGRect)fastttCropRectFromPreviewBounds:(CGRect)previewBounds;
 
 /**
  *  Converts the 0-to-1-scaled output rect to a crop rect for this image
@@ -37,7 +59,7 @@
  *
  *  @return The cropped image.
  */
-- (UIImage *)fastttCroppedToOutputRect:(CGRect)outputRect;
+- (UIImage *)fastttCroppedImageFromOutputRect:(CGRect)outputRect;
 
 /**
  *  Crops the image to the given CGRect origin, width, and height.
@@ -46,16 +68,17 @@
  *
  *  @return The cropped image.
  */
-- (UIImage *)fastttCroppedToRect:(CGRect)cropRect;
+- (UIImage *)fastttCroppedImageFromCropRect:(CGRect)cropRect;
 
 /**
  *  Scales the image to the given size.
  *
- *  @param size The destination size of the image.
+ *  @param size The destination size of the image. Assumes that this size and the image have
+ *  the same aspect ratio.
  *
  *  @return The scaled image.
  */
-- (UIImage *)fastttScaledToSize:(CGSize)size;
+- (UIImage *)fastttScaledImageOfSize:(CGSize)size;
 
 /**
  *  Scales the image to the given maximum dimension.
@@ -64,7 +87,7 @@
  *
  *  @return The scaled image.
  */
-- (UIImage *)fastttScaledToMaxDimension:(CGFloat)maxDimension;
+- (UIImage *)fastttScaledImageWithMaxDimension:(CGFloat)maxDimension;
 
 /**
  *  Scales the image to the given scale.
@@ -73,14 +96,14 @@
  *
  *  @return The scaled image.
  */
-- (UIImage *)fastttScaledToScale:(CGFloat)newScale;
+- (UIImage *)fastttScaledImageWithScale:(CGFloat)newScale;
 
 /**
  *  Redraws the image so that its orientation is UIImageOrientationUp.
  *
  *  @return An image drawn so that the orientation is UIImageOrientationUp.
  */
-- (UIImage *)fastttNormalizeOrientation;
+- (UIImage *)fastttImageWithNormalizedOrientation;
 
 /**
  *  Sets the image orientation so that the image displays in the same
@@ -91,7 +114,17 @@
  *
  *  @return The image that has been rotated to match the camera preview.
  */
-- (UIImage *)fastttRotatedToMatchCameraView;
+- (UIImage *)fastttRotatedImageMatchingCameraView;
+
+/**
+ *  Moves the image orientation tag of the image to the given image orientation.
+ *  The pixels of the image stay as-is.
+ *
+ *  @param orientation The image orientation tag to set.
+ *
+ *  @return The image that has had its new orientation tag set.
+ */
+- (UIImage *)fastttRotatedImageMatchingOrientation:(UIImageOrientation)orientation;
 
 /**
  *  Creates a fake image for testing.

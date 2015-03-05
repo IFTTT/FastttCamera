@@ -19,11 +19,79 @@ CG_INLINE CGFLOAT_TYPE FastttRound(CGFLOAT_TYPE f) {
 
 @implementation UIImage (FastttCamera)
 
-- (UIImage *)fastttCroppedToPreviewLayerBounds:(AVCaptureVideoPreviewLayer *)previewLayer
++ (CGRect)fastttCropRectFromPreviewBounds:(CGRect)previewBounds apertureBounds:(CGRect)apertureBounds
+{
+    CGSize apertureSize = apertureBounds.size;
+    
+    CGFloat apertureRatio = apertureSize.width / apertureSize.height;
+    CGFloat viewRatio = previewBounds.size.width / previewBounds.size.height;
+    
+    CGFloat xOrigin = 0.f;
+    CGFloat yOrigin = 0.f;
+    CGFloat width = 0.f;
+    CGFloat height = 0.f;
+    
+    if (apertureRatio > viewRatio) {
+        width = viewRatio * apertureSize.height;
+        height = apertureSize.height;
+        
+        xOrigin = (apertureSize.width - width) / 2.f;
+        yOrigin = 0.f;
+    } else {
+        width = apertureSize.width;
+        height = apertureSize.width / viewRatio;
+        
+        xOrigin = 0.f;
+        yOrigin = (apertureSize.height - height) / 2.f;
+    }
+    
+    return CGRectMake(xOrigin, yOrigin, width, height);
+}
+
+- (CGRect)fastttCropRectFromPreviewLayer:(AVCaptureVideoPreviewLayer *)previewLayer
 {
     CGRect outputRect = [previewLayer metadataOutputRectOfInterestForRect:previewLayer.bounds];
     
-    return [self fastttCroppedToOutputRect:outputRect];
+    return [self fastttCropRectFromOutputRect:outputRect];
+}
+
+- (CGRect)fastttCropRectFromPreviewBounds:(CGRect)previewBounds
+{
+    CGSize imageSize = self.size;
+    
+    CGSize previewSize = previewBounds.size;
+    
+    if (self.imageOrientation == UIImageOrientationRight
+        || self.imageOrientation == UIImageOrientationLeft
+        || self.imageOrientation == UIImageOrientationRightMirrored
+        || self.imageOrientation == UIImageOrientationLeftMirrored) {
+        
+        previewSize = CGSizeMake(previewSize.height, previewSize.width);
+    }
+    
+    CGFloat imageRatio = imageSize.width / imageSize.height;
+    CGFloat viewRatio = previewBounds.size.width / previewBounds.size.height;
+    
+    CGFloat xOrigin = 0.f;
+    CGFloat yOrigin = 0.f;
+    CGFloat width = 0.f;
+    CGFloat height = 0.f;
+    
+    if (imageRatio > viewRatio) {
+        width = viewRatio * imageSize.height;
+        height = imageSize.height;
+        
+        xOrigin = (imageSize.width - width) / 2.f;
+        yOrigin = 0.f;
+    } else {
+        width = imageSize.width;
+        height = imageSize.width / viewRatio;
+        
+        xOrigin = 0.f;
+        yOrigin = (imageSize.height - height) / 2.f;
+    }
+    
+    return CGRectMake(xOrigin, yOrigin, width, height);
 }
 
 - (CGRect)fastttCropRectFromOutputRect:(CGRect)outputRect
@@ -34,13 +102,14 @@ CG_INLINE CGFLOAT_TYPE FastttRound(CGFLOAT_TYPE f) {
                       FastttRound(CGRectGetHeight(outputRect) * CGImageGetHeight(self.CGImage)));
 }
 
-- (UIImage *)fastttCroppedToOutputRect:(CGRect)outputRect
+- (UIImage *)fastttCroppedImageFromOutputRect:(CGRect)outputRect
 {
     CGRect cropRect = [self fastttCropRectFromOutputRect:outputRect];
-    return [self fastttCroppedToRect:cropRect];
+    
+    return [self fastttCroppedImageFromCropRect:cropRect];
 }
 
-- (UIImage *)fastttCroppedToRect:(CGRect)cropRect
+- (UIImage *)fastttCroppedImageFromCropRect:(CGRect)cropRect
 {
     CGImageRef imageRef = CGImageCreateWithImageInRect(self.CGImage, cropRect);
     UIImage *croppedImage = [UIImage imageWithCGImage:imageRef
@@ -51,23 +120,23 @@ CG_INLINE CGFLOAT_TYPE FastttRound(CGFLOAT_TYPE f) {
     return croppedImage;
 }
 
-- (UIImage *)fastttScaledToSize:(CGSize)size
+- (UIImage *)fastttScaledImageOfSize:(CGSize)size
 {
     CGImageRef imageRef = self.CGImage;
     CGFloat newScale = (CGFloat)(MIN(size.width, size.height) / MIN((CGFloat)CGImageGetWidth(imageRef), (CGFloat)CGImageGetHeight(imageRef)));
     
-    return [self fastttScaledToScale:newScale];
+    return [self fastttScaledImageWithScale:newScale];
 }
 
-- (UIImage *)fastttScaledToMaxDimension:(CGFloat)maxDimension
+- (UIImage *)fastttScaledImageWithMaxDimension:(CGFloat)maxDimension
 {
     CGImageRef imageRef = self.CGImage;
     CGFloat newScale = (CGFloat)(maxDimension / MAX((CGFloat)CGImageGetWidth(imageRef), (CGFloat)CGImageGetHeight(imageRef)));
     
-    return [self fastttScaledToScale:newScale];
+    return [self fastttScaledImageWithScale:newScale];
 }
 
-- (UIImage *)fastttScaledToScale:(CGFloat)newScale
+- (UIImage *)fastttScaledImageWithScale:(CGFloat)newScale
 {
     CGImageRef imageRef = self.CGImage;
     
@@ -110,7 +179,7 @@ CG_INLINE CGFLOAT_TYPE FastttRound(CGFLOAT_TYPE f) {
     return scaledImage;
 }
 
-- (UIImage *)fastttNormalizeOrientation
+- (UIImage *)fastttImageWithNormalizedOrientation
 {
     if (self.imageOrientation == UIImageOrientationUp) {
         return self;
@@ -130,7 +199,7 @@ CG_INLINE CGFLOAT_TYPE FastttRound(CGFLOAT_TYPE f) {
     return normalized;
 }
 
-- (UIImage *)fastttRotatedToMatchCameraView
+- (UIImage *)fastttRotatedImageMatchingCameraView
 {
     UIImageOrientation orientation = UIImageOrientationRight;
     
@@ -142,7 +211,12 @@ CG_INLINE CGFLOAT_TYPE FastttRound(CGFLOAT_TYPE f) {
         orientation = UIImageOrientationLeftMirrored;
     }
     
-    if (orientation == self.imageOrientation) {
+    return [self fastttRotatedImageMatchingOrientation:orientation];
+}
+
+- (UIImage *)fastttRotatedImageMatchingOrientation:(UIImageOrientation)orientation
+{
+    if (self.imageOrientation == orientation) {
         return self;
     }
     

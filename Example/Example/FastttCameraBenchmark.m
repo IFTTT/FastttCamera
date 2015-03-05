@@ -179,7 +179,7 @@ NSInteger const kIFTTTFastttBenchmarkTestIterations = 20;
 
 #pragma mark - IFTTTFastttCameraDelegate
 
-- (void)cameraController:(FastttCamera *)cameraController didFinishCapturingImage:(FastttCapturedImage *)capturedImage
+- (void)cameraController:(id <FastttCameraInterface>)cameraController didFinishCapturingImage:(FastttCapturedImage *)capturedImage
 {
     [self cropPhotoBenchmarkTestIteration];
     
@@ -194,12 +194,12 @@ NSInteger const kIFTTTFastttBenchmarkTestIterations = 20;
     capturedImage.rotatedPreviewImage = nil;
 }
 
-- (void)cameraController:(FastttCamera *)cameraController didFinishScalingCapturedImage:(FastttCapturedImage *)capturedImage
+- (void)cameraController:(id <FastttCameraInterface>)cameraController didFinishScalingCapturedImage:(FastttCapturedImage *)capturedImage
 {
     [self scalePhotoBenchmarkTestIteration];
 }
 
-- (void)cameraController:(FastttCamera *)cameraController didFinishNormalizingCapturedImage:(FastttCapturedImage *)capturedImage
+- (void)cameraController:(id <FastttCameraInterface>)cameraController didFinishNormalizingCapturedImage:(FastttCapturedImage *)capturedImage
 {
     [self normalizePhotoBenchmarkTestIteration];
     
