@@ -145,9 +145,9 @@ Use `FastttCamera`'s delegate methods to retrieve the captured image object afte
 
 ## Lookup Filters
 
-Lookup Filters are a clever feature of [`GPUImage`](https://github.com/BradLarson/GPUImage) that makes creating beautiful filters as easy as editing a photo. Using your favorite photo editing application, you create whatever effect you want using actions or layers, and test it out on photos until you like the look. If you use Photoshop, check out [this example lookup filter image creation file](https://github.com/IFTTT/FastttCamera/blob/master/Docs/example-lookup-image-creation.psd).
+Lookup Filters are a clever feature of [`GPUImage`](https://github.com/BradLarson/GPUImage) that makes creating beautiful filters as easy as editing a photo. Using your favorite photo editing application, you create whatever effect you want using actions or layers, and test it out on photos until you like the look. If you use Photoshop, check out [this example lookup filter image creation file](https://github.com/IFTTT/FastttCamera/raw/master/Docs/example-lookup-image-creation.psd).
 
-When you're ready, you take a [special png image](https://github.com/IFTTT/FastttCamera/blob/master/Docs/lookup.png) that has one pixel for each possible color value, and apply your desired effects to it. The Lookup Filter then filters each pixel of a photo by looking at the pixel location in your lookup image that corresponds to the color in the photo, and replacing it with the color it finds in the lookup image.
+When you're ready, you take a [special png image](https://raw.githubusercontent.com/IFTTT/FastttCamera/master/Docs/lookup.png) that has one pixel for each possible color value, and apply your desired effects to it. The Lookup Filter then filters each pixel of a photo by looking at the pixel location in your lookup image that corresponds to the color in the photo, and replacing it with the color it finds in the lookup image.
 
 It's super fast because it doesn't need to do any on-the-fly calculations such as adjusting contrast or brightness, it just looks up the pre-calculated replacement color, so you can do more complex effects without slowing down your app. Pretty cool stuff!
 
@@ -224,7 +224,7 @@ Remember to apply each filter to the original `UIImage` if you let users switch 
 
 To run the filters example project, clone the repo, and run `pod install` from the `FiltersExample` directory.
 
-You can see a few examples of different lookup images used for filtering in the `Images.xcassets` directory. [Remember](#lookup-filters), to make your own custom lookup filters, start with [this unfiltered lookup image](https://github.com/IFTTT/FastttCamera/blob/master/Docs/lookup.png), and remember to save it as an uncompressed 512 x 512 png image in your project when you're done applying any desired effects.
+You can see a few examples of different lookup images used for filtering in the `Images.xcassets` directory. [Remember](#lookup-filters), to make your own custom lookup filters, start with [this unfiltered lookup image](https://raw.githubusercontent.com/IFTTT/FastttCamera/master/Docs/lookup.png), and remember to save it as an uncompressed 512 x 512 png image in your project when you're done applying any desired effects.
 
 ## Contributors
 
