@@ -40,13 +40,9 @@
         
     _fastCamera = [FastttCamera new];
     self.fastCamera.delegate = self;
+    self.fastCamera.maxScaledDimension = 600.f;
     
-    [self.fastCamera willMoveToParentViewController:self];
-    [self.fastCamera beginAppearanceTransition:YES animated:NO];
-    [self addChildViewController:self.fastCamera];
-    [self.view addSubview:self.fastCamera.view];
-    [self.fastCamera didMoveToParentViewController:self];
-    [self.fastCamera endAppearanceTransition];
+    [self fastttAddChildViewController:self.fastCamera];
     
     [self.fastCamera.view mas_makeConstraints:^(MASConstraintMaker *make) {
         make.center.equalTo(self.view);
@@ -101,7 +97,6 @@
         make.top.equalTo(self.view).offset(20.f);
         make.right.equalTo(self.view).offset(-20.f);
     }];
-    
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -134,7 +129,7 @@
             flashTitle = @"Flash On";
             break;
     }
-    if ([FastttCamera isFlashAvailableForCameraDevice:self.fastCamera.cameraDevice]) {
+    if ([self.fastCamera isFlashAvailableForCurrentDevice]) {
         [self.fastCamera setCameraFlashMode:flashMode];
         [self.flashButton setTitle:flashTitle forState:UIControlStateNormal];
     }
@@ -161,7 +156,7 @@
 
 #pragma mark - IFTTTFastttCameraDelegate
 
-- (void)cameraController:(FastttCamera *)cameraController didFinishCapturingImage:(FastttCapturedImage *)capturedImage
+- (void)cameraController:(id<FastttCameraInterface>)cameraController didFinishCapturingImage:(FastttCapturedImage *)capturedImage
 {
     NSLog(@"A photo was taken");
     
@@ -174,7 +169,7 @@
     flashView.alpha = 0.f;
     [self.view addSubview:flashView];
     [flashView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.edges.equalTo(self.view);
+        make.edges.equalTo(self.fastCamera.view);
     }];
     
     [UIView animateWithDuration:0.15f
@@ -185,12 +180,8 @@
                      }
                      completion:^(BOOL finished) {
                          
-                         [self.confirmController willMoveToParentViewController:self];
-                         [self.confirmController beginAppearanceTransition:YES animated:NO];
-                         [self addChildViewController:self.confirmController];
-                         [self.view insertSubview:self.confirmController.view belowSubview:flashView];
-                         [self.confirmController didMoveToParentViewController:self];
-                         [self.confirmController endAppearanceTransition];
+                         [self fastttAddChildViewController:self.confirmController belowSubview:flashView];
+                         
                          [self.confirmController.view mas_makeConstraints:^(MASConstraintMaker *make) {
                              make.edges.equalTo(self.view);
                          }];
@@ -209,7 +200,7 @@
 
 }
 
-- (void)cameraController:(FastttCamera *)cameraController didFinishNormalizingCapturedImage:(FastttCapturedImage *)capturedImage
+- (void)cameraController:(id<FastttCameraInterface>)cameraController didFinishNormalizingCapturedImage:(FastttCapturedImage *)capturedImage
 {
     NSLog(@"Photos are ready");
     
@@ -220,12 +211,9 @@
 
 - (void)dismissConfirmController:(ConfirmViewController *)controller
 {
-    [controller willMoveToParentViewController:nil];
-    [controller beginAppearanceTransition:NO animated:NO];
-    [controller.view removeFromSuperview];
-    [controller removeFromParentViewController];
-    [controller didMoveToParentViewController:nil];
-    [controller endAppearanceTransition];
+    [self fastttRemoveChildViewController:controller];
+    
+    self.confirmController = nil;
 }
 
 @end

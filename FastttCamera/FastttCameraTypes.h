@@ -1,0 +1,18 @@
+//
+//  FastttCameraTypes.h
+//  FastttCamera
+//
+//  Created by Laura Skelton on 3/2/15.
+//
+//
+
+typedef NS_ENUM(NSInteger, FastttCameraDevice) {
+    FastttCameraDeviceFront,
+    FastttCameraDeviceRear
+};
+
+typedef NS_ENUM(NSInteger, FastttCameraFlashMode) {
+    FastttCameraFlashModeOff,
+    FastttCameraFlashModeOn,
+    FastttCameraFlashModeAuto
+};

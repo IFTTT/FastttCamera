@@ -8,6 +8,9 @@
 
 @import UIKit;
 
+/**
+ *  Private category used by FastttCamera for managing the device's actual orientation.
+ */
 @interface IFTTTDeviceOrientation : NSObject
 
 /**
