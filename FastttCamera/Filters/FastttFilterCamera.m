@@ -182,7 +182,7 @@
 
 + (BOOL)isCameraDeviceAvailable:(FastttCameraDevice)cameraDevice
 {
-    return ([AVCaptureDevice cameraDevice:cameraDevice]);
+    return ([AVCaptureDevice cameraDevice:cameraDevice] != nil);
 }
 
 - (void)setCameraDevice:(FastttCameraDevice)cameraDevice
