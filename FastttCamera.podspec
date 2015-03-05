@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name             = "FastttCamera"
   s.version          = "0.2.0"
-  s.summary          = "A fast, straightforward implementation of AVFoundation camera."
+  s.summary          = "A fast, straightforward implementation of AVFoundation camera with customizable real-time photo filters."
   s.homepage         = "https://github.com/IFTTT/FastttCamera"
   s.license          = 'MIT'
   s.author           = { 
