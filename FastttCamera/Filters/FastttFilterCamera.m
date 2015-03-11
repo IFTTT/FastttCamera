@@ -55,6 +55,15 @@
         _normalizesImageOrientations = YES;
         _returnsRotatedPreview = YES;
         _interfaceRotatesWithOrientation = YES;
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(applicationDidBecomeActive:)
+                                                     name:UIApplicationDidBecomeActiveNotification
+                                                   object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(applicationWillResignActive:)
+                                                     name:UIApplicationWillResignActiveNotification
+                                                   object:nil];
     }
     
     return self;
@@ -72,8 +81,12 @@
 - (void)dealloc
 {
     _fastFocus = nil;
+    
+    _fastFilter = nil;
 
     [self _teardownCaptureSession];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 #pragma mark - View Events
@@ -98,6 +111,8 @@
     
     [self _startRunning];
     
+    [self _insertPreviewLayer];
+    
     [self _setPreviewVideoOrientation];
 }
 
@@ -112,6 +127,24 @@
 {
     [super viewDidLayoutSubviews];
     _previewView.frame = self.view.bounds;
+}
+
+- (void)applicationDidBecomeActive:(NSNotification *)notification
+{
+    [self _setupCaptureSession];
+    
+    [self _insertPreviewLayer];
+    
+    if (self.isViewLoaded && self.view.window) {
+        [self _startRunning];
+    }
+    
+    [self _setPreviewVideoOrientation];
+}
+
+- (void)applicationWillResignActive:(NSNotification *)notification
+{
+    [self _teardownCaptureSession];
 }
 
 #pragma mark - Autorotation
@@ -247,6 +280,12 @@
 
 - (void)_insertPreviewLayer
 {
+    if (([_previewView superview] == self.view)
+        && [_stillCamera.targets containsObject:self.fastFilter.filter]
+        && [self.fastFilter.filter.targets containsObject:_previewView]) {
+        return;
+    }
+    
     if (!_previewView) {
         _previewView = [[GPUImageView alloc] init];
         [self.view addSubview:_previewView];
@@ -272,17 +311,34 @@
 
 - (void)_setupCaptureSession
 {
-    _stillCamera = [[GPUImageStillCamera alloc] init];
+    if (_stillCamera) {
+        return;
+    }
+    
+    AVCaptureDevicePosition position = AVCaptureDevicePositionFront;
+    
+    if ([AVCaptureDevice cameraDevice:FastttCameraDeviceRear]) {
+        position = AVCaptureDevicePositionBack;
+    }
+    _stillCamera = [[GPUImageStillCamera alloc] initWithSessionPreset:AVCaptureSessionPresetPhoto cameraPosition:position];
     _stillCamera.outputImageOrientation = UIInterfaceOrientationPortrait;
     _stillCamera.horizontallyMirrorFrontFacingCamera = YES;
     
-    [self setCameraDevice:FastttCameraDeviceRear];
+    if ([AVCaptureDevice cameraDevice:FastttCameraDeviceRear]) {
+        [self setCameraDevice:FastttCameraDeviceRear];
+    } else {
+        [self setCameraDevice:FastttCameraDeviceFront];
+    }
     
     _deviceOrientation = [IFTTTDeviceOrientation new];
 }
 
 - (void)_teardownCaptureSession
 {
+    if (!_stillCamera) {
+        return;
+    }
+    
     _deviceOrientation = nil;
     
     [_stillCamera stopCameraCapture];
@@ -290,8 +346,6 @@
     [_stillCamera removeInputsAndOutputs];
     
     [self _removePreviewLayer];
-    
-    self.fastFilter = nil;
     
     _stillCamera = nil;
 }
