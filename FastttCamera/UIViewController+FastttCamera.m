@@ -17,7 +17,6 @@
 
 - (void)fastttAddChildViewController:(UIViewController *)childViewController belowSubview:(UIView *)siblingSubview
 {
-    [childViewController willMoveToParentViewController:self];
     [childViewController beginAppearanceTransition:YES animated:NO];
     [self addChildViewController:childViewController];
     if (siblingSubview && [self.view.subviews containsObject:siblingSubview]) {
@@ -35,7 +34,6 @@
     [childViewController beginAppearanceTransition:NO animated:NO];
     [childViewController.view removeFromSuperview];
     [childViewController removeFromParentViewController];
-    [childViewController didMoveToParentViewController:nil];
     [childViewController endAppearanceTransition];
 }
 

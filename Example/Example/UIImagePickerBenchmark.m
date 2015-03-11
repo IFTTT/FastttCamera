@@ -159,16 +159,16 @@ NSInteger const kIFTTTImagePickerBenchmarkTestIterations = 20;
 
 - (void)finishBenchmarkTest
 {
-    CGFloat averageTakePhotoTime = self.totalTakePhotoTime / kIFTTTImagePickerBenchmarkTestIterations;
+    CGFloat averageTakePhotoTime = (CGFloat)(self.totalTakePhotoTime / kIFTTTImagePickerBenchmarkTestIterations);
     NSLog(@"Average Run Time for UIImagePickerController Take Photo: %@", @(averageTakePhotoTime));
     
-    CGFloat averageRenderPhotoTime = self.totalTimeToRender / kIFTTTImagePickerBenchmarkTestIterations;
+    CGFloat averageRenderPhotoTime = (CGFloat)(self.totalTimeToRender / kIFTTTImagePickerBenchmarkTestIterations);
     NSLog(@"Average Run Time for UIImagePickerController Render Photo: %@", @(averageRenderPhotoTime));
     
-    CGFloat averageCropPhotoTime = self.totalCropPhotoTime / kIFTTTImagePickerBenchmarkTestIterations;
+    CGFloat averageCropPhotoTime = (CGFloat)(self.totalCropPhotoTime / kIFTTTImagePickerBenchmarkTestIterations);
     NSLog(@"Average Run Time for UIImagePickerController Crop Photo: %@", @(averageCropPhotoTime));
     
-    CGFloat averageScalePhotoTime = self.totalScalePhotoTime / kIFTTTImagePickerBenchmarkTestIterations;
+    CGFloat averageScalePhotoTime = (CGFloat)(self.totalScalePhotoTime / kIFTTTImagePickerBenchmarkTestIterations);
     NSLog(@"Average Run Time for UIImagePickerController Scale Photo: %@", @(averageScalePhotoTime));
     
     self.averageTimeLabel.text = [NSString stringWithFormat: @"Average Time: %@", @(averageScalePhotoTime)];

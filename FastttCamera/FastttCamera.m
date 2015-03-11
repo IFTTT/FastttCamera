@@ -53,6 +53,15 @@
         _normalizesImageOrientations = YES;
         _returnsRotatedPreview = YES;
         _interfaceRotatesWithOrientation = YES;
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(applicationDidBecomeActive:)
+                                                     name:UIApplicationDidBecomeActiveNotification
+                                                   object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(applicationWillResignActive:)
+                                                     name:UIApplicationWillResignActiveNotification
+                                                   object:nil];
     }
     
     return self;
@@ -63,6 +72,8 @@
     _fastFocus = nil;
     
     [self _teardownCaptureSession];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 #pragma mark - View Events
@@ -87,6 +98,8 @@
     
     [self _startRunning];
     
+    [self _insertPreviewLayer];
+    
     [self _setPreviewVideoOrientation];
 }
 
@@ -101,6 +114,24 @@
 {
     [super viewDidLayoutSubviews];
     _previewLayer.frame = self.view.layer.bounds;
+}
+
+- (void)applicationDidBecomeActive:(NSNotification *)notification
+{
+    [self _setupCaptureSession];
+    
+    [self _insertPreviewLayer];
+    
+    if (self.isViewLoaded && self.view.window) {
+        [self _startRunning];
+    }
+    
+    [self _setPreviewVideoOrientation];
+}
+
+- (void)applicationWillResignActive:(NSNotification *)notification
+{
+    [self _teardownCaptureSession];
 }
 
 #pragma mark - Autorotation
@@ -212,22 +243,30 @@
 
 - (void)_startRunning
 {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    if (![_session isRunning]) {
         [_session startRunning];
-    });
+    }
 }
 
 - (void)_stopRunning
 {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    if ([_session isRunning]) {
         [_session stopRunning];
-    });
+    }
 }
 
 - (void)_insertPreviewLayer
 {
+    if ([_previewLayer superlayer] == [self.view layer]
+        && [_previewLayer session] == _session) {
+        return;
+    }
+    
+    [self _removePreviewLayer];
+    
     CALayer *rootLayer = [self.view layer];
     rootLayer.masksToBounds = YES;
+    
     _previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:_session];
     _previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
     
@@ -244,6 +283,10 @@
 
 - (void)_setupCaptureSession
 {
+    if (_session) {
+        return;
+    }
+    
     _session = [AVCaptureSession new];
     _session.sessionPreset = AVCaptureSessionPresetPhoto;
     
@@ -289,6 +332,10 @@
 
 - (void)_teardownCaptureSession
 {
+    if (!_session) {
+        return;
+    }
+    
     _deviceOrientation = nil;
     
     if ([_session isRunning]) {

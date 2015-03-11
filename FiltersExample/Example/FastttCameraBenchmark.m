@@ -157,16 +157,16 @@ NSInteger const kIFTTTFastttBenchmarkTestIterations = 20;
 
 - (void)finishBenchmarkTest
 {
-    CGFloat averageCropPhotoTime = self.totalCropPhotoTime / self.cropCounter;
+    CGFloat averageCropPhotoTime = (CGFloat)(self.totalCropPhotoTime / self.cropCounter);
     NSLog(@"Average Run Time for FastttCamera Crop Photo: %@", @(averageCropPhotoTime));
     
-    CGFloat averageRenderPhotoTime = self.totalTimeToRender / self.renderCounter;
+    CGFloat averageRenderPhotoTime = (CGFloat)(self.totalTimeToRender / self.renderCounter);
     NSLog(@"Average Run Time for FastttCamera Render Photo: %@", @(averageRenderPhotoTime));
     
-    CGFloat averageScalePhotoTime = self.totalScalePhotoTime / self.scaleCounter;
+    CGFloat averageScalePhotoTime = (CGFloat)(self.totalScalePhotoTime / self.scaleCounter);
     NSLog(@"Average Run Time for FastttCamera Scale Photo: %@", @(averageScalePhotoTime));
     
-    CGFloat averageNormalizePhotoTime = self.totalTimeToNormalize / self.normalizeCounter;
+    CGFloat averageNormalizePhotoTime = (CGFloat)(self.totalTimeToNormalize / self.normalizeCounter);
     NSLog(@"Average Run Time for FastttCamera Normalize Photo: %@", @(averageNormalizePhotoTime));
     
     self.averageTimeLabel.text = [NSString stringWithFormat: @"Average Time: %@", @(averageNormalizePhotoTime)];

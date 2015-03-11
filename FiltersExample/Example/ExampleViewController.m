@@ -48,16 +48,12 @@
     
     [self fastttAddChildViewController:self.fastCamera];
     
-//    [self.fastCamera.view mas_makeConstraints:^(MASConstraintMaker *make) {
-//        make.center.equalTo(self.view);
-//        make.height.and.width.lessThanOrEqualTo(self.view.mas_width).with.priorityHigh();
-//        make.height.and.width.lessThanOrEqualTo(self.view.mas_height).with.priorityHigh();
-//        make.height.and.width.equalTo(self.view.mas_width).with.priorityLow();
-//        make.height.and.width.equalTo(self.view.mas_height).with.priorityLow();
-//    }];
-
     [self.fastCamera.view mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.edges.equalTo(self.view);
+        make.center.equalTo(self.view);
+        make.height.and.width.lessThanOrEqualTo(self.view.mas_width).with.priorityHigh();
+        make.height.and.width.lessThanOrEqualTo(self.view.mas_height).with.priorityHigh();
+        make.height.and.width.equalTo(self.view.mas_width).with.priorityLow();
+        make.height.and.width.equalTo(self.view.mas_height).with.priorityLow();
     }];
     
     _takePhotoButton = [UIButton new];
