@@ -24,6 +24,7 @@
 @property (nonatomic, strong) GPUImageStillCamera *stillCamera;
 @property (nonatomic, strong) FastttFilter *fastFilter;
 @property (nonatomic, strong) GPUImageView *previewView;
+@property (nonatomic, assign) BOOL deviceAuthorized;
 
 @end
 
@@ -163,6 +164,10 @@
 
 - (void)takePicture
 {
+    if (!_deviceAuthorized) {
+        return;
+    }
+    
     [self _takePhoto];
 }
 
@@ -280,6 +285,10 @@
 
 - (void)_insertPreviewLayer
 {
+    if (!_deviceAuthorized) {
+        return;
+    }
+    
     if (([_previewView superview] == self.view)
         && [_stillCamera.targets containsObject:self.fastFilter.filter]
         && [self.fastFilter.filter.targets containsObject:_previewView]) {
@@ -315,22 +324,46 @@
         return;
     }
     
-    AVCaptureDevicePosition position = AVCaptureDevicePositionFront;
+#if !TARGET_IPHONE_SIMULATOR
+    [self _checkDeviceAuthorizationWithCompletion:^(BOOL isAuthorized) {
+        
+        _deviceAuthorized = isAuthorized;
+#else
+        _deviceAuthorized = YES;
+#endif
+        
+        if (!_deviceAuthorized && [self.delegate respondsToSelector:@selector(userDeniedCameraPermissionsForCameraController:)]) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.delegate userDeniedCameraPermissionsForCameraController:self];
+            });
+        }
+        
+        if (_deviceAuthorized) {
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
     
-    if ([AVCaptureDevice cameraDevice:FastttCameraDeviceRear]) {
-        position = AVCaptureDevicePositionBack;
-    }
-    _stillCamera = [[GPUImageStillCamera alloc] initWithSessionPreset:AVCaptureSessionPresetPhoto cameraPosition:position];
-    _stillCamera.outputImageOrientation = UIInterfaceOrientationPortrait;
-    _stillCamera.horizontallyMirrorFrontFacingCamera = YES;
-    
-    if ([AVCaptureDevice cameraDevice:FastttCameraDeviceRear]) {
-        [self setCameraDevice:FastttCameraDeviceRear];
-    } else {
-        [self setCameraDevice:FastttCameraDeviceFront];
-    }
-    
-    _deviceOrientation = [IFTTTDeviceOrientation new];
+                AVCaptureDevicePosition position = AVCaptureDevicePositionFront;
+                
+                if ([AVCaptureDevice cameraDevice:FastttCameraDeviceRear]) {
+                    position = AVCaptureDevicePositionBack;
+                }
+                _stillCamera = [[GPUImageStillCamera alloc] initWithSessionPreset:AVCaptureSessionPresetPhoto cameraPosition:position];
+                _stillCamera.outputImageOrientation = UIInterfaceOrientationPortrait;
+                _stillCamera.horizontallyMirrorFrontFacingCamera = YES;
+                
+                if ([AVCaptureDevice cameraDevice:FastttCameraDeviceRear]) {
+                    [self setCameraDevice:FastttCameraDeviceRear];
+                } else {
+                    [self setCameraDevice:FastttCameraDeviceFront];
+                }
+                
+                _deviceOrientation = [IFTTTDeviceOrientation new];
+                
+            });
+        }
+#if !TARGET_IPHONE_SIMULATOR
+    }];
+#endif
 }
 
 - (void)_teardownCaptureSession
@@ -483,6 +516,17 @@
     }
     
     return UIImageOrientationUp;
+}
+
+#pragma mark - Camera Permissions
+
+- (void)_checkDeviceAuthorizationWithCompletion:(void (^)(BOOL isAuthorized))completion
+{
+    [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
+        if (completion) {
+            completion(granted);
+        }
+    }];
 }
 
 #pragma mark - FastttCameraDevice

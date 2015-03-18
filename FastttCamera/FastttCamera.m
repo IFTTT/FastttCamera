@@ -22,6 +22,7 @@
 @property (nonatomic, strong) AVCaptureSession *session;
 @property (nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
 @property (nonatomic, strong) AVCaptureStillImageOutput *stillImageOutput;
+@property (nonatomic, assign) BOOL deviceAuthorized;
 
 @end
 
@@ -150,6 +151,10 @@
 
 - (void)takePicture
 {
+    if (!_deviceAuthorized) {
+        return;
+    }
+    
     [self _takePhoto];
 }
 
@@ -257,6 +262,10 @@
 
 - (void)_insertPreviewLayer
 {
+    if (!_deviceAuthorized) {
+        return;
+    }
+    
     if ([_previewLayer superlayer] == [self.view layer]
         && [_previewLayer session] == _session) {
         return;
@@ -287,47 +296,69 @@
         return;
     }
     
-    _session = [AVCaptureSession new];
-    _session.sessionPreset = AVCaptureSessionPresetPhoto;
-    
-    AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
-    
-    if ([device lockForConfiguration:nil]) {
-        if([device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]){
-            device.focusMode = AVCaptureFocusModeContinuousAutoFocus;
+#if !TARGET_IPHONE_SIMULATOR
+    [self _checkDeviceAuthorizationWithCompletion:^(BOOL isAuthorized) {
+        
+        _deviceAuthorized = isAuthorized;
+#else
+        _deviceAuthorized = YES;
+#endif
+        if (!_deviceAuthorized && [self.delegate respondsToSelector:@selector(userDeniedCameraPermissionsForCameraController:)]) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.delegate userDeniedCameraPermissionsForCameraController:self];
+            });
         }
         
-        device.exposureMode = AVCaptureExposureModeContinuousAutoExposure;
-        
-        [device unlockForConfiguration];
-    }
+        if (_deviceAuthorized) {
+
+            dispatch_async(dispatch_get_main_queue(), ^{
+            
+                _session = [AVCaptureSession new];
+                _session.sessionPreset = AVCaptureSessionPresetPhoto;
+                
+                AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+                
+                if ([device lockForConfiguration:nil]) {
+                    if([device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]){
+                        device.focusMode = AVCaptureFocusModeContinuousAutoFocus;
+                    }
+                    
+                    device.exposureMode = AVCaptureExposureModeContinuousAutoExposure;
+                    
+                    [device unlockForConfiguration];
+                }
     
 #if !TARGET_IPHONE_SIMULATOR
-    AVCaptureDeviceInput *deviceInput = [AVCaptureDeviceInput deviceInputWithDevice:device error:nil];
-    [_session addInput:deviceInput];
-    
-    switch (device.position) {
-        case AVCaptureDevicePositionBack:
-            _cameraDevice = FastttCameraDeviceRear;
-            break;
-            
-        case AVCaptureDevicePositionFront:
-            _cameraDevice = FastttCameraDeviceFront;
-            break;
-            
-        default:
-            break;
-    }
+                AVCaptureDeviceInput *deviceInput = [AVCaptureDeviceInput deviceInputWithDevice:device error:nil];
+                [_session addInput:deviceInput];
+                
+                switch (device.position) {
+                    case AVCaptureDevicePositionBack:
+                        _cameraDevice = FastttCameraDeviceRear;
+                        break;
+                        
+                    case AVCaptureDevicePositionFront:
+                        _cameraDevice = FastttCameraDeviceFront;
+                        break;
+                        
+                    default:
+                        break;
+                }
 #endif
     
-    NSDictionary *outputSettings = @{AVVideoCodecKey:AVVideoCodecJPEG};
-    
-    _stillImageOutput = [AVCaptureStillImageOutput new];
-    _stillImageOutput.outputSettings = outputSettings;
-    
-    [_session addOutput:_stillImageOutput];
-    
-    _deviceOrientation = [IFTTTDeviceOrientation new];
+                NSDictionary *outputSettings = @{AVVideoCodecKey:AVVideoCodecJPEG};
+                
+                _stillImageOutput = [AVCaptureStillImageOutput new];
+                _stillImageOutput.outputSettings = outputSettings;
+                
+                [_session addOutput:_stillImageOutput];
+                
+                _deviceOrientation = [IFTTTDeviceOrientation new];
+            });
+        }
+#if !TARGET_IPHONE_SIMULATOR
+    }];
+#endif
 }
 
 - (void)_teardownCaptureSession
@@ -507,6 +538,17 @@
     }
     
     return AVCaptureVideoOrientationPortrait;
+}
+
+#pragma mark - Camera Permissions
+
+- (void)_checkDeviceAuthorizationWithCompletion:(void (^)(BOOL isAuthorized))completion
+{
+    [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
+        if (completion) {
+            completion(granted);
+        }
+    }];
 }
 
 #pragma mark - FastttCameraDevice
