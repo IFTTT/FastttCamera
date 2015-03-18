@@ -237,4 +237,17 @@
  */
 - (void)cameraController:(id<FastttCameraInterface>)cameraController didFinishNormalizingCapturedImage:(FastttCapturedImage *)capturedImage;
 
+/**
+ *  Called when the camera controller asks for permission to access the user's camera and is denied.
+ *
+ *  @param cameraController The FastttCamera instance.
+ *
+ *  @note Use this optional method to handle gracefully the case where the user has denied camera access, either disabling the camera
+ *  if not necessary or redirecting the user to your app's Settings page where they can enable the camera permissions. Remember that iOS
+ *  will only show the user an alert requesting permission in-app one time. If the user denies permission, they must change this setting
+ *  in the app's permissions page within the Settings App. This method will be called every time the app launches or becomes active and
+ *  finds that permission to access the camera has not been granted.
+ */
+- (void)userDeniedCameraPermissionsForCameraController:(id<FastttCameraInterface>)cameraController;
+
 @end
