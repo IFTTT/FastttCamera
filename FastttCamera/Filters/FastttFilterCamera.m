@@ -134,12 +134,6 @@
 {
     [self _setupCaptureSession];
     
-    [self _insertPreviewLayer];
-    
-    if (self.isViewLoaded && self.view.window) {
-        [self _startRunning];
-    }
-    
     [self _setPreviewVideoOrientation];
 }
 
@@ -331,6 +325,9 @@
 #else
         _deviceAuthorized = YES;
 #endif
+        if (_stillCamera) {
+            return;
+        }
         
         if (!_deviceAuthorized && [self.delegate respondsToSelector:@selector(userDeniedCameraPermissionsForCameraController:)]) {
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -342,6 +339,10 @@
             
             dispatch_async(dispatch_get_main_queue(), ^{
     
+                if (_stillCamera) {
+                    return;
+                }
+                
                 AVCaptureDevicePosition position = AVCaptureDevicePositionFront;
                 
                 if ([AVCaptureDevice cameraDevice:FastttCameraDeviceRear]) {
@@ -358,6 +359,12 @@
                 }
                 
                 _deviceOrientation = [IFTTTDeviceOrientation new];
+               
+                if (self.isViewLoaded && self.view.window) {
+                    [self _insertPreviewLayer];
+                    [self _startRunning];
+                    [self _setPreviewVideoOrientation];
+                }
                 
             });
         }
