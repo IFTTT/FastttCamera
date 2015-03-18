@@ -120,14 +120,6 @@
 - (void)applicationDidBecomeActive:(NSNotification *)notification
 {
     [self _setupCaptureSession];
-    
-    [self _insertPreviewLayer];
-    
-    if (self.isViewLoaded && self.view.window) {
-        [self _startRunning];
-    }
-    
-    [self _setPreviewVideoOrientation];
 }
 
 - (void)applicationWillResignActive:(NSNotification *)notification
@@ -310,9 +302,9 @@
         }
         
         if (_deviceAuthorized) {
-
-            dispatch_async(dispatch_get_main_queue(), ^{
             
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
                 _session = [AVCaptureSession new];
                 _session.sessionPreset = AVCaptureSessionPresetPhoto;
                 
@@ -327,7 +319,7 @@
                     
                     [device unlockForConfiguration];
                 }
-    
+                
 #if !TARGET_IPHONE_SIMULATOR
                 AVCaptureDeviceInput *deviceInput = [AVCaptureDeviceInput deviceInputWithDevice:device error:nil];
                 [_session addInput:deviceInput];
@@ -345,7 +337,7 @@
                         break;
                 }
 #endif
-    
+                
                 NSDictionary *outputSettings = @{AVVideoCodecKey:AVVideoCodecJPEG};
                 
                 _stillImageOutput = [AVCaptureStillImageOutput new];
@@ -354,6 +346,12 @@
                 [_session addOutput:_stillImageOutput];
                 
                 _deviceOrientation = [IFTTTDeviceOrientation new];
+                
+                if (self.isViewLoaded && self.view.window) {
+                    [self _startRunning];
+                    [self _insertPreviewLayer];
+                    [self _setPreviewVideoOrientation];
+                }
             });
         }
 #if !TARGET_IPHONE_SIMULATOR
@@ -575,7 +573,7 @@
     if ([AVCaptureDevice isPointFocusAvailableForCameraDevice:self.cameraDevice]) {
         
         CGPoint pointOfInterest = [self _focusPointOfInterestForTouchPoint:touchPoint];
-
+        
         return ([self _focusAtPointOfInterest:pointOfInterest] && self.showsFocusView);
     }
     
