@@ -256,11 +256,12 @@
 {
     AVCaptureDevice *device = [self _currentCameraDevice];
     
-    if ([device setCameraFlashMode:cameraFlashMode]) {
+    if ([AVCaptureDevice isFlashAvailableForCameraDevice:self.cameraDevice]) {
         _cameraFlashMode = cameraFlashMode;
+        [device setCameraFlashMode:cameraFlashMode];
         return;
     }
-
+    
     _cameraFlashMode = FastttCameraFlashModeOff;
 }
 
