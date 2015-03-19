@@ -58,12 +58,23 @@
         _interfaceRotatesWithOrientation = YES;
         
         [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(applicationWillEnterForeground:)
+                                                     name:UIApplicationWillEnterForegroundNotification
+                                                   object:nil];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(applicationDidBecomeActive:)
                                                      name:UIApplicationDidBecomeActiveNotification
                                                    object:nil];
+        
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(applicationWillResignActive:)
                                                      name:UIApplicationWillResignActiveNotification
+                                                   object:nil];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(applicationDidEnterBackground:)
+                                                     name:UIApplicationDidEnterBackgroundNotification
                                                    object:nil];
     }
     
@@ -130,14 +141,26 @@
     _previewView.frame = self.view.bounds;
 }
 
-- (void)applicationDidBecomeActive:(NSNotification *)notification
+- (void)applicationWillEnterForeground:(NSNotification *)notification
 {
     [self _setupCaptureSession];
-    
-    [self _setPreviewVideoOrientation];
+}
+
+- (void)applicationDidBecomeActive:(NSNotification *)notification
+{
+    if (self.isViewLoaded && self.view.window) {
+        [self _startRunning];
+        [self _insertPreviewLayer];
+        [self _setPreviewVideoOrientation];
+    }
 }
 
 - (void)applicationWillResignActive:(NSNotification *)notification
+{
+    [self _stopRunning];
+}
+
+- (void)applicationDidEnterBackground:(NSNotification *)notification
 {
     [self _teardownCaptureSession];
 }
