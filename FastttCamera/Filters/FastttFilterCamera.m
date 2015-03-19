@@ -56,6 +56,8 @@
         _normalizesImageOrientations = YES;
         _returnsRotatedPreview = YES;
         _interfaceRotatesWithOrientation = YES;
+        _cameraDevice = FastttCameraDeviceRear;
+        _cameraFlashMode = FastttCameraFlashModeOff;
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(applicationWillEnterForeground:)
@@ -256,9 +258,7 @@
         [_stillCamera rotateCamera];
     }
     
-    if (![self isFlashAvailableForCurrentDevice]) {
-        self.cameraFlashMode = FastttCameraFlashModeOff;
-    }
+    [self setCameraFlashMode:_cameraFlashMode];
 }
 
 - (void)setCameraFlashMode:(FastttCameraFlashMode)cameraFlashMode
@@ -267,7 +267,10 @@
     
     if ([device setCameraFlashMode:cameraFlashMode]) {
         _cameraFlashMode = cameraFlashMode;
+        return;
     }
+    
+    _cameraFlashMode = FastttCameraFlashModeOff;
 }
 
 #pragma mark - Filtering
@@ -366,20 +369,32 @@
                     return;
                 }
                 
-                AVCaptureDevicePosition position = AVCaptureDevicePositionFront;
+                AVCaptureDevice *device = [AVCaptureDevice cameraDevice:self.cameraDevice];
                 
-                if ([AVCaptureDevice cameraDevice:FastttCameraDeviceRear]) {
-                    position = AVCaptureDevicePositionBack;
+                if (!device) {
+                    device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
                 }
+                
+                AVCaptureDevicePosition position = [device position];
+                
                 _stillCamera = [[GPUImageStillCamera alloc] initWithSessionPreset:AVCaptureSessionPresetPhoto cameraPosition:position];
                 _stillCamera.outputImageOrientation = UIInterfaceOrientationPortrait;
                 _stillCamera.horizontallyMirrorFrontFacingCamera = YES;
                 
-                if ([AVCaptureDevice cameraDevice:FastttCameraDeviceRear]) {
-                    [self setCameraDevice:FastttCameraDeviceRear];
-                } else {
-                    [self setCameraDevice:FastttCameraDeviceFront];
+                switch (position) {
+                    case AVCaptureDevicePositionBack:
+                        _cameraDevice = FastttCameraDeviceRear;
+                        break;
+                        
+                    case AVCaptureDevicePositionFront:
+                        _cameraDevice = FastttCameraDeviceFront;
+                        break;
+                        
+                    default:
+                        break;
                 }
+                
+                [self setCameraFlashMode:_cameraFlashMode];
                 
                 _deviceOrientation = [IFTTTDeviceOrientation new];
                

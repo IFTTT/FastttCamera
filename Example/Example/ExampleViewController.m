@@ -151,6 +151,9 @@
     }
     if ([FastttCamera isCameraDeviceAvailable:cameraDevice]) {
         [self.fastCamera setCameraDevice:cameraDevice];
+        if (![self.fastCamera isFlashAvailableForCurrentDevice]) {
+            [self.flashButton setTitle:@"Flash Off" forState:UIControlStateNormal];
+        }
     }
 }
 
