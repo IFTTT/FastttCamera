@@ -54,6 +54,8 @@
         _normalizesImageOrientations = YES;
         _returnsRotatedPreview = YES;
         _interfaceRotatesWithOrientation = YES;
+        _cameraDevice = FastttCameraDeviceRear;
+        _cameraFlashMode = FastttCameraFlashModeOff;
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(applicationWillEnterForeground:)
@@ -247,9 +249,7 @@
         [_session commitConfiguration];
     }
     
-    if (![self isFlashAvailableForCurrentDevice]) {
-        self.cameraFlashMode = FastttCameraFlashModeOff;
-    }
+    [self setCameraFlashMode:_cameraFlashMode];
 }
 
 - (void)setCameraFlashMode:(FastttCameraFlashMode)cameraFlashMode
@@ -258,7 +258,10 @@
     
     if ([device setCameraFlashMode:cameraFlashMode]) {
         _cameraFlashMode = cameraFlashMode;
+        return;
     }
+
+    _cameraFlashMode = FastttCameraFlashModeOff;
 }
 
 #pragma mark - Capture Session Management
@@ -333,7 +336,11 @@
                 _session = [AVCaptureSession new];
                 _session.sessionPreset = AVCaptureSessionPresetPhoto;
                 
-                AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+                AVCaptureDevice *device = [AVCaptureDevice cameraDevice:self.cameraDevice];
+                
+                if (!device) {
+                    device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+                }
                 
                 if ([device lockForConfiguration:nil]) {
                     if([device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]){
@@ -361,6 +368,8 @@
                     default:
                         break;
                 }
+                
+                [self setCameraFlashMode:_cameraFlashMode];
 #endif
                 
                 NSDictionary *outputSettings = @{AVVideoCodecKey:AVVideoCodecJPEG};
