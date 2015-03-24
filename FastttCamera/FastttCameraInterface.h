@@ -18,8 +18,7 @@
 /**
  *  The delegate of the FastttCamera instance.
  */
-@property (nonatomic, weak) id <FastttCameraDelegate> delegate;
-
+@property(nonatomic, weak) id<FastttCameraDelegate> delegate;
 
 #pragma mark - Advanced Configuration Options
 
@@ -28,13 +27,13 @@
  *  FastttCamera to manage tap-to-focus with its internal tap gesture recognizer.
  *  You can still send it manual focusAtPoint: calls from your own gesture recognizer.
  */
-@property (nonatomic, assign) BOOL handlesTapFocus;
+@property(nonatomic, assign) BOOL handlesTapFocus;
 
 /**
  *  Default is YES. Set this to NO if you don't want the focus square to show when
  *  the camera is focusing at a point.
  */
-@property (nonatomic, assign) BOOL showsFocusView;
+@property(nonatomic, assign) BOOL showsFocusView;
 
 /**
  *  Defaults to YES. Set this to NO if you want FastttCamera to return the full image
@@ -44,7 +43,7 @@
  *  cameraController:didFinishNormalizingCapturedImage: is the only other method that will
  *  be called, and only if normalizesImageOrientations == YES.
  */
-@property (nonatomic, assign) BOOL cropsImageToVisibleAspectRatio;
+@property(nonatomic, assign) BOOL cropsImageToVisibleAspectRatio;
 
 /**
  *  Defaults to YES. Set this to NO if you don't want FastttCamera to return a scaled version of the
@@ -52,14 +51,14 @@
  *  FastttCapturedImage object, and will trigger the cameraController:didFinishScalingCapturedImage:
  *  delegate method when it is available.
  */
-@property (nonatomic, assign) BOOL scalesImage;
+@property(nonatomic, assign) BOOL scalesImage;
 
 /**
  *  Defaults to scaling the cropped image to fit within the size of the camera preview. If you'd like to
  *  set an explicit max dimension for scaling the image, set it here. This can be useful if you have specific
  *  requirements for uploading the image.
  */
-@property (nonatomic, assign) CGFloat maxScaledDimension;
+@property(nonatomic, assign) CGFloat maxScaledDimension;
 
 /**
  *  Defaults to YES. Set this to NO if you would like to only use the images initially returned by FastttCamera
@@ -68,32 +67,31 @@
  *  processing in the background, and the cameraController:didFinishNormalizingCapturedImage: delegate method will
  *  notify you that they are ready.
  */
-@property (nonatomic, assign) BOOL normalizesImageOrientations;
+@property(nonatomic, assign) BOOL normalizesImageOrientations;
 
 /**
  *  Defaults to YES. Set this to NO if you don't want to display the captured image preview to the user in the same orientation
  *  that it was captured, or if you are already rotating your interface to account for this.
  */
-@property (nonatomic, assign) BOOL returnsRotatedPreview;
+@property(nonatomic, assign) BOOL returnsRotatedPreview;
 
 /**
  *  Defaults to YES. Set this to NO if your interface does not autorotate with device orientation to make sure that preview
  *  images are still displayed correctly when orientation lock is off but your interface stays in portrait.
  */
-@property (nonatomic, assign) BOOL interfaceRotatesWithOrientation;
-
+@property(nonatomic, assign) BOOL interfaceRotatesWithOrientation;
 
 #pragma mark - Camera State
 
 /**
  *  The current camera device.
  */
-@property (nonatomic, assign) FastttCameraDevice cameraDevice;
+@property(nonatomic, assign) FastttCameraDevice cameraDevice;
 
 /**
  *  The current flash mode.
  */
-@property (nonatomic, assign) FastttCameraFlashMode cameraFlashMode;
+@property(nonatomic, assign) FastttCameraFlashMode cameraFlashMode;
 
 /**
  *  Check if flash is available for the current camera device.
@@ -136,7 +134,6 @@
  */
 - (void)focusAtPoint:(CGPoint)touchPoint;
 
-
 #pragma mark - Take a picture!
 
 /**
@@ -144,6 +141,10 @@
  */
 - (void)takePicture;
 
+#pragma mark - Take a video!!!!
+
+- (void)startRecordingVideo;
+- (void)stopRecordingVideo;
 
 #pragma mark - Process a photo
 
@@ -184,7 +185,6 @@
 - (void)processImage:(UIImage *)image withCropRect:(CGRect)cropRect maxDimension:(CGFloat)maxDimension;
 
 @end
-
 
 #pragma mark - FastttCameraDelegate
 
