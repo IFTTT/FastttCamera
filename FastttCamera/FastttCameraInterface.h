@@ -81,6 +81,16 @@
  */
 @property(nonatomic, assign) BOOL interfaceRotatesWithOrientation;
 
+/**
+ *  Defaults to YES. If this property is set to YES, the video orientation will match that of the preview video.
+ */
+@property(nonatomic, assign) BOOL normalizesVideoOrientation;
+
+/**
+ *  Defaults to YES. If this property is set to YES, the video's size will crop to that of the preview video.
+ */
+@property(nonatomic, assign) BOOL cropsVideoToVisibleAspectRatio;
+
 #pragma mark - Camera State
 
 /**
@@ -262,8 +272,17 @@
  *
  *  @param cameraController The FastttCamera instance that captured the photo.
  *
- *  @param videoURL Location of video
+ *  @param videoURL Location of the video without the proper cropping and orientation
  */
 - (void)cameraController:(id<FastttCameraInterface>)cameraController didFinishRecordingVideo:(NSURL *)videoURL;
+
+/**
+ *  Called when the camera controller has finished recording video
+ *
+ *  @param cameraController The FastttCamera instance that captured the photo.
+ *
+ *  @param videoURL Location of the video with the proper cropping and orientation
+ */
+- (void)cameraController:(id<FastttCameraInterface>)cameraController didFinishNormalizedCapturedVideo:(NSURL *)videoURL;
 
 @end

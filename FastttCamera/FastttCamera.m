@@ -30,7 +30,8 @@
 @synthesize delegate = _delegate, returnsRotatedPreview = _returnsRotatedPreview, showsFocusView = _showsFocusView, maxScaledDimension = _maxScaledDimension,
             normalizesImageOrientations = _normalizesImageOrientations, cropsImageToVisibleAspectRatio = _cropsImageToVisibleAspectRatio,
             interfaceRotatesWithOrientation = _interfaceRotatesWithOrientation, handlesTapFocus = _handlesTapFocus, scalesImage = _scalesImage,
-            cameraDevice = _cameraDevice, cameraFlashMode = _cameraFlashMode, movieFileOutput = _movieFileOutput;
+            cameraDevice = _cameraDevice, cameraFlashMode = _cameraFlashMode, movieFileOutput = _movieFileOutput,
+            normalizesVideoOrientation = _normalizesVideoOrientation, cropsVideoToVisibleAspectRatio = _cropsVideoToVisibleAspectRatio;
 
 - (instancetype)init {
     if ((self = [super init])) {
@@ -43,6 +44,8 @@
         _scalesImage = YES;
         _maxScaledDimension = 0.f;
         _normalizesImageOrientations = YES;
+        _normalizesVideoOrientation = YES;
+        _cropsVideoToVisibleAspectRatio = YES;
         _returnsRotatedPreview = YES;
         _interfaceRotatesWithOrientation = YES;
         _cameraDevice = FastttCameraDeviceRear;
