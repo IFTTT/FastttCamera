@@ -446,6 +446,29 @@
 
 - (void)startRecordingVideo {
 
+    AVCaptureConnection *videoConnection = nil;
+
+    for (AVCaptureConnection *connection in [_movieFileOutput connections]) {
+        for (AVCaptureInputPort *port in [connection inputPorts]) {
+            if ([[port mediaType] isEqual:AVMediaTypeVideo]) {
+                videoConnection = connection;
+                break;
+            }
+        }
+
+        if (videoConnection) {
+            break;
+        }
+    }
+
+    if ([videoConnection isVideoOrientationSupported]) {
+        [videoConnection setVideoOrientation:[self _currentCaptureVideoOrientationForDevice]];
+    }
+
+    if ([videoConnection isVideoMirroringSupported]) {
+        [videoConnection setVideoMirrored:(_cameraDevice == FastttCameraDeviceFront)];
+    }
+
     NSString *plistPath;
     NSString *rootPath;
     rootPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
