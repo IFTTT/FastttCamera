@@ -13,7 +13,7 @@
 #import "AVCaptureDevice+FastttCamera.h"
 #import "FastttCapturedImage+Process.h"
 
-@interface FastttCamera () <FastttFocusDelegate>
+@interface FastttCamera () <FastttFocusDelegate, AVCaptureFileOutputRecordingDelegate>
 
 @property(nonatomic, strong) IFTTTDeviceOrientation *deviceOrientation;
 @property(nonatomic, strong) FastttFocus *fastFocus;
@@ -449,11 +449,10 @@
     NSString *plistPath;
     NSString *rootPath;
     rootPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
-    plistPath = [rootPath stringByAppendingPathComponent:@"test.mov"];
+    plistPath = [rootPath stringByAppendingPathComponent:@"temp.mov"];
     NSURL *fileURL = [[NSURL alloc] initFileURLWithPath:plistPath];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     if ([fileManager fileExistsAtPath:plistPath]) {
-        // @TODO: REMOVE VIDEO if there's something at that path
         NSError *error;
 
         [fileManager removeItemAtPath:[fileURL absoluteString] error:&error];
@@ -472,7 +471,9 @@
                         fromConnections:(NSArray *)connections
                                   error:(NSError *)error {
 
-    NSLog(@"OUTPUTURL: %@", outputFileURL);
+    if ([self.delegate respondsToSelector:@selector(cameraController:didFinishRecordingVideo:)]) {
+        [self.delegate cameraController:self didFinishRecordingVideo:outputFileURL];
+    }
 }
 
 #pragma mark - Capturing

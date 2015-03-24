@@ -141,9 +141,16 @@
  */
 - (void)takePicture;
 
-#pragma mark - Take a video!!!!
+#pragma mark - Take a video!
 
+/**
+ *  Triggers the camera to start recording a video.
+ */
 - (void)startRecordingVideo;
+
+/**
+ *  Triggers the camera to stop recording a video.
+ */
 - (void)stopRecordingVideo;
 
 #pragma mark - Process a photo
@@ -249,5 +256,14 @@
  *  finds that permission to access the camera has not been granted.
  */
 - (void)userDeniedCameraPermissionsForCameraController:(id<FastttCameraInterface>)cameraController;
+
+/**
+ *  Called when the camera controller has finished recording video
+ *
+ *  @param cameraController The FastttCamera instance that captured the photo.
+ *
+ *  @param videoURL Location of video
+ */
+- (void)cameraController:(id<FastttCameraInterface>)cameraController didFinishRecordingVideo:(NSURL *)videoURL;
 
 @end
