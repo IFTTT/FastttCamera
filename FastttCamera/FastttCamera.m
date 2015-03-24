@@ -296,7 +296,7 @@
             dispatch_async(dispatch_get_main_queue(), ^{
 
                 _session = [AVCaptureSession new];
-                _session.sessionPreset = AVCaptureSessionPresetPhoto;
+                _session.sessionPreset = AVCaptureSessionPresetMedium;
 
                 AVCaptureDevice *device = [AVCaptureDevice cameraDevice:self.cameraDevice];
 
@@ -454,6 +454,9 @@
     NSFileManager *fileManager = [NSFileManager defaultManager];
     if ([fileManager fileExistsAtPath:plistPath]) {
         // @TODO: REMOVE VIDEO if there's something at that path
+        NSError *error;
+
+        [fileManager removeItemAtPath:[fileURL absoluteString] error:&error];
     }
     [_movieFileOutput startRecordingToOutputFileURL:fileURL recordingDelegate:self];
 }
