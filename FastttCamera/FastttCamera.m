@@ -9,43 +9,34 @@
 @import AVFoundation;
 
 #import "FastttCamera.h"
-#import "IFTTTDeviceOrientation.h"
 #import "UIImage+FastttCamera.h"
 #import "AVCaptureDevice+FastttCamera.h"
-#import "FastttFocus.h"
 #import "FastttCapturedImage+Process.h"
 
 @interface FastttCamera () <FastttFocusDelegate>
 
-@property (nonatomic, strong) IFTTTDeviceOrientation *deviceOrientation;
-@property (nonatomic, strong) FastttFocus *fastFocus;
-@property (nonatomic, strong) AVCaptureSession *session;
-@property (nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
-@property (nonatomic, strong) AVCaptureStillImageOutput *stillImageOutput;
-@property (nonatomic, assign) BOOL deviceAuthorized;
+@property(nonatomic, strong) IFTTTDeviceOrientation *deviceOrientation;
+@property(nonatomic, strong) FastttFocus *fastFocus;
+@property(nonatomic, strong) AVCaptureSession *session;
+@property(nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
+@property(nonatomic, strong) AVCaptureStillImageOutput *stillImageOutput;
+@property(nonatomic, retain) AVCaptureMovieFileOutput *movieFileOutput;
+@property(nonatomic, assign) BOOL deviceAuthorized;
 
 @end
 
 @implementation FastttCamera
 
-@synthesize delegate = _delegate,
-            returnsRotatedPreview = _returnsRotatedPreview,
-            showsFocusView = _showsFocusView,
-            maxScaledDimension = _maxScaledDimension,
-            normalizesImageOrientations = _normalizesImageOrientations,
-            cropsImageToVisibleAspectRatio = _cropsImageToVisibleAspectRatio,
-            interfaceRotatesWithOrientation = _interfaceRotatesWithOrientation,
-            handlesTapFocus = _handlesTapFocus,
-            scalesImage = _scalesImage,
-            cameraDevice = _cameraDevice,
-            cameraFlashMode = _cameraFlashMode;
+@synthesize delegate = _delegate, returnsRotatedPreview = _returnsRotatedPreview, showsFocusView = _showsFocusView, maxScaledDimension = _maxScaledDimension,
+            normalizesImageOrientations = _normalizesImageOrientations, cropsImageToVisibleAspectRatio = _cropsImageToVisibleAspectRatio,
+            interfaceRotatesWithOrientation = _interfaceRotatesWithOrientation, handlesTapFocus = _handlesTapFocus, scalesImage = _scalesImage,
+            cameraDevice = _cameraDevice, cameraFlashMode = _cameraFlashMode, movieFileOutput = _movieFileOutput;
 
-- (instancetype)init
-{
+- (instancetype)init {
     if ((self = [super init])) {
-        
+
         [self _setupCaptureSession];
-        
+
         _handlesTapFocus = YES;
         _showsFocusView = YES;
         _cropsImageToVisibleAspectRatio = YES;
@@ -56,87 +47,80 @@
         _interfaceRotatesWithOrientation = YES;
         _cameraDevice = FastttCameraDeviceRear;
         _cameraFlashMode = FastttCameraFlashModeOff;
-        
+
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(applicationWillEnterForeground:)
                                                      name:UIApplicationWillEnterForegroundNotification
                                                    object:nil];
-        
+
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(applicationDidBecomeActive:)
                                                      name:UIApplicationDidBecomeActiveNotification
                                                    object:nil];
-        
+
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(applicationWillResignActive:)
                                                      name:UIApplicationWillResignActiveNotification
                                                    object:nil];
-        
+
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(applicationDidEnterBackground:)
                                                      name:UIApplicationDidEnterBackgroundNotification
                                                    object:nil];
     }
-    
+
     return self;
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     _fastFocus = nil;
-    
+
     [self _teardownCaptureSession];
-    
+
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 #pragma mark - View Events
 
-- (void)viewDidLoad
-{
+- (void)viewDidLoad {
     [super viewDidLoad];
-    
+
     [self _insertPreviewLayer];
-    
+
     _fastFocus = [FastttFocus fastttFocusWithView:self.view];
     self.fastFocus.delegate = self;
-    
+
     if (!self.handlesTapFocus) {
         self.fastFocus.detectsTaps = NO;
     }
 }
 
-- (void)viewWillAppear:(BOOL)animated
-{
+- (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    
+
     [self _startRunning];
-    
+
     [self _insertPreviewLayer];
-    
+
     [self _setPreviewVideoOrientation];
 }
 
-- (void)viewDidDisappear:(BOOL)animated
-{
+- (void)viewDidDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
-    
+
     [self _stopRunning];
 }
 
-- (void)viewDidLayoutSubviews
-{
+- (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
     _previewLayer.frame = self.view.layer.bounds;
 }
 
-- (void)applicationWillEnterForeground:(NSNotification *)notification
-{
+- (void)applicationWillEnterForeground:(NSNotification *)notification {
     [self _setupCaptureSession];
 }
 
-- (void)applicationDidBecomeActive:(NSNotification *)notification
-{
+- (void)applicationDidBecomeActive:(NSNotification *)notification {
     if (self.isViewLoaded && self.view.window) {
         [self _startRunning];
         [self _insertPreviewLayer];
@@ -144,244 +128,227 @@
     }
 }
 
-- (void)applicationWillResignActive:(NSNotification *)notification
-{
+- (void)applicationWillResignActive:(NSNotification *)notification {
     [self _stopRunning];
 }
 
-- (void)applicationDidEnterBackground:(NSNotification *)notification
-{
+- (void)applicationDidEnterBackground:(NSNotification *)notification {
     [self _teardownCaptureSession];
 }
 
 #pragma mark - Autorotation
 
-- (NSUInteger)supportedInterfaceOrientations
-{
+- (NSUInteger)supportedInterfaceOrientations {
     return UIInterfaceOrientationMaskAll;
 }
 
-- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
-{
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
     [self _setPreviewVideoOrientation];
 }
 
 #pragma mark - Taking a Photo
 
-- (void)takePicture
-{
+- (void)takePicture {
     if (!_deviceAuthorized) {
         return;
     }
-    
+
     [self _takePhoto];
 }
 
 #pragma mark - Processing a Photo
 
-- (void)processImage:(UIImage *)image withMaxDimension:(CGFloat)maxDimension
-{
+- (void)processImage:(UIImage *)image withMaxDimension:(CGFloat)maxDimension {
     [self _processImage:image withCropRect:CGRectNull maxDimension:maxDimension fromCamera:NO needsPreviewRotation:NO];
 }
 
-- (void)processImage:(UIImage *)image withCropRect:(CGRect)cropRect
-{
+- (void)processImage:(UIImage *)image withCropRect:(CGRect)cropRect {
     [self _processImage:image withCropRect:cropRect maxDimension:0.f fromCamera:NO needsPreviewRotation:NO];
 }
 
-- (void)processImage:(UIImage *)image withCropRect:(CGRect)cropRect maxDimension:(CGFloat)maxDimension
-{
+- (void)processImage:(UIImage *)image withCropRect:(CGRect)cropRect maxDimension:(CGFloat)maxDimension {
     [self _processImage:image withCropRect:cropRect maxDimension:maxDimension fromCamera:NO needsPreviewRotation:NO];
 }
 
 #pragma mark - Camera State
 
-+ (BOOL)isPointFocusAvailableForCameraDevice:(FastttCameraDevice)cameraDevice
-{
++ (BOOL)isPointFocusAvailableForCameraDevice:(FastttCameraDevice)cameraDevice {
     return [AVCaptureDevice isPointFocusAvailableForCameraDevice:cameraDevice];
 }
 
-- (void)focusAtPoint:(CGPoint)touchPoint
-{
+- (void)focusAtPoint:(CGPoint)touchPoint {
     CGPoint pointOfInterest = [self _focusPointOfInterestForTouchPoint:touchPoint];
-    
+
     [self _focusAtPointOfInterest:pointOfInterest];
 }
 
-- (BOOL)isFlashAvailableForCurrentDevice
-{
+- (BOOL)isFlashAvailableForCurrentDevice {
     AVCaptureDevice *device = [self _currentCameraDevice];
-    
+
     if ([device isFlashModeSupported:AVCaptureFlashModeOn]) {
         return YES;
     }
-    
+
     return NO;
 }
 
-+ (BOOL)isFlashAvailableForCameraDevice:(FastttCameraDevice)cameraDevice
-{
++ (BOOL)isFlashAvailableForCameraDevice:(FastttCameraDevice)cameraDevice {
     return [AVCaptureDevice isFlashAvailableForCameraDevice:cameraDevice];
 }
 
-+ (BOOL)isCameraDeviceAvailable:(FastttCameraDevice)cameraDevice
-{
++ (BOOL)isCameraDeviceAvailable:(FastttCameraDevice)cameraDevice {
     return ([AVCaptureDevice cameraDevice:cameraDevice] != nil);
 }
 
-- (void)setCameraDevice:(FastttCameraDevice)cameraDevice
-{
+- (void)setCameraDevice:(FastttCameraDevice)cameraDevice {
     AVCaptureDevice *device = [AVCaptureDevice cameraDevice:cameraDevice];
-    
+
     if (!device) {
         return;
     }
-    
+
     if (_cameraDevice != cameraDevice) {
         _cameraDevice = cameraDevice;
-        
+
         AVCaptureDeviceInput *oldInput = [_session.inputs lastObject];
         AVCaptureDeviceInput *newInput = [AVCaptureDeviceInput deviceInputWithDevice:device error:nil];
-        
+
         [_session beginConfiguration];
         [_session removeInput:oldInput];
         [_session addInput:newInput];
         [_session commitConfiguration];
     }
-    
+
     [self setCameraFlashMode:_cameraFlashMode];
 }
 
-- (void)setCameraFlashMode:(FastttCameraFlashMode)cameraFlashMode
-{
+- (void)setCameraFlashMode:(FastttCameraFlashMode)cameraFlashMode {
     AVCaptureDevice *device = [self _currentCameraDevice];
-    
+
     if ([AVCaptureDevice isFlashAvailableForCameraDevice:self.cameraDevice]) {
         _cameraFlashMode = cameraFlashMode;
         [device setCameraFlashMode:cameraFlashMode];
         return;
     }
-    
+
     _cameraFlashMode = FastttCameraFlashModeOff;
 }
 
 #pragma mark - Capture Session Management
 
-- (void)_startRunning
-{
+- (void)_startRunning {
     if (![_session isRunning]) {
         [_session startRunning];
     }
 }
 
-- (void)_stopRunning
-{
+- (void)_stopRunning {
     if ([_session isRunning]) {
         [_session stopRunning];
     }
 }
 
-- (void)_insertPreviewLayer
-{
+- (void)_insertPreviewLayer {
     if (!_deviceAuthorized) {
         return;
     }
-    
-    if ([_previewLayer superlayer] == [self.view layer]
-        && [_previewLayer session] == _session) {
+
+    if ([_previewLayer superlayer] == [self.view layer] && [_previewLayer session] == _session) {
         return;
     }
-    
+
     [self _removePreviewLayer];
-    
+
     CALayer *rootLayer = [self.view layer];
     rootLayer.masksToBounds = YES;
-    
+
     _previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:_session];
     _previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
-    
+
     _previewLayer.frame = rootLayer.bounds;
-    
+
     [rootLayer insertSublayer:_previewLayer atIndex:0];
 }
 
-- (void)_removePreviewLayer
-{
+- (void)_removePreviewLayer {
     [_previewLayer removeFromSuperlayer];
     _previewLayer = nil;
 }
 
-- (void)_setupCaptureSession
-{
+- (void)_setupCaptureSession {
     if (_session) {
         return;
     }
-    
+
 #if !TARGET_IPHONE_SIMULATOR
     [self _checkDeviceAuthorizationWithCompletion:^(BOOL isAuthorized) {
-        
+
         _deviceAuthorized = isAuthorized;
 #else
-        _deviceAuthorized = YES;
+    _deviceAuthorized = YES;
 #endif
         if (!_deviceAuthorized && [self.delegate respondsToSelector:@selector(userDeniedCameraPermissionsForCameraController:)]) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self.delegate userDeniedCameraPermissionsForCameraController:self];
-            });
+            dispatch_async(dispatch_get_main_queue(), ^{ [self.delegate userDeniedCameraPermissionsForCameraController:self]; });
         }
-        
+
         if (_deviceAuthorized) {
-            
+
             dispatch_async(dispatch_get_main_queue(), ^{
-                
+
                 _session = [AVCaptureSession new];
                 _session.sessionPreset = AVCaptureSessionPresetPhoto;
-                
+
                 AVCaptureDevice *device = [AVCaptureDevice cameraDevice:self.cameraDevice];
-                
+
                 if (!device) {
                     device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
                 }
-                
+
                 if ([device lockForConfiguration:nil]) {
-                    if([device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]){
+                    if ([device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]) {
                         device.focusMode = AVCaptureFocusModeContinuousAutoFocus;
                     }
-                    
+
                     device.exposureMode = AVCaptureExposureModeContinuousAutoExposure;
-                    
+
                     [device unlockForConfiguration];
                 }
                 
 #if !TARGET_IPHONE_SIMULATOR
                 AVCaptureDeviceInput *deviceInput = [AVCaptureDeviceInput deviceInputWithDevice:device error:nil];
                 [_session addInput:deviceInput];
-                
+
+                AVCaptureDevice *audioDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
+                AVCaptureDeviceInput *audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioDevice error:nil];
+                [_session addInput:audioInput];
+
                 switch (device.position) {
-                    case AVCaptureDevicePositionBack:
-                        _cameraDevice = FastttCameraDeviceRear;
-                        break;
-                        
-                    case AVCaptureDevicePositionFront:
-                        _cameraDevice = FastttCameraDeviceFront;
-                        break;
-                        
-                    default:
-                        break;
+                case AVCaptureDevicePositionBack:
+                    _cameraDevice = FastttCameraDeviceRear;
+                    break;
+
+                case AVCaptureDevicePositionFront:
+                    _cameraDevice = FastttCameraDeviceFront;
+                    break;
+
+                default:
+                    break;
                 }
-                
+
                 [self setCameraFlashMode:_cameraFlashMode];
 #endif
-                
-                NSDictionary *outputSettings = @{AVVideoCodecKey:AVVideoCodecJPEG};
-                
+
+                NSDictionary *outputSettings = @{AVVideoCodecKey : AVVideoCodecJPEG};
+
                 _stillImageOutput = [AVCaptureStillImageOutput new];
                 _stillImageOutput.outputSettings = outputSettings;
-                
                 [_session addOutput:_stillImageOutput];
-                
+
+                _movieFileOutput = [AVCaptureMovieFileOutput new];
+                [_session addOutput:_movieFileOutput];
+
                 _deviceOrientation = [IFTTTDeviceOrientation new];
-                
+
                 if (self.isViewLoaded && self.view.window) {
                     [self _startRunning];
                     [self _insertPreviewLayer];
@@ -394,38 +361,36 @@
 #endif
 }
 
-- (void)_teardownCaptureSession
-{
+- (void)_teardownCaptureSession {
     if (!_session) {
         return;
     }
-    
+
     _deviceOrientation = nil;
-    
+
     if ([_session isRunning]) {
         [_session stopRunning];
     }
-    
+
     for (AVCaptureDeviceInput *input in [_session inputs]) {
         [_session removeInput:input];
     }
-    
+
     [_session removeOutput:_stillImageOutput];
     _stillImageOutput = nil;
-    
+
     [self _removePreviewLayer];
-    
+
     _session = nil;
 }
 
 #pragma mark - Capturing a Photo
 
-- (void)_takePhoto
-{
+- (void)_takePhoto {
     BOOL needsPreviewRotation = ![self.deviceOrientation deviceOrientationMatchesInterfaceOrientation];
-    
+
     AVCaptureConnection *videoConnection = nil;
-    
+
     for (AVCaptureConnection *connection in [_stillImageOutput connections]) {
         for (AVCaptureInputPort *port in [connection inputPorts]) {
             if ([[port mediaType] isEqual:AVMediaTypeVideo]) {
@@ -433,20 +398,20 @@
                 break;
             }
         }
-        
+
         if (videoConnection) {
             break;
         }
     }
-    
+
     if ([videoConnection isVideoOrientationSupported]) {
         [videoConnection setVideoOrientation:[self _currentCaptureVideoOrientationForDevice]];
     }
-    
+
     if ([videoConnection isVideoMirroringSupported]) {
         [videoConnection setVideoMirrored:(_cameraDevice == FastttCameraDeviceFront)];
     }
-    
+
 #if TARGET_IPHONE_SIMULATOR
     [self _insertPreviewLayer];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -454,76 +419,106 @@
         [self _processCameraPhoto:fakeImage needsPreviewRotation:needsPreviewRotation];
     });
 #else
-    [_stillImageOutput captureStillImageAsynchronouslyFromConnection:videoConnection
-                                                   completionHandler:^(CMSampleBufferRef imageDataSampleBuffer, NSError *error)
-     {
-         if (!imageDataSampleBuffer) {
-             return;
-         }
-         
-         NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
-         
-         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-             
-             UIImage *image = [UIImage imageWithData:imageData];
-             
-             [self _processCameraPhoto:image needsPreviewRotation:needsPreviewRotation];
-         });
-     }];
+        [_stillImageOutput captureStillImageAsynchronouslyFromConnection:videoConnection
+                                                       completionHandler:^(CMSampleBufferRef imageDataSampleBuffer, NSError *error) {
+                                                           if (!imageDataSampleBuffer) {
+                                                               return;
+                                                           }
+
+                                                           NSData *imageData =
+                                                               [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
+
+                                                           dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+
+                                                               UIImage *image = [UIImage imageWithData:imageData];
+
+                                                               [self _processCameraPhoto:image needsPreviewRotation:needsPreviewRotation];
+                                                           });
+                                                       }];
 #endif
 }
 
+#pragma mark - Capturing Video
+
+- (void)startRecordingVideo {
+
+    NSString *plistPath;
+    NSString *rootPath;
+    rootPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+    plistPath = [rootPath stringByAppendingPathComponent:@"test.mov"];
+    NSURL *fileURL = [[NSURL alloc] initFileURLWithPath:plistPath];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if ([fileManager fileExistsAtPath:plistPath]) {
+        // @TODO: REMOVE VIDEO if there's something at that path
+    }
+    [_movieFileOutput startRecordingToOutputFileURL:fileURL recordingDelegate:self];
+}
+
+- (void)stopRecordingVideo {
+    [_movieFileOutput stopRecording];
+}
+
+#pragma mark - AVCaptureFileOutputRecordingDelegate
+
+- (void)captureOutput:(AVCaptureFileOutput *)captureOutput
+    didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
+                        fromConnections:(NSArray *)connections
+                                  error:(NSError *)error {
+
+    NSLog(@"OUTPUTURL: %@", outputFileURL);
+}
+
+#pragma mark - Capturing
+
 #pragma mark - Processing a Photo
 
-- (void)_processCameraPhoto:(UIImage *)image needsPreviewRotation:(BOOL)needsPreviewRotation
-{
+- (void)_processCameraPhoto:(UIImage *)image needsPreviewRotation:(BOOL)needsPreviewRotation {
     CGRect cropRect = CGRectNull;
     if (self.cropsImageToVisibleAspectRatio) {
         cropRect = [image fastttCropRectFromPreviewLayer:_previewLayer];
     }
-    
-    [self _processImage:image withCropRect:cropRect maxDimension:self.maxScaledDimension fromCamera:YES needsPreviewRotation:(needsPreviewRotation || !self.interfaceRotatesWithOrientation)];
+
+    [self _processImage:image
+                withCropRect:cropRect
+                maxDimension:self.maxScaledDimension
+                  fromCamera:YES
+        needsPreviewRotation:(needsPreviewRotation || !self.interfaceRotatesWithOrientation)];
 }
 
-- (void)_processImage:(UIImage *)image withCropRect:(CGRect)cropRect maxDimension:(CGFloat)maxDimension fromCamera:(BOOL)fromCamera needsPreviewRotation:(BOOL)needsPreviewRotation
-{
+- (void)_processImage:(UIImage *)image
+            withCropRect:(CGRect)cropRect
+            maxDimension:(CGFloat)maxDimension
+              fromCamera:(BOOL)fromCamera
+    needsPreviewRotation:(BOOL)needsPreviewRotation {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        
+
         FastttCapturedImage *capturedImage = [FastttCapturedImage fastttCapturedFullImage:image];
-        
+
         [capturedImage cropToRect:cropRect
                    returnsPreview:(fromCamera && self.returnsRotatedPreview)
              needsPreviewRotation:needsPreviewRotation
-                     withCallback:^(FastttCapturedImage *capturedImage){
+                     withCallback:^(FastttCapturedImage *capturedImage) {
                          if ([self.delegate respondsToSelector:@selector(cameraController:didFinishCapturingImage:)]) {
-                             dispatch_async(dispatch_get_main_queue(), ^{
-                                 [self.delegate cameraController:self didFinishCapturingImage:capturedImage];
-                             });
+                             dispatch_async(dispatch_get_main_queue(), ^{ [self.delegate cameraController:self didFinishCapturingImage:capturedImage]; });
                          }
                      }];
-        
-        void (^scaleCallback)(FastttCapturedImage *capturedImage) = ^(FastttCapturedImage *capturedImage) {
+
+        void (^scaleCallback)(FastttCapturedImage * capturedImage) = ^(FastttCapturedImage *capturedImage) {
             if ([self.delegate respondsToSelector:@selector(cameraController:didFinishScalingCapturedImage:)]) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.delegate cameraController:self didFinishScalingCapturedImage:capturedImage];
-                });
+                dispatch_async(dispatch_get_main_queue(), ^{ [self.delegate cameraController:self didFinishScalingCapturedImage:capturedImage]; });
             }
         };
-        
+
         if (maxDimension > 0.f) {
-            [capturedImage scaleToMaxDimension:maxDimension
-                                  withCallback:scaleCallback];
+            [capturedImage scaleToMaxDimension:maxDimension withCallback:scaleCallback];
         } else if (fromCamera && self.scalesImage) {
-            [capturedImage scaleToSize:self.view.bounds.size
-                          withCallback:scaleCallback];
+            [capturedImage scaleToSize:self.view.bounds.size withCallback:scaleCallback];
         }
-        
+
         if (self.normalizesImageOrientations) {
-            [capturedImage normalizeWithCallback:^(FastttCapturedImage *capturedImage){
+            [capturedImage normalizeWithCallback:^(FastttCapturedImage *capturedImage) {
                 if ([self.delegate respondsToSelector:@selector(cameraController:didFinishNormalizingCapturedImage:)]) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [self.delegate cameraController:self didFinishNormalizingCapturedImage:capturedImage];
-                    });
+                    dispatch_async(dispatch_get_main_queue(), ^{ [self.delegate cameraController:self didFinishNormalizingCapturedImage:capturedImage]; });
                 }
             }];
         }
@@ -532,86 +527,78 @@
 
 #pragma mark - AV Orientation
 
-- (void)_setPreviewVideoOrientation
-{
+- (void)_setPreviewVideoOrientation {
     AVCaptureConnection *videoConnection = [_previewLayer connection];
-    
+
     if ([videoConnection isVideoOrientationSupported]) {
         [videoConnection setVideoOrientation:[self _currentPreviewVideoOrientationForDevice]];
     }
 }
 
-- (AVCaptureVideoOrientation)_currentCaptureVideoOrientationForDevice
-{
+- (AVCaptureVideoOrientation)_currentCaptureVideoOrientationForDevice {
     return [self.class _videoOrientationForDeviceOrientation:self.deviceOrientation.orientation];
 }
 
-- (AVCaptureVideoOrientation)_currentPreviewVideoOrientationForDevice
-{
+- (AVCaptureVideoOrientation)_currentPreviewVideoOrientationForDevice {
     return [self.class _videoOrientationForDeviceOrientation:[[UIDevice currentDevice] orientation]];
 }
 
-+ (AVCaptureVideoOrientation)_videoOrientationForDeviceOrientation:(UIDeviceOrientation)deviceOrientation
-{
++ (AVCaptureVideoOrientation)_videoOrientationForDeviceOrientation:(UIDeviceOrientation)deviceOrientation {
     switch (deviceOrientation) {
-        case UIDeviceOrientationPortrait:
-            return AVCaptureVideoOrientationPortrait;
-            
-        case UIDeviceOrientationPortraitUpsideDown:
-            return AVCaptureVideoOrientationPortraitUpsideDown;
-            
-        case UIDeviceOrientationLandscapeLeft:
-            return AVCaptureVideoOrientationLandscapeRight;
-            
-        case UIDeviceOrientationLandscapeRight:
-            return AVCaptureVideoOrientationLandscapeLeft;
-            
-        default:
-            break;
+    case UIDeviceOrientationPortrait:
+        return AVCaptureVideoOrientationPortrait;
+
+    case UIDeviceOrientationPortraitUpsideDown:
+        return AVCaptureVideoOrientationPortraitUpsideDown;
+
+    case UIDeviceOrientationLandscapeLeft:
+        return AVCaptureVideoOrientationLandscapeRight;
+
+    case UIDeviceOrientationLandscapeRight:
+        return AVCaptureVideoOrientationLandscapeLeft;
+
+    default:
+        break;
     }
-    
+
     return AVCaptureVideoOrientationPortrait;
 }
 
 #pragma mark - Camera Permissions
 
-- (void)_checkDeviceAuthorizationWithCompletion:(void (^)(BOOL isAuthorized))completion
-{
-    [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
-        if (completion) {
-            completion(granted);
-        }
-    }];
+- (void)_checkDeviceAuthorizationWithCompletion:(void (^)(BOOL isAuthorized))completion {
+    [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo
+                             completionHandler:^(BOOL granted) {
+                                 if (completion) {
+                                     completion(granted);
+                                 }
+                             }];
 }
 
 #pragma mark - FastttCameraDevice
 
-- (AVCaptureDevice *)_currentCameraDevice
-{
+- (AVCaptureDevice *)_currentCameraDevice {
     return [_session.inputs.lastObject device];
 }
 
-- (CGPoint)_focusPointOfInterestForTouchPoint:(CGPoint)touchPoint
-{
+- (CGPoint)_focusPointOfInterestForTouchPoint:(CGPoint)touchPoint {
     return [_previewLayer captureDevicePointOfInterestForPoint:touchPoint];
 }
 
-- (BOOL)_focusAtPointOfInterest:(CGPoint)pointOfInterest
-{
+- (BOOL)_focusAtPointOfInterest:(CGPoint)pointOfInterest {
     return [[self _currentCameraDevice] focusAtPointOfInterest:pointOfInterest];
 }
 
 #pragma mark - FastttFocusDelegate
 
-- (BOOL)handleTapFocusAtPoint:(CGPoint)touchPoint
-{
+- (BOOL)handleTapFocusAtPoint:(CGPoint)touchPoint {
     if ([AVCaptureDevice isPointFocusAvailableForCameraDevice:self.cameraDevice]) {
-        
+
         CGPoint pointOfInterest = [self _focusPointOfInterestForTouchPoint:touchPoint];
-        
+
         return ([self _focusAtPointOfInterest:pointOfInterest] && self.showsFocusView);
     }
-    
+
     return NO;
 }
 
