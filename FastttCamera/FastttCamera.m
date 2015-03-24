@@ -338,6 +338,8 @@
                 [self setCameraFlashMode:_cameraFlashMode];
 #endif
 
+                [_session beginConfiguration];
+
                 NSDictionary *outputSettings = @{AVVideoCodecKey : AVVideoCodecJPEG};
 
                 _stillImageOutput = [AVCaptureStillImageOutput new];
@@ -346,6 +348,8 @@
 
                 _movieFileOutput = [AVCaptureMovieFileOutput new];
                 [_session addOutput:_movieFileOutput];
+
+                [_session commitConfiguration];
 
                 _deviceOrientation = [IFTTTDeviceOrientation new];
 
