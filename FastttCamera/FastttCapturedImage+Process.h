@@ -19,12 +19,14 @@
  *  @param cropRect             The CGRect to use for cropping. Use CGRectNull for no cropping.
  *  @param returnsPreview       YES if the FastttCapturedImage should set its rotatedPreviewImage property.
  *  @param needsPreviewRotation YES if the image needs its imageOrientation tag changed for displaying a preview.
+ *  @param previewOrientation   The orientation to use for the preview view (usually UIDeviceOrientationPortrait)
  *  @param callback             The callback fired after image cropping and preview processing is complete
  *  and the FastttCapturedImage fullImage and rotatedPreviewImage properties have been set as needed.
  */
 - (void)cropToRect:(CGRect)cropRect
     returnsPreview:(BOOL)returnsPreview
 needsPreviewRotation:(BOOL)needsPreviewRotation
+withPreviewOrientation:(UIDeviceOrientation)previewOrientation
       withCallback:(void (^)(FastttCapturedImage *capturedImage))callback;
 
 /**

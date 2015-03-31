@@ -27,7 +27,7 @@ describe(@"IFTTTDeviceOrientation", ^{
     });
     
     it(@"has an orientation", ^{
-        expect(deviceOrientation.orientation).to.equal(UIDeviceOrientationLandscapeRight);
+        expect(deviceOrientation.orientation).to.equal(UIDeviceOrientationPortrait);
     });
     
     afterAll(^{

@@ -82,6 +82,14 @@
  */
 @property (nonatomic, assign) BOOL interfaceRotatesWithOrientation;
 
+/**
+ *  Defaults to UIDeviceOrientationPortrait. Set this to UIDeviceOrientationLandscapeLeft or UIDeviceOrientationLandscapeRight
+ *  if your interface does not autorotate with device orientation and sticks to a landscape interface, to make sure that preview
+ *  images are still displayed correctly when orientation lock is off but your interface stays in landscape mode.
+ *  Make sure to also set interfaceRotatesWithOrientation = YES, otherwise this property will be ignored.
+ */
+@property (nonatomic, assign) UIDeviceOrientation fixedInterfaceOrientation;
+
 
 #pragma mark - Camera State
 

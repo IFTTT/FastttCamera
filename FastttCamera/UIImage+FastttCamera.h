@@ -112,9 +112,11 @@
  *  is "up". This is great if your interface doesn't rotate, or if the photo was taken
  *  with orientation lock on.
  *
+ *  @param deviceOrientation The orientation of the preview view.
+ *
  *  @return The image that has been rotated to match the camera preview.
  */
-- (UIImage *)fastttRotatedImageMatchingCameraView;
+- (UIImage *)fastttRotatedImageMatchingCameraViewWithOrientation:(UIDeviceOrientation)deviceOrientation;
 
 /**
  *  Moves the image orientation tag of the image to the given image orientation.

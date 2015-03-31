@@ -199,19 +199,35 @@ CG_INLINE CGFLOAT_TYPE FastttRound(CGFLOAT_TYPE f) {
     return normalized;
 }
 
-- (UIImage *)fastttRotatedImageMatchingCameraView
+- (UIImage *)fastttRotatedImageMatchingCameraViewWithOrientation:(UIDeviceOrientation)deviceOrientation
 {
-    UIImageOrientation orientation = UIImageOrientationRight;
-    
+    BOOL isMirrored = NO;
     if (self.imageOrientation == UIImageOrientationRightMirrored
         || self.imageOrientation == UIImageOrientationLeftMirrored
         || self.imageOrientation == UIImageOrientationUpMirrored
         || self.imageOrientation == UIImageOrientationDownMirrored) {
         
-        orientation = UIImageOrientationLeftMirrored;
+        isMirrored = YES;
     }
     
+    UIImageOrientation orientation = [self.class fastttPreviewImageOrientationForDeviceOrientation:deviceOrientation isMirrored:isMirrored];
+    
     return [self fastttRotatedImageMatchingOrientation:orientation];
+}
+
++ (UIImageOrientation)fastttPreviewImageOrientationForDeviceOrientation:(UIDeviceOrientation)deviceOrientation isMirrored:(BOOL)isMirrored
+{
+    switch (deviceOrientation) {
+        case UIDeviceOrientationLandscapeLeft:
+            return (isMirrored ? UIImageOrientationUpMirrored : UIImageOrientationUp);
+        case UIDeviceOrientationLandscapeRight:
+            return (isMirrored ? UIImageOrientationDownMirrored : UIImageOrientationDown);
+        default:
+            break;
+    }
+    
+    // default to UIDeviceOrientationPortrait
+    return (isMirrored ? UIImageOrientationLeftMirrored : UIImageOrientationRight);
 }
 
 - (UIImage *)fastttRotatedImageMatchingOrientation:(UIImageOrientation)orientation
