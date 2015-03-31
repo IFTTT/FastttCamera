@@ -14,6 +14,7 @@
 - (void)cropToRect:(CGRect)cropRect
     returnsPreview:(BOOL)returnsPreview
 needsPreviewRotation:(BOOL)needsPreviewRotation
+withPreviewOrientation:(UIDeviceOrientation)previewOrientation
       withCallback:(void (^)(FastttCapturedImage *capturedImage))callback
 {
     if (!CGRectEqualToRect(cropRect, CGRectNull) && !CGRectEqualToRect(cropRect, CGRectZero)) {
@@ -23,7 +24,7 @@ needsPreviewRotation:(BOOL)needsPreviewRotation
     if (returnsPreview) {
         UIImage *previewImage;
         if (needsPreviewRotation) {
-            previewImage = [self.fullImage fastttRotatedImageMatchingCameraView];
+            previewImage = [self.fullImage fastttRotatedImageMatchingCameraViewWithOrientation:previewOrientation];
         } else {
             previewImage = self.fullImage;
         }

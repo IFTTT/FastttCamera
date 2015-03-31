@@ -37,6 +37,7 @@
             normalizesImageOrientations = _normalizesImageOrientations,
             cropsImageToVisibleAspectRatio = _cropsImageToVisibleAspectRatio,
             interfaceRotatesWithOrientation = _interfaceRotatesWithOrientation,
+            fixedInterfaceOrientation = _fixedInterfaceOrientation,
             handlesTapFocus = _handlesTapFocus,
             scalesImage = _scalesImage,
             cameraDevice = _cameraDevice,
@@ -56,6 +57,7 @@
         _normalizesImageOrientations = YES;
         _returnsRotatedPreview = YES;
         _interfaceRotatesWithOrientation = YES;
+        _fixedInterfaceOrientation = UIDeviceOrientationPortrait;
         _cameraDevice = FastttCameraDeviceRear;
         _cameraFlashMode = FastttCameraFlashModeOff;
         
@@ -194,17 +196,17 @@
 
 - (void)processImage:(UIImage *)image withMaxDimension:(CGFloat)maxDimension
 {
-    [self _processImage:image withCropRect:CGRectNull maxDimension:maxDimension fromCamera:NO needsPreviewRotation:NO];
+    [self _processImage:image withCropRect:CGRectNull maxDimension:maxDimension fromCamera:NO needsPreviewRotation:NO previewOrientation:UIDeviceOrientationUnknown];
 }
 
 - (void)processImage:(UIImage *)image withCropRect:(CGRect)cropRect
 {
-    [self _processImage:image withCropRect:cropRect maxDimension:0.f fromCamera:NO needsPreviewRotation:NO];
+    [self _processImage:image withCropRect:cropRect maxDimension:0.f fromCamera:NO needsPreviewRotation:NO previewOrientation:UIDeviceOrientationUnknown];
 }
 
 - (void)processImage:(UIImage *)image withCropRect:(CGRect)cropRect maxDimension:(CGFloat)maxDimension
 {
-    [self _processImage:image withCropRect:cropRect maxDimension:maxDimension fromCamera:NO needsPreviewRotation:NO];
+    [self _processImage:image withCropRect:cropRect maxDimension:maxDimension fromCamera:NO needsPreviewRotation:NO previewOrientation:UIDeviceOrientationUnknown];
 }
 
 #pragma mark - Camera State
@@ -437,35 +439,39 @@
     
 #if TARGET_IPHONE_SIMULATOR
     UIImage *fakeImage = [UIImage fastttFakeTestImage];
-    [self _processCameraPhoto:fakeImage needsPreviewRotation:needsPreviewRotation imageOrientation:UIImageOrientationUp];
+    [self _processCameraPhoto:fakeImage needsPreviewRotation:needsPreviewRotation imageOrientation:UIImageOrientationUp previewOrientation:UIDeviceOrientationPortrait];
 #else
+    
+    UIDeviceOrientation previewOrientation = [self _currentPreviewDeviceOrientation];
+
     UIImageOrientation outputImageOrientation = [self _outputImageOrientation];
 
     [_stillCamera capturePhotoAsImageProcessedUpToFilter:self.fastFilter.filter withOrientation:UIImageOrientationUp withCompletionHandler:^(UIImage *processedImage, NSError *error){
         
-        [self _processCameraPhoto:processedImage needsPreviewRotation:needsPreviewRotation imageOrientation:outputImageOrientation];
+        [self _processCameraPhoto:processedImage needsPreviewRotation:needsPreviewRotation imageOrientation:outputImageOrientation previewOrientation:previewOrientation];
     }];
 #endif
 }
 
 #pragma mark - Processing a Photo
 
-- (void)_processCameraPhoto:(UIImage *)image needsPreviewRotation:(BOOL)needsPreviewRotation imageOrientation:(UIImageOrientation)imageOrientation
+- (void)_processCameraPhoto:(UIImage *)image needsPreviewRotation:(BOOL)needsPreviewRotation imageOrientation:(UIImageOrientation)imageOrientation previewOrientation:(UIDeviceOrientation)previewOrientation
 {
     CGRect cropRect = CGRectNull;
     if (self.cropsImageToVisibleAspectRatio) {
         cropRect = [image fastttCropRectFromPreviewBounds:_previewView.frame];
     }
     
-    [self _processImage:image withCropRect:cropRect maxDimension:self.maxScaledDimension fromCamera:YES needsPreviewRotation:(needsPreviewRotation || !self.interfaceRotatesWithOrientation) imageOrientation:imageOrientation];
+    [self _processImage:image withCropRect:cropRect maxDimension:self.maxScaledDimension fromCamera:YES needsPreviewRotation:(needsPreviewRotation || !self.interfaceRotatesWithOrientation) imageOrientation:imageOrientation previewOrientation:previewOrientation];
 }
 
-- (void)_processImage:(UIImage *)image withCropRect:(CGRect)cropRect maxDimension:(CGFloat)maxDimension fromCamera:(BOOL)fromCamera needsPreviewRotation:(BOOL)needsPreviewRotation
+- (void)_processImage:(UIImage *)image withCropRect:(CGRect)cropRect maxDimension:(CGFloat)maxDimension fromCamera:(BOOL)fromCamera needsPreviewRotation:(BOOL)needsPreviewRotation previewOrientation:(UIDeviceOrientation)previewOrientation
 {
-    [self _processImage:image withCropRect:cropRect maxDimension:maxDimension fromCamera:fromCamera needsPreviewRotation:needsPreviewRotation imageOrientation:image.imageOrientation];
+    [self _processImage:image withCropRect:cropRect maxDimension:maxDimension fromCamera:fromCamera needsPreviewRotation:needsPreviewRotation imageOrientation:image.imageOrientation previewOrientation:previewOrientation];
 }
 
-- (void)_processImage:(UIImage *)image withCropRect:(CGRect)cropRect maxDimension:(CGFloat)maxDimension fromCamera:(BOOL)fromCamera needsPreviewRotation:(BOOL)needsPreviewRotation imageOrientation:(UIImageOrientation)imageOrientation
+- (void)_processImage:(UIImage *)image withCropRect:(CGRect)cropRect maxDimension:(CGFloat)maxDimension fromCamera:(BOOL)fromCamera needsPreviewRotation:(BOOL)needsPreviewRotation imageOrientation:(UIImageOrientation)imageOrientation previewOrientation:(UIDeviceOrientation)previewOrientation
+
 {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
@@ -476,6 +482,7 @@
         [capturedImage cropToRect:cropRect
                    returnsPreview:(fromCamera && self.returnsRotatedPreview)
              needsPreviewRotation:needsPreviewRotation
+           withPreviewOrientation:previewOrientation
                      withCallback:^(FastttCapturedImage *capturedImage){
                          
                          capturedImage.rotatedPreviewImage = [capturedImage.rotatedPreviewImage fastttRotatedImageMatchingOrientation:UIImageOrientationUp];
@@ -521,10 +528,21 @@
 {
     UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
     
-    if (orientation == UIDeviceOrientationUnknown) {
+    if (orientation == UIDeviceOrientationUnknown
+        || orientation == UIDeviceOrientationFaceUp
+        || orientation == UIDeviceOrientationFaceDown) {
         orientation = UIDeviceOrientationPortrait;
     }
     _stillCamera.outputImageOrientation = (UIInterfaceOrientation)orientation;
+}
+
+- (UIDeviceOrientation)_currentPreviewDeviceOrientation
+{
+    if (!self.interfaceRotatesWithOrientation) {
+        return self.fixedInterfaceOrientation;
+    }
+    
+    return [[UIDevice currentDevice] orientation];
 }
 
 + (UIImageOrientation)_imageOrientationForDeviceOrientation:(UIDeviceOrientation)deviceOrientation

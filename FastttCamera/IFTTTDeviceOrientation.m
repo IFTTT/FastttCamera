@@ -9,14 +9,6 @@
 @import CoreMotion;
 #import "IFTTTDeviceOrientation.h"
 
-CG_INLINE CGFLOAT_TYPE FastttATan2(CGFLOAT_TYPE f, CGFLOAT_TYPE g) {
-#if CGFLOAT_IS_DOUBLE
-    return atan2(f, g);
-#else
-    return atan2f(f, g);
-#endif
-};
-
 @interface IFTTTDeviceOrientation ()
 
 @property (nonatomic, strong) CMMotionManager *motionManager;
@@ -75,37 +67,32 @@ CG_INLINE CGFLOAT_TYPE FastttATan2(CGFLOAT_TYPE f, CGFLOAT_TYPE g) {
 
 - (UIDeviceOrientation)_actualDeviceOrientationFromAccelerometer
 {
-    CGFloat baseAngle = [self _currentDeviceAngle];
-    
-    if ((baseAngle > -M_PI_4) && (baseAngle < M_PI_4)) {
-        return UIDeviceOrientationPortrait;
+#if TARGET_IPHONE_SIMULATOR
+    return UIDeviceOrientationPortrait;
+#else
+    CMAcceleration acceleration = _motionManager.accelerometerData.acceleration;
+    if (acceleration.z < -0.75f) {
+        return UIDeviceOrientationFaceUp;
     }
     
-    if ((baseAngle < -M_PI_4) && (baseAngle > -3 * M_PI_4)) {
+    if (acceleration.z > 0.75f) {
+        return UIDeviceOrientationFaceDown;
+    }
+    
+    CGFloat scaling = 1.f / (ABS(acceleration.x) + ABS(acceleration.y));
+    
+    CGFloat x = acceleration.x * scaling;
+    
+    if (x < -0.5f) {
         return UIDeviceOrientationLandscapeLeft;
     }
     
-    if ((baseAngle > M_PI_4) && (baseAngle < 3 * M_PI_4)) {
+    if (x > 0.5f) {
         return UIDeviceOrientationLandscapeRight;
     }
     
-    return UIDeviceOrientationPortraitUpsideDown;
-}
-
-- (CGFloat)_currentDeviceAngle
-{
-#if TARGET_IPHONE_SIMULATOR
-    CGPoint acceleration = CGPointZero;
-#else
-    CMAcceleration acceleration = _motionManager.accelerometerData.acceleration;
+    return UIDeviceOrientationPortrait;
 #endif
-    CGFloat deviceAngle = M_PI / 2.f - FastttATan2(-acceleration.y, acceleration.x);
-    
-    if (deviceAngle > M_PI) {
-        deviceAngle -= 2.f * M_PI;
-    }
-    
-    return deviceAngle;
 }
 
 @end

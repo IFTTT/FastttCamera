@@ -45,7 +45,7 @@
 - (void)testRotatedPreviewPerformance {
     [self measureBlock:^{
         for (NSInteger i=0; i<100000; i++) {
-            __unused UIImage *rotatedImage = [self.image fastttRotatedImageMatchingCameraView];
+            __unused UIImage *rotatedImage = [self.image fastttRotatedImageMatchingCameraViewWithOrientation:UIDeviceOrientationPortrait];
         }
     }];
 }

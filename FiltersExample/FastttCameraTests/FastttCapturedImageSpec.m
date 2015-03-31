@@ -81,7 +81,7 @@ describe(@"FastttCapturedImage", ^{
             
             it(@"should return a non-nil full image even if cropping to CGRectNull", ^{
                 waitUntil(^(DoneCallback done) {
-                    [capturedImage cropToRect:CGRectNull returnsPreview:NO needsPreviewRotation:NO withCallback:^(FastttCapturedImage *capturedImage){
+                    [capturedImage cropToRect:CGRectNull returnsPreview:NO needsPreviewRotation:NO withPreviewOrientation:UIDeviceOrientationPortrait withCallback:^(FastttCapturedImage *capturedImage){
                         expect(capturedImage.fullImage).toNot.beNil();
                         done();
                     }];
@@ -90,7 +90,7 @@ describe(@"FastttCapturedImage", ^{
             
             it(@"should return a non-nil full image even if cropping to CGRectNull", ^{
                 waitUntil(^(DoneCallback done) {
-                    [capturedImage cropToRect:CGRectNull returnsPreview:NO needsPreviewRotation:YES withCallback:^(FastttCapturedImage *capturedImage){
+                    [capturedImage cropToRect:CGRectNull returnsPreview:NO needsPreviewRotation:YES withPreviewOrientation:UIDeviceOrientationPortrait withCallback:^(FastttCapturedImage *capturedImage){
                         expect(capturedImage.fullImage).toNot.beNil();
                         done();
                     }];
@@ -99,7 +99,7 @@ describe(@"FastttCapturedImage", ^{
             
             it(@"should return a non-nil full image even if cropping to CGRectNull", ^{
                 waitUntil(^(DoneCallback done) {
-                    [capturedImage cropToRect:CGRectNull returnsPreview:YES needsPreviewRotation:NO withCallback:^(FastttCapturedImage *capturedImage){
+                    [capturedImage cropToRect:CGRectNull returnsPreview:YES needsPreviewRotation:NO withPreviewOrientation:UIDeviceOrientationPortrait withCallback:^(FastttCapturedImage *capturedImage){
                         expect(capturedImage.fullImage).toNot.beNil();
                         done();
                     }];
@@ -108,7 +108,7 @@ describe(@"FastttCapturedImage", ^{
             
             it(@"should return a non-nil full image even if cropping to CGRectNull", ^{
                 waitUntil(^(DoneCallback done) {
-                    [capturedImage cropToRect:CGRectNull returnsPreview:YES needsPreviewRotation:YES withCallback:^(FastttCapturedImage *capturedImage){
+                    [capturedImage cropToRect:CGRectNull returnsPreview:YES needsPreviewRotation:YES withPreviewOrientation:UIDeviceOrientationPortrait withCallback:^(FastttCapturedImage *capturedImage){
                         expect(capturedImage.fullImage).toNot.beNil();
                         done();
                     }];
@@ -117,7 +117,7 @@ describe(@"FastttCapturedImage", ^{
             
             it(@"should return uncropped full image if cropping to CGRectNull", ^{
                 waitUntil(^(DoneCallback done) {
-                    [capturedImage cropToRect:CGRectNull returnsPreview:NO needsPreviewRotation:NO withCallback:^(FastttCapturedImage *capturedImage){
+                    [capturedImage cropToRect:CGRectNull returnsPreview:NO needsPreviewRotation:NO withPreviewOrientation:UIDeviceOrientationPortrait withCallback:^(FastttCapturedImage *capturedImage){
                         expect(capturedImage.fullImage.size.width).to.equal(400.f);
                         expect(capturedImage.fullImage.size.height).to.equal(320.f);
                         done();
@@ -127,7 +127,7 @@ describe(@"FastttCapturedImage", ^{
             
             it(@"should return uncropped full image if cropping to CGRectNull", ^{
                 waitUntil(^(DoneCallback done) {
-                    [capturedImage cropToRect:CGRectNull returnsPreview:YES needsPreviewRotation:NO withCallback:^(FastttCapturedImage *capturedImage){
+                    [capturedImage cropToRect:CGRectNull returnsPreview:YES needsPreviewRotation:NO withPreviewOrientation:UIDeviceOrientationPortrait withCallback:^(FastttCapturedImage *capturedImage){
                         expect(capturedImage.fullImage.size.width).to.equal(400.f);
                         expect(capturedImage.fullImage.size.height).to.equal(320.f);
                         done();
@@ -137,7 +137,7 @@ describe(@"FastttCapturedImage", ^{
             
             it(@"should return uncropped full image if cropping to CGRectNull", ^{
                 waitUntil(^(DoneCallback done) {
-                    [capturedImage cropToRect:CGRectNull returnsPreview:NO needsPreviewRotation:YES withCallback:^(FastttCapturedImage *capturedImage){
+                    [capturedImage cropToRect:CGRectNull returnsPreview:NO needsPreviewRotation:YES withPreviewOrientation:UIDeviceOrientationPortrait withCallback:^(FastttCapturedImage *capturedImage){
                         expect(capturedImage.fullImage.size.width).to.equal(400.f);
                         expect(capturedImage.fullImage.size.height).to.equal(320.f);
                         done();
@@ -147,7 +147,7 @@ describe(@"FastttCapturedImage", ^{
             
             it(@"should return uncropped full image if cropping to CGRectNull", ^{
                 waitUntil(^(DoneCallback done) {
-                    [capturedImage cropToRect:CGRectNull returnsPreview:YES needsPreviewRotation:YES withCallback:^(FastttCapturedImage *capturedImage){
+                    [capturedImage cropToRect:CGRectNull returnsPreview:YES needsPreviewRotation:YES withPreviewOrientation:UIDeviceOrientationPortrait withCallback:^(FastttCapturedImage *capturedImage){
                         expect(capturedImage.fullImage.size.width).to.equal(400.f);
                         expect(capturedImage.fullImage.size.height).to.equal(320.f);
                         done();
@@ -158,7 +158,7 @@ describe(@"FastttCapturedImage", ^{
             it(@"should return a non-nil cropped image", ^{
                 waitUntil(^(DoneCallback done) {
                     CGRect cropRect = CGRectMake(10.f, 20.f, 80.f, 120.f);
-                    [capturedImage cropToRect:cropRect returnsPreview:NO needsPreviewRotation:NO withCallback:^(FastttCapturedImage *capturedImage){
+                    [capturedImage cropToRect:cropRect returnsPreview:NO needsPreviewRotation:NO withPreviewOrientation:UIDeviceOrientationPortrait withCallback:^(FastttCapturedImage *capturedImage){
                         expect(capturedImage.fullImage).toNot.beNil();
                         done();
                     }];
@@ -168,7 +168,7 @@ describe(@"FastttCapturedImage", ^{
             it(@"should return a non-nil cropped image", ^{
                 waitUntil(^(DoneCallback done) {
                     CGRect cropRect = CGRectMake(10.f, 20.f, 80.f, 120.f);
-                    [capturedImage cropToRect:cropRect returnsPreview:YES needsPreviewRotation:NO withCallback:^(FastttCapturedImage *capturedImage){
+                    [capturedImage cropToRect:cropRect returnsPreview:YES needsPreviewRotation:NO withPreviewOrientation:UIDeviceOrientationPortrait withCallback:^(FastttCapturedImage *capturedImage){
                         expect(capturedImage.fullImage).toNot.beNil();
                         done();
                     }];
@@ -178,7 +178,7 @@ describe(@"FastttCapturedImage", ^{
             it(@"should return a non-nil cropped image", ^{
                 waitUntil(^(DoneCallback done) {
                     CGRect cropRect = CGRectMake(10.f, 20.f, 80.f, 120.f);
-                    [capturedImage cropToRect:cropRect returnsPreview:NO needsPreviewRotation:YES withCallback:^(FastttCapturedImage *capturedImage){
+                    [capturedImage cropToRect:cropRect returnsPreview:NO needsPreviewRotation:YES withPreviewOrientation:UIDeviceOrientationPortrait withCallback:^(FastttCapturedImage *capturedImage){
                         expect(capturedImage.fullImage).toNot.beNil();
                         done();
                     }];
@@ -188,7 +188,7 @@ describe(@"FastttCapturedImage", ^{
             it(@"should return a non-nil cropped image", ^{
                 waitUntil(^(DoneCallback done) {
                     CGRect cropRect = CGRectMake(10.f, 20.f, 80.f, 120.f);
-                    [capturedImage cropToRect:cropRect returnsPreview:YES needsPreviewRotation:YES withCallback:^(FastttCapturedImage *capturedImage){
+                    [capturedImage cropToRect:cropRect returnsPreview:YES needsPreviewRotation:YES withPreviewOrientation:UIDeviceOrientationPortrait withCallback:^(FastttCapturedImage *capturedImage){
                         expect(capturedImage.fullImage).toNot.beNil();
                         done();
                     }];
@@ -198,7 +198,7 @@ describe(@"FastttCapturedImage", ^{
             it(@"should crop image correctly", ^{
                 waitUntil(^(DoneCallback done) {
                     CGRect cropRect = CGRectMake(10.f, 20.f, 80.f, 120.f);
-                    [capturedImage cropToRect:cropRect returnsPreview:NO needsPreviewRotation:NO withCallback:^(FastttCapturedImage *capturedImage){
+                    [capturedImage cropToRect:cropRect returnsPreview:NO needsPreviewRotation:NO withPreviewOrientation:UIDeviceOrientationPortrait withCallback:^(FastttCapturedImage *capturedImage){
                         expect(capturedImage.fullImage.size.width).to.equal(80.f);
                         expect(capturedImage.fullImage.size.height).to.equal(120.f);
                         done();
@@ -209,7 +209,7 @@ describe(@"FastttCapturedImage", ^{
             it(@"should crop image correctly", ^{
                 waitUntil(^(DoneCallback done) {
                     CGRect cropRect = CGRectMake(10.f, 20.f, 80.f, 120.f);
-                    [capturedImage cropToRect:cropRect returnsPreview:YES needsPreviewRotation:NO withCallback:^(FastttCapturedImage *capturedImage){
+                    [capturedImage cropToRect:cropRect returnsPreview:YES needsPreviewRotation:NO withPreviewOrientation:UIDeviceOrientationPortrait withCallback:^(FastttCapturedImage *capturedImage){
                         expect(capturedImage.fullImage.size.width).to.equal(80.f);
                         expect(capturedImage.fullImage.size.height).to.equal(120.f);
                         done();
@@ -220,7 +220,7 @@ describe(@"FastttCapturedImage", ^{
             it(@"should crop image correctly", ^{
                 waitUntil(^(DoneCallback done) {
                     CGRect cropRect = CGRectMake(10.f, 20.f, 80.f, 120.f);
-                    [capturedImage cropToRect:cropRect returnsPreview:NO needsPreviewRotation:YES withCallback:^(FastttCapturedImage *capturedImage){
+                    [capturedImage cropToRect:cropRect returnsPreview:NO needsPreviewRotation:YES withPreviewOrientation:UIDeviceOrientationPortrait withCallback:^(FastttCapturedImage *capturedImage){
                         expect(capturedImage.fullImage.size.width).to.equal(80.f);
                         expect(capturedImage.fullImage.size.height).to.equal(120.f);
                         done();
@@ -231,7 +231,7 @@ describe(@"FastttCapturedImage", ^{
             it(@"should crop image correctly", ^{
                 waitUntil(^(DoneCallback done) {
                     CGRect cropRect = CGRectMake(10.f, 20.f, 80.f, 120.f);
-                    [capturedImage cropToRect:cropRect returnsPreview:YES needsPreviewRotation:YES withCallback:^(FastttCapturedImage *capturedImage){
+                    [capturedImage cropToRect:cropRect returnsPreview:YES needsPreviewRotation:YES withPreviewOrientation:UIDeviceOrientationPortrait withCallback:^(FastttCapturedImage *capturedImage){
                         expect(capturedImage.fullImage.size.width).to.equal(80.f);
                         expect(capturedImage.fullImage.size.height).to.equal(120.f);
                         done();
@@ -242,7 +242,7 @@ describe(@"FastttCapturedImage", ^{
             it(@"should not return a preview image if returnsPreview is NO", ^{
                 waitUntil(^(DoneCallback done) {
                     CGRect cropRect = CGRectMake(10.f, 20.f, 80.f, 120.f);
-                    [capturedImage cropToRect:cropRect returnsPreview:NO needsPreviewRotation:YES withCallback:^(FastttCapturedImage *capturedImage){
+                    [capturedImage cropToRect:cropRect returnsPreview:NO needsPreviewRotation:YES withPreviewOrientation:UIDeviceOrientationPortrait withCallback:^(FastttCapturedImage *capturedImage){
                         expect(capturedImage.rotatedPreviewImage).to.beNil();
                         done();
                     }];
@@ -252,7 +252,7 @@ describe(@"FastttCapturedImage", ^{
             it(@"should not return a preview image if returnsPreview is NO", ^{
                 waitUntil(^(DoneCallback done) {
                     CGRect cropRect = CGRectMake(10.f, 20.f, 80.f, 120.f);
-                    [capturedImage cropToRect:cropRect returnsPreview:NO needsPreviewRotation:NO withCallback:^(FastttCapturedImage *capturedImage){
+                    [capturedImage cropToRect:cropRect returnsPreview:NO needsPreviewRotation:NO withPreviewOrientation:UIDeviceOrientationPortrait withCallback:^(FastttCapturedImage *capturedImage){
                         expect(capturedImage.rotatedPreviewImage).to.beNil();
                         done();
                     }];
@@ -261,7 +261,7 @@ describe(@"FastttCapturedImage", ^{
             
             it(@"should not return a preview image if returnsPreview is NO", ^{
                 waitUntil(^(DoneCallback done) {
-                    [capturedImage cropToRect:CGRectNull returnsPreview:NO needsPreviewRotation:NO withCallback:^(FastttCapturedImage *capturedImage){
+                    [capturedImage cropToRect:CGRectNull returnsPreview:NO needsPreviewRotation:NO withPreviewOrientation:UIDeviceOrientationPortrait withCallback:^(FastttCapturedImage *capturedImage){
                         expect(capturedImage.rotatedPreviewImage).to.beNil();
                         done();
                     }];
@@ -270,7 +270,7 @@ describe(@"FastttCapturedImage", ^{
             
             it(@"should not return a preview image if returnsPreview is NO", ^{
                 waitUntil(^(DoneCallback done) {
-                    [capturedImage cropToRect:CGRectNull returnsPreview:NO needsPreviewRotation:YES withCallback:^(FastttCapturedImage *capturedImage){
+                    [capturedImage cropToRect:CGRectNull returnsPreview:NO needsPreviewRotation:YES withPreviewOrientation:UIDeviceOrientationPortrait withCallback:^(FastttCapturedImage *capturedImage){
                         expect(capturedImage.rotatedPreviewImage).to.beNil();
                         done();
                     }];
@@ -280,7 +280,7 @@ describe(@"FastttCapturedImage", ^{
             it(@"should return a preview image if returnsPreview is YES", ^{
                 waitUntil(^(DoneCallback done) {
                     CGRect cropRect = CGRectMake(10.f, 20.f, 80.f, 120.f);
-                    [capturedImage cropToRect:cropRect returnsPreview:YES needsPreviewRotation:YES withCallback:^(FastttCapturedImage *capturedImage){
+                    [capturedImage cropToRect:cropRect returnsPreview:YES needsPreviewRotation:YES withPreviewOrientation:UIDeviceOrientationPortrait withCallback:^(FastttCapturedImage *capturedImage){
                         expect(capturedImage.rotatedPreviewImage).toNot.beNil();
                         done();
                     }];
@@ -290,7 +290,7 @@ describe(@"FastttCapturedImage", ^{
             it(@"should return a preview image if returnsPreview is YES", ^{
                 waitUntil(^(DoneCallback done) {
                     CGRect cropRect = CGRectMake(10.f, 20.f, 80.f, 120.f);
-                    [capturedImage cropToRect:cropRect returnsPreview:YES needsPreviewRotation:NO withCallback:^(FastttCapturedImage *capturedImage){
+                    [capturedImage cropToRect:cropRect returnsPreview:YES needsPreviewRotation:NO withPreviewOrientation:UIDeviceOrientationPortrait withCallback:^(FastttCapturedImage *capturedImage){
                         expect(capturedImage.rotatedPreviewImage).toNot.beNil();
                         done();
                     }];
@@ -299,7 +299,7 @@ describe(@"FastttCapturedImage", ^{
             
             it(@"should return a preview image if returnsPreview is YES", ^{
                 waitUntil(^(DoneCallback done) {
-                    [capturedImage cropToRect:CGRectNull returnsPreview:YES needsPreviewRotation:NO withCallback:^(FastttCapturedImage *capturedImage){
+                    [capturedImage cropToRect:CGRectNull returnsPreview:YES needsPreviewRotation:NO withPreviewOrientation:UIDeviceOrientationPortrait withCallback:^(FastttCapturedImage *capturedImage){
                         expect(capturedImage.rotatedPreviewImage).toNot.beNil();
                         done();
                     }];
@@ -308,7 +308,7 @@ describe(@"FastttCapturedImage", ^{
             
             it(@"should return a preview image if returnsPreview is YES", ^{
                 waitUntil(^(DoneCallback done) {
-                    [capturedImage cropToRect:CGRectNull returnsPreview:YES needsPreviewRotation:YES withCallback:^(FastttCapturedImage *capturedImage){
+                    [capturedImage cropToRect:CGRectNull returnsPreview:YES needsPreviewRotation:YES withPreviewOrientation:UIDeviceOrientationPortrait withCallback:^(FastttCapturedImage *capturedImage){
                         expect(capturedImage.rotatedPreviewImage).toNot.beNil();
                         done();
                     }];
@@ -318,7 +318,7 @@ describe(@"FastttCapturedImage", ^{
             it(@"should return a UIImageOrientationLeftMirrored preview image if needsPreviewRotation is YES", ^{
                 waitUntil(^(DoneCallback done) {
                     CGRect cropRect = CGRectMake(10.f, 20.f, 80.f, 120.f);
-                    [mirroredCapturedImage cropToRect:cropRect returnsPreview:YES needsPreviewRotation:YES withCallback:^(FastttCapturedImage *capturedImage){
+                    [mirroredCapturedImage cropToRect:cropRect returnsPreview:YES needsPreviewRotation:YES withPreviewOrientation:UIDeviceOrientationPortrait withCallback:^(FastttCapturedImage *capturedImage){
                         expect(mirroredCapturedImage.rotatedPreviewImage.imageOrientation).to.equal(UIImageOrientationLeftMirrored);
                         done();
                     }];
@@ -327,7 +327,7 @@ describe(@"FastttCapturedImage", ^{
             
             it(@"should return a UIImageOrientationLeftMirrored preview image if needsPreviewRotation is YES", ^{
                 waitUntil(^(DoneCallback done) {
-                    [mirroredCapturedImage cropToRect:CGRectNull returnsPreview:YES needsPreviewRotation:YES withCallback:^(FastttCapturedImage *capturedImage){
+                    [mirroredCapturedImage cropToRect:CGRectNull returnsPreview:YES needsPreviewRotation:YES withPreviewOrientation:UIDeviceOrientationPortrait withCallback:^(FastttCapturedImage *capturedImage){
                         expect(mirroredCapturedImage.rotatedPreviewImage.imageOrientation).to.equal(UIImageOrientationLeftMirrored);
                         done();
                     }];
@@ -337,7 +337,7 @@ describe(@"FastttCapturedImage", ^{
             it(@"should return a UIImageOrientationRight preview image if needsPreviewRotation is YES", ^{
                 waitUntil(^(DoneCallback done) {
                     CGRect cropRect = CGRectMake(10.f, 20.f, 80.f, 120.f);
-                    [capturedImage cropToRect:cropRect returnsPreview:YES needsPreviewRotation:YES withCallback:^(FastttCapturedImage *capturedImage){
+                    [capturedImage cropToRect:cropRect returnsPreview:YES needsPreviewRotation:YES withPreviewOrientation:UIDeviceOrientationPortrait withCallback:^(FastttCapturedImage *capturedImage){
                         expect(capturedImage.rotatedPreviewImage.imageOrientation).to.equal(UIImageOrientationRight);
                         done();
                     }];
@@ -346,7 +346,7 @@ describe(@"FastttCapturedImage", ^{
             
             it(@"should return a UIImageOrientationRight preview image if needsPreviewRotation is YES", ^{
                 waitUntil(^(DoneCallback done) {
-                    [capturedImage cropToRect:CGRectNull returnsPreview:YES needsPreviewRotation:YES withCallback:^(FastttCapturedImage *capturedImage){
+                    [capturedImage cropToRect:CGRectNull returnsPreview:YES needsPreviewRotation:YES withPreviewOrientation:UIDeviceOrientationPortrait withCallback:^(FastttCapturedImage *capturedImage){
                         expect(capturedImage.rotatedPreviewImage.imageOrientation).to.equal(UIImageOrientationRight);
                         done();
                     }];
@@ -356,7 +356,7 @@ describe(@"FastttCapturedImage", ^{
             it(@"should not change orientation of preview image if needsPreviewRotation is NO", ^{
                 waitUntil(^(DoneCallback done) {
                     CGRect cropRect = CGRectMake(10.f, 20.f, 80.f, 120.f);
-                    [mirroredCapturedImage cropToRect:cropRect returnsPreview:YES needsPreviewRotation:NO withCallback:^(FastttCapturedImage *capturedImage){
+                    [mirroredCapturedImage cropToRect:cropRect returnsPreview:YES needsPreviewRotation:NO withPreviewOrientation:UIDeviceOrientationPortrait withCallback:^(FastttCapturedImage *capturedImage){
                         expect(mirroredCapturedImage.rotatedPreviewImage.imageOrientation).to.equal(UIImageOrientationLeftMirrored);
                         done();
                     }];
@@ -365,7 +365,7 @@ describe(@"FastttCapturedImage", ^{
             
             it(@"should not change orientation of preview image if needsPreviewRotation is NO", ^{
                 waitUntil(^(DoneCallback done) {
-                    [mirroredCapturedImage cropToRect:CGRectNull returnsPreview:YES needsPreviewRotation:NO withCallback:^(FastttCapturedImage *capturedImage){
+                    [mirroredCapturedImage cropToRect:CGRectNull returnsPreview:YES needsPreviewRotation:NO withPreviewOrientation:UIDeviceOrientationPortrait withCallback:^(FastttCapturedImage *capturedImage){
                         expect(mirroredCapturedImage.rotatedPreviewImage.imageOrientation).to.equal(UIImageOrientationLeftMirrored);
                         done();
                     }];
@@ -375,7 +375,7 @@ describe(@"FastttCapturedImage", ^{
             it(@"should not change orientation of preview image if needsPreviewRotation is NO", ^{
                 waitUntil(^(DoneCallback done) {
                     CGRect cropRect = CGRectMake(10.f, 20.f, 80.f, 120.f);
-                    [capturedImage cropToRect:cropRect returnsPreview:YES needsPreviewRotation:NO withCallback:^(FastttCapturedImage *capturedImage){
+                    [capturedImage cropToRect:cropRect returnsPreview:YES needsPreviewRotation:NO withPreviewOrientation:UIDeviceOrientationPortrait withCallback:^(FastttCapturedImage *capturedImage){
                         expect(capturedImage.rotatedPreviewImage.imageOrientation).to.equal(UIImageOrientationUp);
                         done();
                     }];
@@ -384,7 +384,7 @@ describe(@"FastttCapturedImage", ^{
             
             it(@"should not change orientation of preview image if needsPreviewRotation is NO", ^{
                 waitUntil(^(DoneCallback done) {
-                    [capturedImage cropToRect:CGRectNull returnsPreview:YES needsPreviewRotation:NO withCallback:^(FastttCapturedImage *capturedImage){
+                    [capturedImage cropToRect:CGRectNull returnsPreview:YES needsPreviewRotation:NO withPreviewOrientation:UIDeviceOrientationPortrait withCallback:^(FastttCapturedImage *capturedImage){
                         expect(capturedImage.rotatedPreviewImage.imageOrientation).to.equal(UIImageOrientationUp);
                         done();
                     }];
@@ -394,7 +394,7 @@ describe(@"FastttCapturedImage", ^{
             it(@"should not set isNormalized to YES", ^{
                 waitUntil(^(DoneCallback done) {
                     CGRect cropRect = CGRectMake(10.f, 20.f, 80.f, 120.f);
-                    [capturedImage cropToRect:cropRect returnsPreview:YES needsPreviewRotation:NO withCallback:^(FastttCapturedImage *capturedImage){
+                    [capturedImage cropToRect:cropRect returnsPreview:YES needsPreviewRotation:NO withPreviewOrientation:UIDeviceOrientationPortrait withCallback:^(FastttCapturedImage *capturedImage){
                         expect(capturedImage.isNormalized).to.beFalsy();
                         done();
                     }];
@@ -404,7 +404,7 @@ describe(@"FastttCapturedImage", ^{
             it(@"should not set isNormalized to YES", ^{
                 waitUntil(^(DoneCallback done) {
                     CGRect cropRect = CGRectMake(10.f, 20.f, 80.f, 120.f);
-                    [mirroredCapturedImage cropToRect:cropRect returnsPreview:YES needsPreviewRotation:NO withCallback:^(FastttCapturedImage *capturedImage){
+                    [mirroredCapturedImage cropToRect:cropRect returnsPreview:YES needsPreviewRotation:NO withPreviewOrientation:UIDeviceOrientationPortrait withCallback:^(FastttCapturedImage *capturedImage){
                         expect(mirroredCapturedImage.isNormalized).to.beFalsy();
                         done();
                     }];

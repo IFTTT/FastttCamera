@@ -571,9 +571,9 @@ describe(@"UIImageFastttCamera", ^{
         
         beforeAll(^{
             // This is run before each example
-            rotatedImage = [image fastttRotatedImageMatchingCameraView];
-            rotatedRightImage = [rightImage fastttRotatedImageMatchingCameraView];
-            rotatedMirroredImage = [mirroredImage fastttRotatedImageMatchingCameraView];
+            rotatedImage = [image fastttRotatedImageMatchingCameraViewWithOrientation:UIDeviceOrientationPortrait];
+            rotatedRightImage = [rightImage fastttRotatedImageMatchingCameraViewWithOrientation:UIDeviceOrientationPortrait];
+            rotatedMirroredImage = [mirroredImage fastttRotatedImageMatchingCameraViewWithOrientation:UIDeviceOrientationPortrait];
         });
         
         it(@"should not return nil", ^{
