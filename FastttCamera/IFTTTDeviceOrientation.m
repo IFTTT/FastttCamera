@@ -82,6 +82,7 @@
     CGFloat scaling = 1.f / (ABS(acceleration.x) + ABS(acceleration.y));
     
     CGFloat x = acceleration.x * scaling;
+    CGFloat y = acceleration.y * scaling;
     
     if (x < -0.5f) {
         return UIDeviceOrientationLandscapeLeft;
@@ -89,6 +90,10 @@
     
     if (x > 0.5f) {
         return UIDeviceOrientationLandscapeRight;
+    }
+    
+    if (y > 0.5f) {
+        return UIDeviceOrientationPortraitUpsideDown;
     }
     
     return UIDeviceOrientationPortrait;
