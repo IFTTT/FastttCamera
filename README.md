@@ -90,6 +90,14 @@ if ([FastttCamera isFlashAvailableForCameraDevice:self.fastCamera.cameraDevice])
 	[self.fastCamera setCameraFlashMode:flashMode];
 }
 ```
+
+Set the camera's torch mode.
+
+```objc
+if ([FastttCamera isTorchAvailableForCameraDevice:self.fastCamera.cameraDevice]) {
+[self.fastCamera setCameraTorchMode:torchMode];
+}
+```
 Tell `FastttCamera` to take a photo.
 
 ```objc
