@@ -41,7 +41,8 @@
             handlesTapFocus = _handlesTapFocus,
             scalesImage = _scalesImage,
             cameraDevice = _cameraDevice,
-            cameraFlashMode = _cameraFlashMode;
+            cameraFlashMode = _cameraFlashMode,
+            cameraTorchMode = _cameraTorchMode;
 
 - (instancetype)init
 {
@@ -60,6 +61,7 @@
         _fixedInterfaceOrientation = UIDeviceOrientationPortrait;
         _cameraDevice = FastttCameraDeviceRear;
         _cameraFlashMode = FastttCameraFlashModeOff;
+        _cameraTorchMode = FastttCameraTorchModeOff;
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(applicationWillEnterForeground:)
@@ -239,6 +241,22 @@
     return [AVCaptureDevice isFlashAvailableForCameraDevice:cameraDevice];
 }
 
+- (BOOL)isTorchAvailableForCurrentDevice
+{
+    AVCaptureDevice *device = [self _currentCameraDevice];
+    
+    if ([device isTorchModeSupported:AVCaptureTorchModeOn]) {
+        return YES;
+    }
+    
+    return NO;
+}
+
++ (BOOL)isTorchAvailableForCameraDevice:(FastttCameraDevice)cameraDevice
+{
+    return [AVCaptureDevice isTorchAvailableForCameraDevice:cameraDevice];
+}
+
 + (BOOL)isCameraDeviceAvailable:(FastttCameraDevice)cameraDevice
 {
     return ([AVCaptureDevice cameraDevice:cameraDevice] != nil);
@@ -274,6 +292,19 @@
     }
 
     _cameraFlashMode = FastttCameraFlashModeOff;
+}
+
+- (void)setCameraTorchMode:(FastttCameraTorchMode)cameraTorchMode
+{
+    AVCaptureDevice *device = [self _currentCameraDevice];
+    
+    if ([AVCaptureDevice isTorchAvailableForCameraDevice:self.cameraDevice]) {
+        _cameraTorchMode = cameraTorchMode;
+        [device setCameraTorchMode:cameraTorchMode];
+        return;
+    }
+    
+    _cameraTorchMode = FastttCameraTorchModeOff;
 }
 
 #pragma mark - Filtering

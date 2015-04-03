@@ -26,10 +26,10 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   Expecta: 8c507baf13211207b1e9d0a741480600e6b4ed15
   Expecta+Snapshots: 4a0b46d3ba755bd43dffa7d53e4585fc6cbfe8cd
-  FastttCamera: 5e0aab840b8dd99cc3b40dfc986a5b6ce91c37e0
+  FastttCamera: e935b9085f58989286deb3ba06c4f9eed62913bc
   FBSnapshotTestCase: 26f32d8fa9eb30e9f09712ecfb097808bc79b898
   Masonry: 4972309f2f134de9dd312f4dc4a21359b50e6caa
   OCMock: a10ea9f0a6e921651f96f78b6faee95ebc813b92
   Specta: a353759f073ffcc0a365b782fe4aaeac064c03c6
 
-COCOAPODS: 0.35.0
+COCOAPODS: 0.36.0

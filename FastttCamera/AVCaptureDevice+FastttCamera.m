@@ -36,6 +36,16 @@
     return NO;
 }
 
++ (BOOL)isTorchAvailableForCameraDevice:(FastttCameraDevice)cameraDevice
+{
+    AVCaptureDevice *device = [self cameraDevice:cameraDevice];
+    if ([device isTorchModeSupported:AVCaptureTorchModeOn]) {
+        return YES;
+    }
+    
+    return NO;
+}
+
 + (AVCaptureDevice *)cameraDevice:(FastttCameraDevice)cameraDevice
 {
     NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
@@ -69,6 +79,25 @@
         
         if ([self isFlashModeSupported:flashMode]) {
             self.flashMode = flashMode;
+            success = YES;
+        }
+        
+        [self unlockForConfiguration];
+    }
+    
+    return success;
+}
+
+- (BOOL)setCameraTorchMode:(FastttCameraTorchMode)cameraTorchMode
+{
+    BOOL success = NO;
+    
+    if ([self lockForConfiguration:nil]) {
+        
+        AVCaptureTorchMode torchMode = [self.class _modeForFastttCameraTorchMode:cameraTorchMode];
+        
+        if ([self isTorchModeSupported:torchMode]) {
+            self.torchMode = torchMode;
             success = YES;
         }
         
@@ -138,6 +167,27 @@
             
         case FastttCameraFlashModeAuto:
             mode = AVCaptureFlashModeAuto;
+            break;
+    }
+    
+    return mode;
+}
+
++ (AVCaptureTorchMode)_modeForFastttCameraTorchMode:(FastttCameraTorchMode)cameraTorchMode
+{
+    AVCaptureTorchMode mode;
+    
+    switch (cameraTorchMode) {
+        case FastttCameraTorchModeOn:
+            mode = AVCaptureTorchModeOn;
+            break;
+            
+        case FastttCameraTorchModeOff:
+            mode = AVCaptureTorchModeOff;
+            break;
+            
+        case FastttCameraTorchModeAuto:
+            mode = AVCaptureTorchModeAuto;
             break;
     }
     
