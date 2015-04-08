@@ -16,3 +16,9 @@ typedef NS_ENUM(NSInteger, FastttCameraFlashMode) {
     FastttCameraFlashModeOn,
     FastttCameraFlashModeAuto
 };
+
+typedef NS_ENUM(NSInteger, FastttCameraTorchMode) {
+    FastttCameraTorchModeOff,
+    FastttCameraTorchModeOn,
+    FastttCameraTorchModeAuto
+};

@@ -104,6 +104,11 @@
 @property (nonatomic, assign) FastttCameraFlashMode cameraFlashMode;
 
 /**
+ *  The current torch mode.
+ */
+@property (nonatomic, assign) FastttCameraTorchMode cameraTorchMode;
+
+/**
  *  Check if flash is available for the current camera device.
  *
  *  @return YES if flash is available, NO if not.
@@ -116,6 +121,20 @@
  *  @return YES if flash is available, NO if not.
  */
 + (BOOL)isFlashAvailableForCameraDevice:(FastttCameraDevice)cameraDevice;
+
+/**
+ *  Check if torch is available for the current camera device.
+ *
+ *  @return YES if torch is available, NO if not.
+ */
+- (BOOL)isTorchAvailableForCurrentDevice;
+
+/**
+ *  Check if torch is available for the specified camera device.
+ *
+ *  @return YES if torch is available, NO if not.
+ */
++ (BOOL)isTorchAvailableForCameraDevice:(FastttCameraDevice)cameraDevice;
 
 /**
  *  Check if point focus is available for the specified camera device.
