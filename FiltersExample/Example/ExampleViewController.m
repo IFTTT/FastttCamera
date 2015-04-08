@@ -72,6 +72,8 @@
     }];
     
     _flashButton = [UIButton new];
+    self.flashButton.titleLabel.textAlignment = NSTextAlignmentCenter;
+    self.flashButton.titleLabel.numberOfLines = 0;
     [self.flashButton addTarget:self
                          action:@selector(flashButtonPressed)
                forControlEvents:UIControlEventTouchUpInside];
@@ -87,9 +89,9 @@
         make.left.equalTo(self.view).offset(20.f);
     }];
     
-    
-
     _switchCameraButton = [UIButton new];
+    self.switchCameraButton.titleLabel.textAlignment = NSTextAlignmentCenter;
+    self.switchCameraButton.titleLabel.numberOfLines = 0;
     [self.switchCameraButton addTarget:self
                                 action:@selector(switchCameraButtonPressed)
                       forControlEvents:UIControlEventTouchUpInside];
@@ -107,6 +109,8 @@
     }];
     
     _torchButton = [UIButton new];
+    self.torchButton.titleLabel.textAlignment = NSTextAlignmentCenter;
+    self.torchButton.titleLabel.numberOfLines = 0;
     [self.torchButton addTarget:self
                          action:@selector(torchButtonPressed)
                forControlEvents:UIControlEventTouchUpInside];
@@ -122,7 +126,6 @@
         make.right.equalTo(self.switchCameraButton.mas_left).offset(-20.f);
         make.size.equalTo(self.flashButton);
     }];
-    
     
     _changeFilterButton = [UIButton new];
     [self.changeFilterButton addTarget:self
