@@ -16,6 +16,7 @@
 @property (nonatomic, strong) FastttCamera *fastCamera;
 @property (nonatomic, strong) UIButton *takePhotoButton;
 @property (nonatomic, strong) UIButton *flashButton;
+@property (nonatomic, strong) UIButton *torchButton;
 @property (nonatomic, strong) UIButton *switchCameraButton;
 @property (nonatomic, strong) ConfirmViewController *confirmController;
 
@@ -67,6 +68,8 @@
     }];
     
     _flashButton = [UIButton new];
+    self.flashButton.titleLabel.textAlignment = NSTextAlignmentCenter;
+    self.flashButton.titleLabel.numberOfLines = 0;
     [self.flashButton addTarget:self
                          action:@selector(flashButtonPressed)
                forControlEvents:UIControlEventTouchUpInside];
@@ -83,6 +86,8 @@
     }];
     
     _switchCameraButton = [UIButton new];
+    self.switchCameraButton.titleLabel.textAlignment = NSTextAlignmentCenter;
+    self.switchCameraButton.titleLabel.numberOfLines = 0;
     [self.switchCameraButton addTarget:self
                                 action:@selector(switchCameraButtonPressed)
                       forControlEvents:UIControlEventTouchUpInside];
@@ -96,6 +101,26 @@
     [self.switchCameraButton mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(self.view).offset(20.f);
         make.right.equalTo(self.view).offset(-20.f);
+        make.size.equalTo(self.flashButton);
+    }];
+    
+    _torchButton = [UIButton new];
+    self.torchButton.titleLabel.textAlignment = NSTextAlignmentCenter;
+    self.torchButton.titleLabel.numberOfLines = 0;
+    [self.torchButton addTarget:self
+                         action:@selector(torchButtonPressed)
+               forControlEvents:UIControlEventTouchUpInside];
+    
+    [self.torchButton setTitle:@"Torch Off"
+                      forState:UIControlStateNormal];
+    
+    [self.fastCamera setCameraTorchMode:FastttCameraTorchModeOff];
+    [self.view addSubview:self.torchButton];
+    [self.torchButton mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(self.view).offset(20.f);
+        make.left.equalTo(self.flashButton.mas_right).offset(20.f);
+        make.right.equalTo(self.switchCameraButton.mas_left).offset(-20.f);
+        make.size.equalTo(self.flashButton);
     }];
 }
 
@@ -132,6 +157,29 @@
     if ([self.fastCamera isFlashAvailableForCurrentDevice]) {
         [self.fastCamera setCameraFlashMode:flashMode];
         [self.flashButton setTitle:flashTitle forState:UIControlStateNormal];
+    }
+}
+
+- (void)torchButtonPressed
+{
+    NSLog(@"torch button pressed");
+    
+    FastttCameraTorchMode torchMode;
+    NSString *torchTitle;
+    switch (self.fastCamera.cameraTorchMode) {
+        case FastttCameraTorchModeOn:
+            torchMode = FastttCameraTorchModeOff;
+            torchTitle = @"Torch Off";
+            break;
+        case FastttCameraTorchModeOff:
+        default:
+            torchMode = FastttCameraTorchModeOn;
+            torchTitle = @"Torch On";
+            break;
+    }
+    if ([self.fastCamera isTorchAvailableForCurrentDevice]) {
+        [self.fastCamera setCameraTorchMode:torchMode];
+        [self.torchButton setTitle:torchTitle forState:UIControlStateNormal];
     }
 }
 

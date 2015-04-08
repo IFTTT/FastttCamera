@@ -32,7 +32,6 @@
  */
 + (BOOL)isFlashAvailableForCameraDevice:(FastttCameraDevice)cameraDevice;
 
-
 /**
  *  Checks whether torch is available for the given FastttCameraDevice.
  *
