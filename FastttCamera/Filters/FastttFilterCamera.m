@@ -24,6 +24,7 @@
 @property (nonatomic, strong) GPUImageStillCamera *stillCamera;
 @property (nonatomic, strong) FastttFilter *fastFilter;
 @property (nonatomic, strong) GPUImageView *previewView;
+@property (nonatomic, strong) NSMutableArray *outputViews;
 @property (nonatomic, assign) BOOL deviceAuthorized;
 
 @end
@@ -62,6 +63,7 @@
         _cameraDevice = FastttCameraDeviceRear;
         _cameraFlashMode = FastttCameraFlashModeOff;
         _cameraTorchMode = FastttCameraTorchModeOff;
+        _outputViews = [NSMutableArray array];
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(applicationWillEnterForeground:)
@@ -323,6 +325,8 @@
     _fastFilter = [FastttFilter filterWithLookupImage:filterImage];
     _filterImage = filterImage;
     [self _insertPreviewLayer];
+    
+    [self _reattachOutputLayers];
 }
 
 #pragma mark - Capture Session Management
@@ -350,15 +354,13 @@
     }
     
     if (!_previewView) {
-        _previewView = [[GPUImageView alloc] init];
+        _previewView = (GPUImageView*)[self createOutputView:UIViewContentModeScaleAspectFill];
         [self.view addSubview:_previewView];
         _previewView.frame = self.view.bounds;
-        _previewView.fillMode = kGPUImageFillModePreserveAspectRatioAndFill;
     }
     
     [_stillCamera removeAllTargets];
-    [self.fastFilter.filter removeAllTargets];
-    
+    [self.fastFilter.filter removeTarget:_previewView];
     [_stillCamera addTarget:self.fastFilter.filter];
     [self.fastFilter.filter addTarget:_previewView];
 }
@@ -366,7 +368,7 @@
 - (void)_removePreviewLayer
 {
     [_stillCamera removeAllTargets];
-    [self.fastFilter.filter removeAllTargets];
+    [self removeOutputView:_previewView];
     
     [_previewView removeFromSuperview];
     _previewView = nil;
@@ -459,8 +461,56 @@
     
     [self _removePreviewLayer];
     
+    [self removeAllOutputViews];
     _stillCamera = nil;
 }
+
+#pragma mark  - Output views management
+
+- (GPUImageView *)createOutputView:(UIViewContentMode)fillmode
+{
+    GPUImageFillModeType mode = kGPUImageFillModeStretch;
+    switch (fillmode) {
+        case UIViewContentModeScaleAspectFit:
+            mode = kGPUImageFillModePreserveAspectRatio;
+            break;
+        case UIViewContentModeScaleAspectFill:
+            mode = kGPUImageFillModePreserveAspectRatioAndFill;
+            break;
+        default:
+            break;
+    }
+    
+    GPUImageView * outputView = [[GPUImageView alloc] init];
+    outputView.fillMode = mode;
+    [self.outputViews addObject:outputView];
+    [self.fastFilter.filter addTarget:outputView];
+    
+    return outputView;
+}
+
+- (void)removeOutputView:(UIView*)outputView;
+{
+    [self.fastFilter.filter removeTarget:(GPUImageView<GPUImageInput>*)outputView];
+    [self.outputViews removeObject:outputView];
+}
+
+- (void)removeAllOutputViews
+{
+    NSArray * outputs = self.outputViews.copy;
+    for (GPUImageView<GPUImageInput> * output in outputs) {
+        if(_previewView!=output) [self removeOutputView:output];
+    }
+}
+
+-(void) _reattachOutputLayers
+{
+    NSArray * outputs = self.outputViews.copy;
+    for (GPUImageView<GPUImageInput> * output in outputs) {
+        if(_previewView!=output) [self.fastFilter.filter addTarget:output];
+    }
+}
+
 
 #pragma mark - Capturing a Photo
 

@@ -22,6 +22,8 @@
 @property (nonatomic, strong) UIButton *changeFilterButton;
 @property (nonatomic, strong) ExampleFilter *currentFilter;
 @property (nonatomic, strong) ConfirmViewController *confirmController;
+@property (nonatomic, weak) UIView *additionalPreviewView;
+@property (nonatomic, weak) MASConstraint *additionalPreviewLeftConstraint;
 
 @end
 
@@ -56,6 +58,17 @@
         make.height.and.width.equalTo(self.view.mas_width).with.priorityLow();
         make.height.and.width.equalTo(self.view.mas_height).with.priorityLow();
     }];
+    
+    UIView * addonView = [_fastCamera createOutputView:(UIViewContentModeScaleAspectFill)];
+    [self.view addSubview:addonView];
+    self.additionalPreviewView = addonView;
+    
+    [addonView mas_makeConstraints:^(MASConstraintMaker *make) {
+        self.additionalPreviewLeftConstraint = make.left.equalTo(@20);
+        make.top.equalTo(@20);
+        make.width.and.height.equalTo(@100);
+    }];
+    
     
     _takePhotoButton = [UIButton new];
     [self.takePhotoButton addTarget:self
@@ -146,6 +159,18 @@
 {
     [super viewDidAppear:animated];
     self.confirmController = nil;
+    
+    self.additionalPreviewLeftConstraint.offset = 100;
+    [UIView animateWithDuration:3
+                          delay:0
+                        options:(UIViewAnimationOptionRepeat | UIViewAnimationOptionAutoreverse)
+                     animations:^{
+                            [self.additionalPreviewView layoutIfNeeded];
+                        } completion:nil];
+    [UIView animateWithDuration:5 animations:^{
+        [self.additionalPreviewView layoutIfNeeded];
+    }];
+    
 }
 
 - (void)takePhotoButtonPressed
