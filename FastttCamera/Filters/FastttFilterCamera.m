@@ -104,7 +104,9 @@
     
     _fastFilter = nil;
 
+    [self removeAllOutputViews];
     [self _teardownCaptureSession];
+    
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
@@ -160,6 +162,7 @@
         [self _startRunning];
         [self _insertPreviewLayer];
         [self _setPreviewVideoOrientation];
+        [self _reattachOutputLayers];
     }
 }
 
@@ -461,7 +464,6 @@
     
     [self _removePreviewLayer];
     
-    [self removeAllOutputViews];
     _stillCamera = nil;
 }
 
@@ -507,7 +509,11 @@
 {
     NSArray * outputs = self.outputViews.copy;
     for (GPUImageView<GPUImageInput> * output in outputs) {
-        if(_previewView!=output) [self.fastFilter.filter addTarget:output];
+        if(_previewView!=output)
+        {
+            [self.fastFilter.filter removeTarget:output];
+            [self.fastFilter.filter addTarget:output];
+        }
     }
 }
 
