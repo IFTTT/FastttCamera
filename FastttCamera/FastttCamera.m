@@ -497,7 +497,11 @@
          }
          
          NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
-         
+
+         if ([self.delegate respondsToSelector:@selector(cameraController:didFinishCapturingImageData:)]) {
+             [self.delegate cameraController:self didFinishCapturingImageData:imageData];
+         }
+
          dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
              
              UIImage *image = [UIImage imageWithData:imageData];
