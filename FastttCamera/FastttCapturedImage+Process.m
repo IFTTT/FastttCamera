@@ -21,6 +21,8 @@ withPreviewOrientation:(UIDeviceOrientation)previewOrientation
         self.fullImage = [self.fullImage fastttCroppedImageFromCropRect:cropRect];
     }
     
+    self.capturedImageOrientation = self.fullImage.imageOrientation;
+    
     if (returnsPreview) {
         UIImage *previewImage;
         if (needsPreviewRotation) {

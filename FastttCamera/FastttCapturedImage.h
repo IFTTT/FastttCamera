@@ -55,4 +55,10 @@
  */
 @property (nonatomic, assign) BOOL isNormalized;
 
+/**
+ *  The orientation that the image was captured with, useful if you are doing additional image editing
+ *  using the rotated preview image.
+ */
+@property (nonatomic, assign) UIImageOrientation capturedImageOrientation;
+
 @end

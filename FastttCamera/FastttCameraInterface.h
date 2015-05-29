@@ -220,6 +220,16 @@
 @optional
 
 /**
+ *  Called when the camera controller has obtained the raw data containing the image and metadata.
+ *
+ *  @param cameraController The FastttCamera instance that captured a photo.
+ *
+ *  @param rawJPEGData The plain, raw data from the camera, ready to be written to a file if desired.
+ *
+*/
+- (void)cameraController:(id<FastttCameraInterface>)cameraController didFinishCapturingImageData:(NSData *)rawJPEGData;
+
+/**
  *  Called when the camera controller has finished capturing a photo.
  *
  *  @param cameraController The FastttCamera instance that captured a photo.
