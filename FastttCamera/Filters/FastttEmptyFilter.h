@@ -6,7 +6,7 @@
 //
 //
 
-#import "GPUImageFilter.h"
+#import <GPUImage/GPUImageFilter.h>
 
 /**
  *  Private class to create an empty filter, necessary for GPUImage

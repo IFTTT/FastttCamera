@@ -8,7 +8,7 @@
 
 @import UIKit;
 @import XCTest;
-#import <UIImage+FastttCamera.h>
+#import <FastttCamera/UIImage+FastttCamera.h>
 
 @interface FastttCameraPerformance : XCTestCase
 
