@@ -23,6 +23,7 @@
 @property (nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
 @property (nonatomic, strong) AVCaptureStillImageOutput *stillImageOutput;
 @property (nonatomic, assign) BOOL deviceAuthorized;
+@property (nonatomic, assign) BOOL isCapturingImage;
 
 @end
 
@@ -114,7 +115,7 @@
 {
     [super viewWillAppear:animated];
     
-    [self _startRunning];
+    [self startRunning];
     
     [self _insertPreviewLayer];
     
@@ -125,7 +126,7 @@
 {
     [super viewDidDisappear:animated];
     
-    [self _stopRunning];
+    [self stopRunning];
 }
 
 - (void)viewDidLayoutSubviews
@@ -142,7 +143,7 @@
 - (void)applicationDidBecomeActive:(NSNotification *)notification
 {
     if (self.isViewLoaded && self.view.window) {
-        [self _startRunning];
+        [self startRunning];
         [self _insertPreviewLayer];
         [self _setPreviewVideoOrientation];
     }
@@ -150,7 +151,7 @@
 
 - (void)applicationWillResignActive:(NSNotification *)notification
 {
-    [self _stopRunning];
+    [self stopRunning];
 }
 
 - (void)applicationDidEnterBackground:(NSNotification *)notification
@@ -172,6 +173,11 @@
 
 #pragma mark - Taking a Photo
 
+- (BOOL)isReadyToCapturePhoto
+{
+    return !self.isCapturingImage;
+}
+
 - (void)takePicture
 {
     if (!_deviceAuthorized) {
@@ -179,6 +185,13 @@
     }
     
     [self _takePhoto];
+}
+
+- (void)cancelImageProcessing
+{
+    if (_isCapturingImage) {
+        _isCapturingImage = NO;
+    }
 }
 
 #pragma mark - Processing a Photo
@@ -300,14 +313,14 @@
 
 #pragma mark - Capture Session Management
 
-- (void)_startRunning
+- (void)startRunning
 {
     if (![_session isRunning]) {
         [_session startRunning];
     }
 }
 
-- (void)_stopRunning
+- (void)stopRunning
 {
     if ([_session isRunning]) {
         [_session stopRunning];
@@ -416,7 +429,7 @@
                 _deviceOrientation = [IFTTTDeviceOrientation new];
                 
                 if (self.isViewLoaded && self.view.window) {
-                    [self _startRunning];
+                    [self startRunning];
                     [self _insertPreviewLayer];
                     [self _setPreviewVideoOrientation];
                 }
@@ -455,6 +468,11 @@
 
 - (void)_takePhoto
 {
+    if (self.isCapturingImage) {
+        return;
+    }
+    self.isCapturingImage = YES;
+    
     BOOL needsPreviewRotation = ![self.deviceOrientation deviceOrientationMatchesInterfaceOrientation];
     
     AVCaptureConnection *videoConnection = nil;
@@ -496,6 +514,10 @@
              return;
          }
          
+         if (!self.isCapturingImage) {
+             return;
+         }
+         
          NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
 
          if ([self.delegate respondsToSelector:@selector(cameraController:didFinishCapturingImageData:)]) {
@@ -527,6 +549,9 @@
 - (void)_processImage:(UIImage *)image withCropRect:(CGRect)cropRect maxDimension:(CGFloat)maxDimension fromCamera:(BOOL)fromCamera needsPreviewRotation:(BOOL)needsPreviewRotation previewOrientation:(UIDeviceOrientation)previewOrientation
 {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        if (fromCamera && !self.isCapturingImage) {
+            return;
+        }
         
         FastttCapturedImage *capturedImage = [FastttCapturedImage fastttCapturedFullImage:image];
         
@@ -535,6 +560,9 @@
              needsPreviewRotation:needsPreviewRotation
            withPreviewOrientation:previewOrientation
                      withCallback:^(FastttCapturedImage *capturedImage){
+                         if (fromCamera && !self.isCapturingImage) {
+                             return;
+                         }
                          if ([self.delegate respondsToSelector:@selector(cameraController:didFinishCapturingImage:)]) {
                              dispatch_async(dispatch_get_main_queue(), ^{
                                  [self.delegate cameraController:self didFinishCapturingImage:capturedImage];
@@ -543,12 +571,19 @@
                      }];
         
         void (^scaleCallback)(FastttCapturedImage *capturedImage) = ^(FastttCapturedImage *capturedImage) {
+            if (fromCamera && !self.isCapturingImage) {
+                return;
+            }
             if ([self.delegate respondsToSelector:@selector(cameraController:didFinishScalingCapturedImage:)]) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self.delegate cameraController:self didFinishScalingCapturedImage:capturedImage];
                 });
             }
         };
+        
+        if (fromCamera && !self.isCapturingImage) {
+            return;
+        }
         
         if (maxDimension > 0.f) {
             [capturedImage scaleToMaxDimension:maxDimension
@@ -558,8 +593,15 @@
                           withCallback:scaleCallback];
         }
         
+        if (fromCamera && !self.isCapturingImage) {
+            return;
+        }
+        
         if (self.normalizesImageOrientations) {
             [capturedImage normalizeWithCallback:^(FastttCapturedImage *capturedImage){
+                if (fromCamera && !self.isCapturingImage) {
+                    return;
+                }
                 if ([self.delegate respondsToSelector:@selector(cameraController:didFinishNormalizingCapturedImage:)]) {
                     dispatch_async(dispatch_get_main_queue(), ^{
                         [self.delegate cameraController:self didFinishNormalizingCapturedImage:capturedImage];
@@ -567,6 +609,8 @@
                 }
             }];
         }
+        
+        self.isCapturingImage = NO;
     });
 }
 

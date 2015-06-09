@@ -90,7 +90,6 @@
  */
 @property (nonatomic, assign) UIDeviceOrientation fixedInterfaceOrientation;
 
-
 #pragma mark - Camera State
 
 /**
@@ -167,6 +166,13 @@
 #pragma mark - Take a picture!
 
 /**
+ *  Checks whether the last photo has finished processing.
+ *
+ *  @return YES if the last photo has finished processing and it is ready to capture, NO if not.
+ */
+- (BOOL)isReadyToCapturePhoto;
+
+/**
  *  Triggers the camera to take a photo.
  */
 - (void)takePicture;
@@ -209,6 +215,27 @@
  *  and will trigger cameraController:didFinishNormalizingCapturedImage: if normalizesImageOrientations is set to YES.
  */
 - (void)processImage:(UIImage *)image withCropRect:(CGRect)cropRect maxDimension:(CGFloat)maxDimension;
+
+/**
+ *  Cancels the in-process image capture and processing to free up memory and ready FastttCamera to capture a new photo.
+ */
+- (void)cancelImageProcessing;
+
+#pragma mark - Manage Capture Session
+
+/**
+ *  Start the capture session if it is currently paused.
+ *
+ *  @note This is managed internally by FastttCamera. Advanced use cases can trigger it manually using this method.
+ */
+- (void)startRunning;
+
+/**
+ *  Pause the capture session if it is currently running.
+ *
+ *  @note This is managed internally by FastttCamera. Advanced use cases can trigger it manually using this method.
+ */
+- (void)stopRunning;
 
 @end
 

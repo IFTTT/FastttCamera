@@ -3,8 +3,8 @@ PODS:
   - Expecta+Snapshots (1.3.1):
     - Expecta
     - FBSnapshotTestCase
-  - FastttCamera/Default (0.3.0)
-  - FastttCamera/Filters (0.3.0):
+  - FastttCamera/Default (0.3.1)
+  - FastttCamera/Filters (0.3.1):
     - FastttCamera/Default
     - GPUImage (~> 0.1.0)
   - FBSnapshotTestCase (1.5)
@@ -28,7 +28,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   Expecta: 8c507baf13211207b1e9d0a741480600e6b4ed15
   Expecta+Snapshots: 4a0b46d3ba755bd43dffa7d53e4585fc6cbfe8cd
-  FastttCamera: 6c406118c275030aacddaa1a1a2a5f7032dc8c51
+  FastttCamera: dfcec6e490be93130123309fdecc7cf444081470
   FBSnapshotTestCase: 26f32d8fa9eb30e9f09712ecfb097808bc79b898
   GPUImage: 4675ce4a5370ca92fcea8623b2a08b8f0c51b940
   Masonry: 4972309f2f134de9dd312f4dc4a21359b50e6caa
