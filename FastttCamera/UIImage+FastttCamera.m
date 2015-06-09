@@ -7,7 +7,7 @@
 //
 
 #import "UIImage+FastttCamera.h"
-@import UIKit;
+#import <UIKit/UIKit.h>
 
 CG_INLINE CGFLOAT_TYPE FastttRound(CGFLOAT_TYPE f) {
 #if CGFLOAT_IS_DOUBLE

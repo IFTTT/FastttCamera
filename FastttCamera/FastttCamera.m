@@ -6,7 +6,7 @@
 //
 //
 
-@import AVFoundation;
+#import <AVFoundation/AVFoundation.h>
 
 #import "FastttCamera.h"
 #import "IFTTTDeviceOrientation.h"

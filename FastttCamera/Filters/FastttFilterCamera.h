@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 IFTTT. All rights reserved.
 //
 
-@import UIKit;
+#import <UIKit/UIKit.h>
 #import "FastttCameraInterface.h"
 
 /**

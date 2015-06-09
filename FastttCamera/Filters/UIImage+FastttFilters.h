@@ -6,7 +6,7 @@
 //
 //
 
-@import UIKit;
+#import <UIKit/UIKit.h>
 
 /**
  *  Public UIImage category you can use to apply filters to static image on your photo edit/confirm screen.

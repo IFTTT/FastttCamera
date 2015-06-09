@@ -6,7 +6,7 @@
 //
 //
 
-@import UIKit;
+#import <UIKit/UIKit.h>
 
 /**
  *  Public class to hold a captured image object, used in FastttCameraDelegate callbacks

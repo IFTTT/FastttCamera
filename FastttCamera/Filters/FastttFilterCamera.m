@@ -6,8 +6,7 @@
 //  Copyright (c) 2015 IFTTT. All rights reserved.
 //
 
-@import AVFoundation;
-
+#import <AVFoundation/AVFoundation.h>
 #import "GPUImage.h"
 #import "FastttFilterCamera.h"
 #import "IFTTTDeviceOrientation.h"
