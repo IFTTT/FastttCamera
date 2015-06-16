@@ -36,6 +36,8 @@
  */
 @property (nonatomic, strong) UIImage *filterImage;
 
+@property (nonatomic, assign) BOOL horizontallyMirrors;
+
 /**
  *  Returns an instance of FastttFilterCamera with the given lookup image applied to both the camera's live
  *  preview and any captured images.

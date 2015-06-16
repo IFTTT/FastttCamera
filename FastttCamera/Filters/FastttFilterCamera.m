@@ -62,6 +62,7 @@
         _cameraDevice = FastttCameraDeviceRear;
         _cameraFlashMode = FastttCameraFlashModeOff;
         _cameraTorchMode = FastttCameraTorchModeOff;
+        _horizontallyMirrors = YES;
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(applicationWillEnterForeground:)
@@ -425,7 +426,7 @@
                 
                 _stillCamera = [[GPUImageStillCamera alloc] initWithSessionPreset:AVCaptureSessionPresetPhoto cameraPosition:position];
                 _stillCamera.outputImageOrientation = UIInterfaceOrientationPortrait;
-                _stillCamera.horizontallyMirrorFrontFacingCamera = YES;
+                _stillCamera.horizontallyMirrorFrontFacingCamera = self.horizontallyMirrors;
                 
                 switch (position) {
                     case AVCaptureDevicePositionBack:
