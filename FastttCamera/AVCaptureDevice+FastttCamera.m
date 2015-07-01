@@ -111,20 +111,20 @@
 {
     if ([self lockForConfiguration:nil]) {
         
-        if ([self isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]) {
-            self.focusMode = AVCaptureFocusModeContinuousAutoFocus;
-        }
-        
-        if ([self isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure]) {
-            self.exposureMode = AVCaptureExposureModeContinuousAutoExposure;
-        }
-        
         if (self.focusPointOfInterestSupported) {
             self.focusPointOfInterest = pointOfInterest;
         }
         
         if (self.exposurePointOfInterestSupported) {
             self.exposurePointOfInterest = pointOfInterest;
+        }
+        
+        if ([self isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]) {
+            self.focusMode = AVCaptureFocusModeContinuousAutoFocus;
+        }
+        
+        if ([self isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure]) {
+            self.exposureMode = AVCaptureExposureModeContinuousAutoExposure;
         }
         
         [self unlockForConfiguration];
