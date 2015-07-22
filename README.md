@@ -1,3 +1,5 @@
+[![Open Source at IFTTT](./Docs/open-source-ifttt.png)](http://ifttt.github.io)
+
 ![FastttCamera Logo](./Docs/fastttcamera_banner.jpg)
 
 [![Build Status](https://travis-ci.org/IFTTT/FastttCamera.svg?branch=master)](https://travis-ci.org/IFTTT/FastttCamera) [![Coverage Status](https://coveralls.io/repos/IFTTT/FastttCamera/badge.svg)](https://coveralls.io/r/IFTTT/FastttCamera)
