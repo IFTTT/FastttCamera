@@ -10,9 +10,9 @@
 #include <Specta/Specta.h>
 #include <Expecta/Expecta.h>
 #import <OCMock/OCMock.h>
-#import <FastttFilter.h>
-#import <FastttLookupFilter.h>
-#import <FastttEmptyFilter.h>
+#import <FastttCamera/FastttFilter.h>
+#import <FastttCamera/FastttLookupFilter.h>
+#import <FastttCamera/FastttEmptyFilter.h>
 
 SpecBegin(FastttFilter)
 

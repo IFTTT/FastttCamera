@@ -51,4 +51,46 @@
  */
 + (instancetype)cameraWithFilterImage:(UIImage *)filterImage;
 
+
+/**
+ *  Returns an instance of GPUImageView initialized with chosen fillmode 
+ *  and hooked up to existing capture session.
+ *
+ *  @param fillMode The fill mode dictates how images are fit in the view, with the default being.
+ *
+ *  @note Internally fillmode transformed into 
+ *  UIViewContentModeScaleToFill = kGPUImageFillModeStretch
+ *  UIViewContentModeScaleAspectFit = kGPUImageFillModePreserveAspectRatio
+ *  UIViewContentModeScaleAspectFill = kGPUImageFillModePreserveAspectRatioAndFill
+ *
+ *  @return An instance of GPUImageView.
+ */
+- (UIView*)createOutputView:(UIViewContentMode)fillMode;
+
+
+/**
+ *  Remove previously attached instance of preview view
+ *
+ *  @param fillMode The fill mode dictates how images are fit in the view, with the default being.
+ *
+ *  @note Internally fillmode transformed into
+ *          UIViewContentModeScaleToFill = kGPUImageFillModeStretch
+ *          UIViewContentModeScaleAspectFit = kGPUImageFillModePreserveAspectRatio
+ *          UIViewContentModeScaleAspectFill = kGPUImageFillModePreserveAspectRatioAndFill
+ */
+- (void)removeOutputView:(UIView*)outputView;
+
+/**
+ *  Remove all previously attached instances
+ *
+ *  @note This will NOT remove original previewView
+ */
+- (void)removeAllOutputViews;
+
+
+
+
+
+
+
 @end

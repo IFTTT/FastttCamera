@@ -7,7 +7,7 @@
 //
 
 #import "UIImagePickerBenchmark.h"
-#import <Masonry.h>
+#import <Masonry/Masonry.h>
 @import AVFoundation;
 @import Accelerate;
 

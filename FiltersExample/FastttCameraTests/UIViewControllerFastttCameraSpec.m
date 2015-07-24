@@ -9,7 +9,7 @@
 #define EXP_SHORTHAND
 #include <Specta/Specta.h>
 #include <Expecta/Expecta.h>
-#import <UIViewController+FastttCamera.h>
+#import <FastttCamera/UIViewController+FastttCamera.h>
 
 SpecBegin(UIViewControllerFastttCamera)
 

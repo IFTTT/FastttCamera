@@ -11,8 +11,10 @@
 #define EXP_SHORTHAND
 #include <Specta/Specta.h>
 #include <Expecta/Expecta.h>
-#include <Expecta+Snapshots/EXPMatchers+FBSnapshotTest.h>
-#import <UIImage+FastttCamera.h>
+//#import <Expecta_Snapshots/EXPMatchers+FBSnapshotTest.h>    //for framework-based setup
+#import <Expecta+Snapshots/EXPMatchers+FBSnapshotTest.h>
+
+#import <FastttCamera/UIImage+FastttCamera.h>
 
 SpecBegin(UIImageFastttCamera)
 
