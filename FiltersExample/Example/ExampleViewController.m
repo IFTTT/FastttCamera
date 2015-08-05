@@ -7,8 +7,8 @@
 //
 
 #import "ExampleViewController.h"
-#import <FastttFilterCamera.h>
-#import <Masonry.h>
+#import <FastttCamera/FastttFilterCamera.h>
+#import <Masonry/Masonry.h>
 #import "ConfirmViewController.h"
 #import "ExampleFilter.h"
 

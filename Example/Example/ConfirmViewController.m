@@ -7,8 +7,8 @@
 //
 
 #import "ConfirmViewController.h"
-#import <Masonry.h>
-#import <FastttCamera.h>
+#import <Masonry/Masonry.h>
+#import <FastttCamera/FastttCamera.h>
 @import AssetsLibrary;
 @import MessageUI;
 

@@ -7,8 +7,8 @@
 //
 
 #import "ExampleViewController.h"
-#import <FastttCamera.h>
-#import <Masonry.h>
+#import <FastttCamera/FastttCamera.h>
+#import <Masonry/Masonry.h>
 #import "ConfirmViewController.h"
 
 @interface ExampleViewController () <FastttCameraDelegate, ConfirmControllerDelegate>

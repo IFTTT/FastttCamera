@@ -6,7 +6,7 @@
 //
 //
 
-#import "GPUImage.h"
+#import <GPUImage/GPUImage.h>
 #import "FastttFilter.h"
 #import "UIImage+FastttFilters.h"
 

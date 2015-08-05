@@ -7,7 +7,7 @@
 //
 
 #import "FastttFilter.h"
-#import "GPUImageFilterGroup.h"
+#import <GPUImage/GPUImageFilterGroup.h>
 #import "FastttLookupFilter.h"
 #import "FastttEmptyFilter.h"
 

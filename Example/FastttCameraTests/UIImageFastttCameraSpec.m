@@ -12,7 +12,7 @@
 #include <Specta/Specta.h>
 #include <Expecta/Expecta.h>
 #include <Expecta+Snapshots/EXPMatchers+FBSnapshotTest.h>
-#import <UIImage+FastttCamera.h>
+#import <FastttCamera/UIImage+FastttCamera.h>
 
 SpecBegin(UIImageFastttCamera)
 

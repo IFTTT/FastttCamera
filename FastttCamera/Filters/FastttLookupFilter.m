@@ -6,8 +6,8 @@
 //
 //
 
-#import "GPUImagePicture.h"
-#import "GPUImageLookupFilter.h"
+#import <GPUImage/GPUImagePicture.h>
+#import <GPUImage/GPUImageLookupFilter.h>
 #import "FastttLookupFilter.h"
 
 @interface FastttLookupFilter ()

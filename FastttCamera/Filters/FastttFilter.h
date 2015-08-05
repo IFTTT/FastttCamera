@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "GPUImageOutput.h"
+#import <GPUImage/GPUImageOutput.h>
 
 /**
  *  Private class that contains either a lookup filter or an empty filter,

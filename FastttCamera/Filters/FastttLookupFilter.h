@@ -6,7 +6,7 @@
 //
 //
 
-#import "GPUImageFilterGroup.h"
+#import <GPUImage/GPUImageFilterGroup.h>
 
 /**
  *  Private class to create a GPUImage lookup filter from a UIImage.
