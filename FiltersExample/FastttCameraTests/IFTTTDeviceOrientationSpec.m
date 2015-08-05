@@ -9,7 +9,7 @@
 #define EXP_SHORTHAND
 #include <Specta/Specta.h>
 #include <Expecta/Expecta.h>
-#import <IFTTTDeviceOrientation.h>
+#import <FastttCamera/IFTTTDeviceOrientation.h>
 
 SpecBegin(IFTTTDeviceOrientation)
 

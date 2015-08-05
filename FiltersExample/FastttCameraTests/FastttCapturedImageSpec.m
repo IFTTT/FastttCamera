@@ -9,8 +9,8 @@
 #define EXP_SHORTHAND
 #include <Specta/Specta.h>
 #include <Expecta/Expecta.h>
-#import <FastttCapturedImage.h>
-#import <FastttCapturedImage+Process.h>
+#import <FastttCamera/FastttCapturedImage.h>
+#import <FastttCamera/FastttCapturedImage+Process.h>
 
 SpecBegin(FastttCapturedImage)
 

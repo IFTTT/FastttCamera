@@ -7,8 +7,8 @@
 //
 
 #import "FastttCameraBenchmark.h"
-#import <FastttCamera.h>
-#import <Masonry.h>
+#import <FastttCamera/FastttCamera.h>
+#import <Masonry/Masonry.h>
 
 NSInteger const kIFTTTFastttBenchmarkTestIterations = 20;
 
