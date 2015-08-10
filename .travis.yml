@@ -6,13 +6,10 @@ podfile: FiltersExample/Podfile
 env:
 - LC_CTYPE=en_US.UTF-8 LANG=en_US.UTF-8
 script:
-- set -o pipefail && xcodebuild -workspace FiltersExample/FastttCamera.xcworkspace -scheme
-  FastttCamera -sdk iphonesimulator -destination "platform=iOS Simulator,name=iPhone
+- set -o pipefail && xcodebuild -workspace FiltersExample/FastttCameraDemo.xcworkspace -scheme
+  FastttCameraDemo -sdk iphonesimulator -destination "platform=iOS Simulator,name=iPhone
   6" GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES clean
   test | xcpretty -c
 - pod lib lint --quick
 - obcd --path FastttCamera find HeaderStyle
-notifications:
-  slack:
-    secure: Iy7otcNNXfMv7vfza2o1mGDHOev3B/a2hadgMoZ6/Vydc23MCEmToO/yg4xW+3LnUn5tc3m555GIfs0Ba2EFk2sEW5z2TkrUrbxBlkImpAEJqiXURFvUyD0SbNfc+mFrN1LYXF7LhceqKlYep8/T7OyDec57nlXoLbSAXEko5os=
 after_success: slather
