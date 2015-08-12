@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <CoreMedia/CoreMedia.h>
 #import "FastttCameraTypes.h"
 #import "FastttCapturedImage.h"
 #import "UIViewController+FastttCamera.h"
@@ -313,5 +314,14 @@
  *  finds that permission to access the camera has not been granted.
  */
 - (void)userDeniedCameraPermissionsForCameraController:(id<FastttCameraInterface>)cameraController;
+
+/**
+ *  Called for every video sample from GPUImageVideoCamera
+ *
+ *  @param sampleBuffer The CMSampleBuffer
+ *
+ *  @note Use this optional method to handle the CMSampleBuffer
+ */
+- (void)willOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer;
 
 @end

@@ -16,7 +16,7 @@
 #import "FastttFilter.h"
 #import "FastttCapturedImage+Process.h"
 
-@interface FastttFilterCamera () <FastttFocusDelegate>
+@interface FastttFilterCamera () <FastttFocusDelegate, GPUImageVideoCameraDelegate>
 
 @property (nonatomic, strong) IFTTTDeviceOrientation *deviceOrientation;
 @property (nonatomic, strong) FastttFocus *fastFocus;
@@ -426,6 +426,7 @@
                 _stillCamera = [[GPUImageStillCamera alloc] initWithSessionPreset:AVCaptureSessionPresetPhoto cameraPosition:position];
                 _stillCamera.outputImageOrientation = UIInterfaceOrientationPortrait;
                 _stillCamera.horizontallyMirrorFrontFacingCamera = YES;
+                _stillCamera.delegate = self;
                 
                 switch (position) {
                     case AVCaptureDevicePositionBack:
@@ -721,6 +722,14 @@
     }
     
     return NO;
+}
+
+#pragma mark - GPUImageVideoCameraDelegate
+
+- (void)willOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer {
+    if ([self.delegate respondsToSelector:@selector(willOutputSampleBuffer:)]) {
+        [self.delegate willOutputSampleBuffer:sampleBuffer];
+    }
 }
 
 @end
