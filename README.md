@@ -21,6 +21,7 @@
 * Displaying the `AVCaptureVideoPreviewLayer` in a sane way relative to your camera's view.
 * Configuring the state of the `AVCaptureDevice` and safely changing its properties as needed, such as setting the flash mode and switching between the front and back cameras.
 * Adjusting the camera's focus and exposure in response to tap gestures.
+* Zooming the camera in response to pinch gestures.
 * Capturing a full-resolution photo from the `AVCaptureStillImageOutput`.
 
 ##### Device Orientation Headaches

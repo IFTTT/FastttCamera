@@ -13,12 +13,14 @@
 #import "UIImage+FastttCamera.h"
 #import "AVCaptureDevice+FastttCamera.h"
 #import "FastttFocus.h"
+#import "FastttZoom.h"
 #import "FastttCapturedImage+Process.h"
 
-@interface FastttCamera () <FastttFocusDelegate>
+@interface FastttCamera () <FastttFocusDelegate, FastttZoomDelegate>
 
 @property (nonatomic, strong) IFTTTDeviceOrientation *deviceOrientation;
 @property (nonatomic, strong) FastttFocus *fastFocus;
+@property (nonatomic, strong) FastttZoom *fastZoom;
 @property (nonatomic, strong) AVCaptureSession *session;
 @property (nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
 @property (nonatomic, strong) AVCaptureStillImageOutput *stillImageOutput;
@@ -38,6 +40,11 @@
             interfaceRotatesWithOrientation = _interfaceRotatesWithOrientation,
             fixedInterfaceOrientation = _fixedInterfaceOrientation,
             handlesTapFocus = _handlesTapFocus,
+            handlesZoom = _handlesZoom,
+            maxZoomFactor = _maxZoomFactor,
+            showsZoomView = _showsZoomView,
+            gestureView = _gestureView,
+            gestureDelegate = _gestureDelegate,
             scalesImage = _scalesImage,
             cameraDevice = _cameraDevice,
             cameraFlashMode = _cameraFlashMode,
@@ -51,9 +58,12 @@
         
         _handlesTapFocus = YES;
         _showsFocusView = YES;
+        _handlesZoom = YES;
+        _showsZoomView = YES;
         _cropsImageToVisibleAspectRatio = YES;
         _scalesImage = YES;
         _maxScaledDimension = 0.f;
+        _maxZoomFactor = 1.f;
         _normalizesImageOrientations = YES;
         _returnsRotatedPreview = YES;
         _interfaceRotatesWithOrientation = YES;
@@ -89,6 +99,7 @@
 - (void)dealloc
 {
     _fastFocus = nil;
+    _fastZoom = nil;
     
     [self _teardownCaptureSession];
     
@@ -103,11 +114,24 @@
     
     [self _insertPreviewLayer];
     
-    _fastFocus = [FastttFocus fastttFocusWithView:self.view];
+    UIView *viewForGestures = self.view;
+    
+    if (self.gestureView) {
+        viewForGestures = self.gestureView;
+    }
+    
+    _fastFocus = [FastttFocus fastttFocusWithView:viewForGestures gestureDelegate:self.gestureDelegate];
     self.fastFocus.delegate = self;
     
     if (!self.handlesTapFocus) {
         self.fastFocus.detectsTaps = NO;
+    }
+    
+    _fastZoom = [FastttZoom fastttZoomWithView:viewForGestures gestureDelegate:self.gestureDelegate];
+    self.fastZoom.delegate = self;
+    
+    if (!self.handlesZoom) {
+        self.fastZoom.detectsPinch = NO;
     }
 }
 
@@ -218,11 +242,16 @@
     return [AVCaptureDevice isPointFocusAvailableForCameraDevice:cameraDevice];
 }
 
-- (void)focusAtPoint:(CGPoint)touchPoint
+- (BOOL)focusAtPoint:(CGPoint)touchPoint
 {
     CGPoint pointOfInterest = [self _focusPointOfInterestForTouchPoint:touchPoint];
     
-    [self _focusAtPointOfInterest:pointOfInterest];
+    return [self _focusAtPointOfInterest:pointOfInterest];
+}
+
+- (BOOL)zoomToScale:(CGFloat)scale
+{
+    return [[self _currentCameraDevice] zoomToScale:scale];
 }
 
 - (BOOL)isFlashAvailableForCurrentDevice
@@ -283,6 +312,7 @@
     }
     
     [self setCameraFlashMode:_cameraFlashMode];
+    [self _resetZoom];
 }
 
 - (void)setCameraFlashMode:(FastttCameraFlashMode)cameraFlashMode
@@ -432,6 +462,7 @@
                     [self startRunning];
                     [self _insertPreviewLayer];
                     [self _setPreviewVideoOrientation];
+                    [self _resetZoom];
                 }
             });
         }
@@ -475,20 +506,7 @@
     
     BOOL needsPreviewRotation = ![self.deviceOrientation deviceOrientationMatchesInterfaceOrientation];
     
-    AVCaptureConnection *videoConnection = nil;
-    
-    for (AVCaptureConnection *connection in [_stillImageOutput connections]) {
-        for (AVCaptureInputPort *port in [connection inputPorts]) {
-            if ([[port mediaType] isEqual:AVMediaTypeVideo]) {
-                videoConnection = connection;
-                break;
-            }
-        }
-        
-        if (videoConnection) {
-            break;
-        }
-    }
+    AVCaptureConnection *videoConnection = [self _currentCaptureConnection];
     
     if ([videoConnection isVideoOrientationSupported]) {
         [videoConnection setVideoOrientation:[self _currentCaptureVideoOrientationForDevice]];
@@ -694,6 +712,26 @@
     return [_session.inputs.lastObject device];
 }
 
+- (AVCaptureConnection *)_currentCaptureConnection
+{
+    AVCaptureConnection *videoConnection = nil;
+    
+    for (AVCaptureConnection *connection in [_stillImageOutput connections]) {
+        for (AVCaptureInputPort *port in [connection inputPorts]) {
+            if ([[port mediaType] isEqual:AVMediaTypeVideo]) {
+                videoConnection = connection;
+                break;
+            }
+        }
+        
+        if (videoConnection) {
+            break;
+        }
+    }
+    
+    return videoConnection;
+}
+
 - (CGPoint)_focusPointOfInterestForTouchPoint:(CGPoint)touchPoint
 {
     return [_previewLayer captureDevicePointOfInterestForPoint:touchPoint];
@@ -702,6 +740,15 @@
 - (BOOL)_focusAtPointOfInterest:(CGPoint)pointOfInterest
 {
     return [[self _currentCameraDevice] focusAtPointOfInterest:pointOfInterest];
+}
+
+- (void)_resetZoom
+{
+    [self.fastZoom resetZoom];
+    
+    self.fastZoom.maxScale = [[self _currentCameraDevice] videoMaxZoomFactor];
+    
+    self.maxZoomFactor = self.fastZoom.maxScale;
 }
 
 #pragma mark - FastttFocusDelegate
@@ -716,6 +763,13 @@
     }
     
     return NO;
+}
+
+#pragma mark - FastttZoomDelegate
+
+- (BOOL)handlePinchZoomWithScale:(CGFloat)zoomScale
+{
+    return ([self zoomToScale:zoomScale] && self.showsZoomView);
 }
 
 @end

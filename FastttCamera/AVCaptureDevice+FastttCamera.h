@@ -24,6 +24,22 @@
 + (BOOL)isPointFocusAvailableForCameraDevice:(FastttCameraDevice)cameraDevice;
 
 /**
+ *  The maximum zoom scale of this device.
+ *
+ *  @return The maximum zoom scale.
+ */
+- (CGFloat)videoMaxZoomFactor;
+
+/**
+ *  Tells this AVCaptureDevice to zoom to the given scale.
+ *
+ *  @param zoomScale The scale to which to zoom the camera device.
+ *
+ *  @return YES if zoomed successfully, NO if not.
+ */
+- (BOOL)zoomToScale:(CGFloat)zoomScale;
+
+/**
  *  Checks whether flash is available for the given FastttCameraDevice.
  *
  *  @param cameraDevice The FastttCameraDevice to check.

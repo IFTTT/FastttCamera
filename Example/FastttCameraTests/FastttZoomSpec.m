@@ -1,8 +1,8 @@
 //
-//  FastttFocusSpec.m
+//  FastttZoomSpec.m
 //  FastttCamera
 //
-//  Created by Laura Skelton on 3/3/15.
+//  Created by Laura Skelton on 3/5/15.
 //  Copyright (c) 2015 IFTTT. All rights reserved.
 //
 
@@ -10,12 +10,12 @@
 #include <Specta/Specta.h>
 #include <Expecta/Expecta.h>
 #import <OCMock/OCMock.h>
-#import <FastttCamera/FastttFocus.h>
+#import <FastttZoom.h>
 
-SpecBegin(FastttFocus)
+SpecBegin(FastttZoom)
 
-describe(@"FastttFocus", ^{
-    __block FastttFocus *fastFocus;
+describe(@"FastttZoom", ^{
+    __block FastttZoom *fastZoom;
     __block UIView *view;
     __block id delegate;
     
@@ -23,20 +23,20 @@ describe(@"FastttFocus", ^{
         
         view = [UIView new];
         view.frame = CGRectMake(0.f, 0.f, 320.f, 480.f);
-        fastFocus = [FastttFocus fastttFocusWithView:view gestureDelegate:nil];
+        fastZoom = [FastttZoom fastttZoomWithView:view gestureDelegate:nil];
         
-        delegate = [OCMockObject mockForProtocol:@protocol(FastttFocusDelegate)];
+        delegate = [OCMockObject mockForProtocol:@protocol(FastttZoomDelegate)];
         
-        fastFocus.delegate = delegate;
+        fastZoom.delegate = delegate;
     });
     
-    describe(@"Setting detects tap", ^{
+    describe(@"Setting detects pinch", ^{
         
         it(@"adds a gesture recognizer", ^{
-            fastFocus.detectsTaps = YES;
+            fastZoom.detectsPinch = YES;
             BOOL hasRecognizer = NO;
             for (UIGestureRecognizer *recognizer in [view gestureRecognizers]) {
-                if ([recognizer isKindOfClass:[UITapGestureRecognizer class]]) {
+                if ([recognizer isKindOfClass:[UIPinchGestureRecognizer class]]) {
                     hasRecognizer = YES;
                     break;
                 }
@@ -45,10 +45,10 @@ describe(@"FastttFocus", ^{
         });
         
         it(@"removes gesture recognizer", ^{
-            fastFocus.detectsTaps = NO;
+            fastZoom.detectsPinch = NO;
             BOOL hasRecognizer = NO;
             for (UIGestureRecognizer *recognizer in [view gestureRecognizers]) {
-                if ([recognizer isKindOfClass:[UITapGestureRecognizer class]]) {
+                if ([recognizer isKindOfClass:[UIPinchGestureRecognizer class]]) {
                     hasRecognizer = YES;
                     break;
                 }
@@ -57,17 +57,8 @@ describe(@"FastttFocus", ^{
         });
     });
     
-    describe(@"Showing focus view", ^{
-        
-        it(@"shows a focus view", ^{
-            fastFocus.detectsTaps = YES;
-            [fastFocus showFocusViewAtPoint:CGPointMake(20.f, 30.f)];
-            expect([view.subviews count]).to.beGreaterThan(0);
-        });
-    });
-    
     afterAll(^{
-        fastFocus = nil;
+        fastZoom = nil;
         delegate = nil;
     });
 });
