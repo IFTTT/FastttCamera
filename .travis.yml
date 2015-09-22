@@ -6,7 +6,7 @@ podfile: FiltersExample/Podfile
 env:
 - LC_CTYPE=en_US.UTF-8 LANG=en_US.UTF-8
 script:
-- set -o pipefail && xcodebuild -workspace FiltersExample/FastttCameraDemo.xcworkspace -scheme FastttCameraDemo -sdk iphonesimulator9.0 -destination "OS=9.0,name=iPhone 6 Plus" GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES clean test | xcpretty -c
+- set -o pipefail && xcodebuild -workspace FiltersExample/FastttCameraDemo.xcworkspace -scheme FastttCameraDemo -sdk iphonesimulator -destination "platform=iOS Simulator,name=iPhone 6 Plus" GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES clean test | xcpretty -c
 - pod lib lint --quick
 - obcd --path FastttCamera find HeaderStyle
 after_success: slather
