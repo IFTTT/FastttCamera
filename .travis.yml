@@ -8,7 +8,7 @@ env:
 script:
 - set -o pipefail && xcodebuild -workspace FiltersExample/FastttCameraDemo.xcworkspace -scheme
   FastttCameraDemo -sdk iphonesimulator -destination "platform=iOS Simulator,name=iPhone
-  6" GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES clean
+  5s" GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES clean
   test | xcpretty -c
 - pod lib lint --quick
 - obcd --path FastttCamera find HeaderStyle
