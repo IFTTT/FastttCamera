@@ -7,8 +7,7 @@ env:
 - LC_CTYPE=en_US.UTF-8 LANG=en_US.UTF-8
 script:
 - set -o pipefail && xcodebuild -workspace FiltersExample/FastttCameraDemo.xcworkspace -scheme
-  FastttCameraDemo -sdk iphonesimulator -destination "platform=iOS Simulator,name=iPhone
-  5s" GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES clean
+  FastttCameraDemo -sdk iphonesimulator -destination "platform=iOS Simulator,OS=9.0,name=iPhone 5s" GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES clean
   test | xcpretty -c
 - pod lib lint --quick
 - obcd --path FastttCamera find HeaderStyle
