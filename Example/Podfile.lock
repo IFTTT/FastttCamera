@@ -1,15 +1,15 @@
 PODS:
-  - Expecta (0.3.2)
-  - Expecta+Snapshots (1.3.1):
-    - Expecta
-    - FBSnapshotTestCase
+  - Expecta (1.0.3)
+  - Expecta+Snapshots (2.0.0):
+    - Expecta (~> 1.0)
+    - FBSnapshotTestCase/Core (~> 2.0.3)
   - FastttCamera (0.3.2):
     - FastttCamera/Default (= 0.3.2)
   - FastttCamera/Default (0.3.2)
-  - FBSnapshotTestCase (1.5)
+  - FBSnapshotTestCase/Core (2.0.4)
   - Masonry (0.6.1)
-  - OCMock (3.1.2)
-  - Specta (0.4.0)
+  - OCMock (3.1.5)
+  - Specta (1.0.3)
 
 DEPENDENCIES:
   - Expecta
@@ -24,12 +24,12 @@ EXTERNAL SOURCES:
     :path: ../FastttCamera.podspec
 
 SPEC CHECKSUMS:
-  Expecta: 8c507baf13211207b1e9d0a741480600e6b4ed15
-  Expecta+Snapshots: 4a0b46d3ba755bd43dffa7d53e4585fc6cbfe8cd
+  Expecta: 9d1bff6c8b0eeee73a166a2ee898892478927a15
+  Expecta+Snapshots: 29b38dd695bc72a0ed2bea833937d78df41943ba
   FastttCamera: 4e758cc2bf5564effc654346cac320c09a550164
-  FBSnapshotTestCase: 26f32d8fa9eb30e9f09712ecfb097808bc79b898
+  FBSnapshotTestCase: d94cf34841c9e77390e29009e8e2713479d48753
   Masonry: 4972309f2f134de9dd312f4dc4a21359b50e6caa
-  OCMock: a10ea9f0a6e921651f96f78b6faee95ebc813b92
-  Specta: a353759f073ffcc0a365b782fe4aaeac064c03c6
+  OCMock: 4c2925291f80407c3738dd1db14d21d0cc278864
+  Specta: cf3e4188cf35375c3ee2cd03f8db8f1f4ef98234
 
 COCOAPODS: 0.38.2
