@@ -67,7 +67,7 @@ describe(@"UIImageFastttCamera", ^{
             expect(rightImage.size.height).to.equal(320.f);
             expect(mirroredImage.size.height).to.equal(320.f);
         });
-        
+#if TARGET_IPHONE_SIMULATOR
         it(@"records snapshot", ^{
             UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
             expect(imageView).toNot.recordSnapshotNamed(@"TestImage");
@@ -90,6 +90,7 @@ describe(@"UIImageFastttCamera", ^{
             UIImageView *imageView = [[UIImageView alloc] initWithImage:mirroredImage];
             expect(imageView).to.haveValidSnapshotNamed(@"TestImage");
         });
+#endif
     });
     
     describe(@"Image Crop Rect From Preview Bounds", ^{
@@ -299,6 +300,7 @@ describe(@"UIImageFastttCamera", ^{
             expect(scaledRightImage.scale).to.equal([UIScreen mainScreen].scale);
             expect(scaledMirroredImage.scale).to.equal([UIScreen mainScreen].scale);
         });
+#if TARGET_IPHONE_SIMULATOR
         
         it(@"up scaled image matches image snapshot", ^{
             UIImageView *imageView = [[UIImageView alloc] initWithImage:scaledImage];
@@ -323,6 +325,7 @@ describe(@"UIImageFastttCamera", ^{
 #endif
             expect(imageView).to.haveValidSnapshotNamed(@"TestScaledMirroredImage");
         });
+#endif
         
         afterAll(^{
             // This is run once and only once after all of the examples
@@ -392,7 +395,8 @@ describe(@"UIImageFastttCamera", ^{
             expect(scaledMirroredImage.scale).to.equal([UIScreen mainScreen].scale);
             expect(scaledTallImage.scale).to.equal([UIScreen mainScreen].scale);
         });
-        
+#if TARGET_IPHONE_SIMULATOR
+
         it(@"up scaled image matches image snapshot", ^{
             UIImageView *imageView = [[UIImageView alloc] initWithImage:scaledImage];
             expect(imageView).to.haveValidSnapshotNamed(@"TestScaledImage");
@@ -407,6 +411,7 @@ describe(@"UIImageFastttCamera", ^{
             UIImageView *imageView = [[UIImageView alloc] initWithImage:scaledMirroredImage];
             expect(imageView).to.haveValidSnapshotNamed(@"TestScaledMirroredImage");
         });
+#endif
         
         afterAll(^{
             // This is run once and only once after all of the examples
@@ -467,6 +472,7 @@ describe(@"UIImageFastttCamera", ^{
             expect(scaledRightImage.scale).to.equal([UIScreen mainScreen].scale);
             expect(scaledMirroredImage.scale).to.equal([UIScreen mainScreen].scale);
         });
+#if TARGET_IPHONE_SIMULATOR
         
         it(@"up scaled image matches image snapshot", ^{
             UIImageView *imageView = [[UIImageView alloc] initWithImage:scaledImage];
@@ -482,6 +488,7 @@ describe(@"UIImageFastttCamera", ^{
             UIImageView *imageView = [[UIImageView alloc] initWithImage:scaledMirroredImage];
             expect(imageView).to.haveValidSnapshotNamed(@"TestScaledMirroredImage");
         });
+#endif
         
         afterAll(^{
             // This is run once and only once after all of the examples
@@ -539,6 +546,7 @@ describe(@"UIImageFastttCamera", ^{
             expect(normalizedRightImage.scale).to.equal(rightImage.scale);
             expect(normalizedMirroredImage.scale).to.equal(mirroredImage.scale);
         });
+#if TARGET_IPHONE_SIMULATOR
         
         it(@"up normalized image matches image snapshot", ^{
             UIImageView *imageView = [[UIImageView alloc] initWithImage:normalizedImage];
@@ -554,6 +562,7 @@ describe(@"UIImageFastttCamera", ^{
             UIImageView *imageView = [[UIImageView alloc] initWithImage:normalizedMirroredImage];
             expect(imageView).to.haveValidSnapshotNamed(@"TestImage");
         });
+#endif
         
         afterAll(^{
             // This is run once and only once after all of the examples
@@ -611,6 +620,7 @@ describe(@"UIImageFastttCamera", ^{
             expect(rotatedRightImage.scale).to.equal(rightImage.scale);
             expect(rotatedMirroredImage.scale).to.equal(mirroredImage.scale);
         });
+#if TARGET_IPHONE_SIMULATOR
         
         it(@"up camera preview rotated image matches image snapshot", ^{
             UIImageView *imageView = [[UIImageView alloc] initWithImage:rotatedImage];
@@ -629,6 +639,7 @@ describe(@"UIImageFastttCamera", ^{
             UIImageView *imageView = [[UIImageView alloc] initWithImage:rotatedMirroredImage];
             expect(imageView).to.haveValidSnapshotNamed(@"TestImage");
         });
+#endif
         
         afterAll(^{
             // This is run once and only once after all of the examples

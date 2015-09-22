@@ -133,6 +133,29 @@
     
     return NO;
 }
+    
+- (CGFloat)videoMaxZoomFactor
+{
+    return MIN(self.activeFormat.videoMaxZoomFactor, 4.f);
+}
+
+- (BOOL)zoomToScale:(CGFloat)zoomScale
+{
+    BOOL success = NO;
+    
+    if ([self lockForConfiguration:nil]) {
+        
+        if (!(zoomScale > [self videoMaxZoomFactor])
+            && !(zoomScale < 1.f)) {
+            self.videoZoomFactor = zoomScale;
+            success = YES;
+        }
+        
+        [self unlockForConfiguration];
+    }
+    
+    return success;
+}
 
 #pragma mark - Internal Methods
 

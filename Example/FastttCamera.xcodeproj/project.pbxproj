@@ -28,6 +28,7 @@
 		FAC389A41A8928440005EFDD /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FAC389A31A8928440005EFDD /* Images.xcassets */; };
 		FAC9C4081A89294100E61F75 /* ConfirmViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FAC9C4071A89294100E61F75 /* ConfirmViewController.m */; };
 		FAC9C40A1A8929BD00E61F75 /* FastttCameraSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = FAC9C4091A8929BD00E61F75 /* FastttCameraSpec.m */; };
+		FACDA29A1AA910D600230E5D /* FastttZoomSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = FACDA2991AA910D600230E5D /* FastttZoomSpec.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -75,6 +76,7 @@
 		FAC9C4061A89294100E61F75 /* ConfirmViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfirmViewController.h; sourceTree = "<group>"; };
 		FAC9C4071A89294100E61F75 /* ConfirmViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConfirmViewController.m; sourceTree = "<group>"; };
 		FAC9C4091A8929BD00E61F75 /* FastttCameraSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FastttCameraSpec.m; sourceTree = "<group>"; };
+		FACDA2991AA910D600230E5D /* FastttZoomSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FastttZoomSpec.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -185,6 +187,7 @@
 				FAC9C4091A8929BD00E61F75 /* FastttCameraSpec.m */,
 				FABF6F651A9BF63B004BD6F0 /* FastttCapturedImageSpec.m */,
 				FA1916561AA68D1F00C51681 /* FastttFocusSpec.m */,
+				FACDA2991AA910D600230E5D /* FastttZoomSpec.m */,
 				FA293F661A9806AC00D44490 /* IFTTTDeviceOrientationSpec.m */,
 				FA293F681A98071100D44490 /* UIImageFastttCameraSpec.m */,
 				FA1916581AA68D3C00C51681 /* UIViewControllerFastttCameraSpec.m */,
@@ -385,6 +388,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FABF6F661A9BF63B004BD6F0 /* FastttCapturedImageSpec.m in Sources */,
+				FACDA29A1AA910D600230E5D /* FastttZoomSpec.m in Sources */,
 				FA1916571AA68D1F00C51681 /* FastttFocusSpec.m in Sources */,
 				FAC9C40A1A8929BD00E61F75 /* FastttCameraSpec.m in Sources */,
 				FA1916591AA68D3C00C51681 /* UIViewControllerFastttCameraSpec.m in Sources */,

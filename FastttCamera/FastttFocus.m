@@ -20,7 +20,7 @@ CGFloat const kFocusSquareSize = 50.f;
 
 @implementation FastttFocus
 
-+ (instancetype)fastttFocusWithView:(UIView *)view
++ (instancetype)fastttFocusWithView:(UIView *)view gestureDelegate:(id <UIGestureRecognizerDelegate>)gestureDelegate
 {
     if (!view) {
         return nil;
@@ -29,6 +29,8 @@ CGFloat const kFocusSquareSize = 50.f;
     FastttFocus *fastFocus = [[self alloc] init];
     
     fastFocus.view = view;
+    
+    fastFocus.gestureDelegate = gestureDelegate;
     
     fastFocus.detectsTaps = YES;
     
@@ -96,6 +98,8 @@ CGFloat const kFocusSquareSize = 50.f;
 {
     _tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(_handleTapFocus:)];
     [self.view addGestureRecognizer:self.tapGestureRecognizer];
+    
+    self.tapGestureRecognizer.delegate = self.gestureDelegate;
 }
 
 - (void)_teardownTapFocusRecognizer

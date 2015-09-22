@@ -23,7 +23,7 @@ describe(@"FastttFocus", ^{
         
         view = [UIView new];
         view.frame = CGRectMake(0.f, 0.f, 320.f, 480.f);
-        fastFocus = [FastttFocus fastttFocusWithView:view];
+        fastFocus = [FastttFocus fastttFocusWithView:view gestureDelegate:nil];
         
         delegate = [OCMockObject mockForProtocol:@protocol(FastttFocusDelegate)];
         

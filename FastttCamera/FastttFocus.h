@@ -30,13 +30,20 @@
 @property (nonatomic, assign) BOOL detectsTaps;
 
 /**
+ *  Defaults to nil. Set this through FastttCameraInterface's gestureDelegate property
+ *  if you need to manage custom UIGestureRecognizerDelegate settings.
+ */
+@property (nonatomic, weak) id <UIGestureRecognizerDelegate> gestureDelegate;
+
+/**
  *  Initializer
  *
  *  @param view The view to use for receiving touch events.
+ *  @param gestureDelegate The delegate, if any, to use for the tap gesture recognizer.
  *
  *  @return An instance of FastttFocus.
  */
-+ (instancetype)fastttFocusWithView:(UIView *)view;
++ (instancetype)fastttFocusWithView:(UIView *)view gestureDelegate:(id <UIGestureRecognizerDelegate>)gestureDelegate;
 
 /**
  *  Call this if manually handling focus.

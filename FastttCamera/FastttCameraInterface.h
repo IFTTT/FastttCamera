@@ -37,6 +37,36 @@
 @property (nonatomic, assign) BOOL showsFocusView;
 
 /**
+ *  Default is YES. Set this to NO if you don't want to enable
+ *  FastttCamera to manage pinch-to-zoom with its internal pinch gesture recognizer.
+ *  You can still send it manual zoomToScale: calls from your own gesture recognizer.
+ */
+@property (nonatomic, assign) BOOL handlesZoom;
+
+/**
+ *  Default is YES. Set this to NO if you don't want the zoom indicator to show when
+ *  the camera is zoomed in.
+ */
+@property (nonatomic, assign) BOOL showsZoomView;
+
+/**
+ *  Returns the maximum zoom factor for the current device, useful if you are handling zooming manually.
+ */
+@property (nonatomic, assign) CGFloat maxZoomFactor;
+
+/**
+ *  Defaults to nil. Set this if you need to manage custom UIGestureRecognizerDelegate settings
+ *  for tap-to-focus and pinch-zoom. This will only have an effect if handlesTapFocus or handlesZoom is true.
+ */
+@property (nonatomic, weak) id <UIGestureRecognizerDelegate> gestureDelegate;
+
+/**
+ *  Defaults to FastttCamera's view. Set this if you have an overlay with additional gesture recognizers that would
+ *  conflict with FastttCamera's tap-to-focus gesture recognizer and pinch-to-zoom gesture recognizer.
+ */
+@property (nonatomic, strong) UIView *gestureView;
+
+/**
  *  Defaults to YES. Set this to NO if you want FastttCamera to return the full image
  *  captured by the camera instead of an image cropped to the view's aspect ratio. The
  *  image will be returned by the cameraController:didFinishCapturingImage: delegate method,
@@ -159,8 +189,23 @@
  *  tap-to-focus.
  *
  *  @param touchPoint The point at which to focus the camera, if point focus is available.
+ *
+ *  @return YES if the camera was able to focus, NO if not. You can use this response to decide whether or not 
+ *  to show a custom UI indication that the camera is focusing.
  */
-- (void)focusAtPoint:(CGPoint)touchPoint;
+- (BOOL)focusAtPoint:(CGPoint)touchPoint;
+
+/**
+ *  Zoom the camera to the specified scale, if zooming is available on the current camera device.
+ *  You only need to worry about this if you set handlesZoom to NO, and want to manually control
+ *  pinch-to-zoom.
+ *
+ *  @param scale The scale to which to zoom the camera. The camera will not zoom past its maximum zoom scale.
+ *
+ *  @return YES if the camera was able to zoom, NO if not. You can use this response to decide whether or not
+ *  to show a custom UI indication that the camera is zooming.
+ */
+- (BOOL)zoomToScale:(CGFloat)scale;
 
 
 #pragma mark - Take a picture!
