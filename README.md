@@ -2,7 +2,7 @@
 
 ![FastttCamera Logo](./Docs/fastttcamera_banner.jpg)
 
-[![Build Status](https://travis-ci.org/IFTTT/FastttCamera.svg?branch=master)](https://travis-ci.org/IFTTT/FastttCamera) [![Coverage Status](https://coveralls.io/repos/IFTTT/FastttCamera/badge.svg)](https://coveralls.io/r/IFTTT/FastttCamera)
+[![CocoaPods Version](https://img.shields.io/cocoapods/v/FastttCamera.svg)](http://cocoadocs.org/docsets/FastttCamera) [![Build Status](https://travis-ci.org/IFTTT/FastttCamera.svg?branch=master)](https://travis-ci.org/IFTTT/FastttCamera) [![Coverage Status](https://coveralls.io/repos/IFTTT/FastttCamera/badge.svg)](https://coveralls.io/r/IFTTT/FastttCamera)
 
 `FastttCamera` is a wrapper around `AVFoundation` that allows you to build your own powerful custom camera app without all the headaches of using `AVFoundation` directly.
 
