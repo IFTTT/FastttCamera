@@ -34,6 +34,12 @@
 @property (nonatomic, strong) UIImage *fullImage;
 
 /**
+ * The full-resolution, cropped, AND unfiltered image that was captured by the camera.
+ */
+@property (nonatomic, strong) UIImage *unfilteredImage;
+
+
+/**
  *  The captured image scaled to the size of the camera preview viewport.
  */
 @property (nonatomic, strong) UIImage *scaledImage;
