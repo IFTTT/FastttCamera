@@ -405,7 +405,7 @@
     [self.fastFilter.filter removeAllTargets];
     
     // add an initial filter below the actual fastFilter to allow preserving the original image.
-    self.baseFilter = [FastttFilter plainFilter]
+    self.baseFilter = [FastttFilter plainFilter];
     [_stillCamera addTarget:self.baseFilter.filter];
     
     [_stillCamera addTarget:self.fastFilter.filter];
