@@ -635,6 +635,11 @@
         || orientation == UIDeviceOrientationFaceDown) {
         orientation = UIDeviceOrientationPortrait;
     }
+    
+    if (!self.interfaceRotatesWithOrientation) {
+        orientation = self.fixedInterfaceOrientation;
+    }
+    
     _stillCamera.outputImageOrientation = (UIInterfaceOrientation)orientation;
 }
 
