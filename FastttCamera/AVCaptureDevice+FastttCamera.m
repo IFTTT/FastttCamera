@@ -121,10 +121,20 @@
         
         if ([self isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]) {
             self.focusMode = AVCaptureFocusModeContinuousAutoFocus;
+        } else if ([self isFocusModeSupported:AVCaptureFocusModeLocked]) {
+            self.focusMode = AVCaptureFocusModeLocked;
         }
         
         if ([self isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure]) {
             self.exposureMode = AVCaptureExposureModeContinuousAutoExposure;
+        } else if ([self isExposureModeSupported:AVCaptureExposureModeLocked]) {
+            self.exposureMode = AVCaptureExposureModeLocked;
+        }
+        
+        if ([self isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance]) {
+            self.whiteBalanceMode = AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance;
+        } else if ([self isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeLocked]) {
+            self.whiteBalanceMode = AVCaptureWhiteBalanceModeLocked;
         }
         
         [self unlockForConfiguration];

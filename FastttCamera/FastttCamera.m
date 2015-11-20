@@ -35,6 +35,9 @@
 - (void)startBackgroundTask;
 - (void)endBackgroundTask;
 
+//KVO
+@property (nonatomic, assign) BOOL running;
+
 @end
 
 @implementation FastttCamera
@@ -62,6 +65,7 @@
 {
     if ((self = [super init])) {
         _bgTaskId = UIBackgroundTaskInvalid;
+        _running = NO;
         
         [self _setupCaptureSession];
         
@@ -199,6 +203,17 @@
     [self _setPreviewVideoOrientation];
 }
 
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    
+    if (self.handlesTapFocus &&
+        _session.isRunning)
+    {
+        [self handleTapFocusAtPoint:self.view.center];
+    }
+}
+
 - (void)viewDidDisappear:(BOOL)animated
 {
     [super viewDidDisappear:animated];
@@ -223,11 +238,22 @@
         [self startRunning];
         [self _insertPreviewLayer];
         [self _setPreviewVideoOrientation];
+        if ([self.delegate respondsToSelector:@selector(cameraControllerDidResume:)]) {
+            [self.delegate cameraControllerDidResume:self];
+        }
+        if (self.handlesTapFocus &&
+            _session.isRunning)
+        {
+            [self handleTapFocusAtPoint:self.view.center];
+        }
     }
 }
 
 - (void)applicationWillResignActive:(NSNotification *)notification
 {
+    if ([self.delegate respondsToSelector:@selector(cameraControllerDidPause:)]) {
+        [self.delegate cameraControllerDidPause:self];
+    }
     [self stopRunning];
 }
 
@@ -259,6 +285,10 @@
 {
     if (!_deviceAuthorized) {
         return;
+    }
+    
+    if (self.handlesTapFocus && self.fastFocus.isFocusing) { //We'll wait for the focus operation to finish
+        self.isCapturingImage = YES;
     }
     
     [self _takePhoto];
@@ -375,6 +405,8 @@
     
     [self setCameraFlashMode:_cameraFlashMode];
     [self _resetZoom];
+    [self.fastFocus setCurrentDevice:device];
+    [self handleTapFocusAtPoint:self.view.center];
 }
 
 - (void)setCameraFlashMode:(FastttCameraFlashMode)cameraFlashMode
@@ -409,6 +441,7 @@
 {
     if (![_session isRunning]) {
         [_session startRunning];
+        self.running = _session.isRunning;
     }
 }
 
@@ -416,6 +449,7 @@
 {
     if ([_session isRunning]) {
         [_session stopRunning];
+        self.running = _session.isRunning;
     }
 }
 
@@ -489,6 +523,18 @@
     
     [self _removePreviewLayer];
     
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:AVCaptureSessionRuntimeErrorNotification
+                                                  object:_session];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:AVCaptureSessionWasInterruptedNotification
+                                                  object:_session];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:AVCaptureSessionInterruptionEndedNotification
+                                                  object:_session];
+    
     _session = nil;
     
     [self endBackgroundTask];
@@ -513,6 +559,31 @@
     
     if ([videoConnection isVideoMirroringSupported]) {
         [videoConnection setVideoMirrored:(_cameraDevice == FastttCameraDeviceFront)];
+    }
+    
+    /*
+        AVCaptureFocusModeContinuousAutoFocus, AVCaptureExposureModeContinuousAutoExposure and 
+        AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance are a bit too anxious at times and
+        may start refocusing after starting to take a photo but before arriving at
+        `captureStillImageAsynchronouslyFromConnection:completionHandler:`.
+        This may lead to multiple pictures being snapped when we're listening to
+        `hasFinishedAdjustingFocusAndExposure` events.
+        To avoid this scenario, we try to lock the camera device before snapping a picture.
+     */
+    AVCaptureDevice *device = [[_session.inputs lastObject] device];
+    if ([device lockForConfiguration:nil]) {
+        if ([device isFocusModeSupported:AVCaptureFocusModeLocked]) {
+            device.focusMode = AVCaptureFocusModeLocked;
+        }
+        
+        if ([device isExposureModeSupported:AVCaptureExposureModeLocked]) {
+            device.exposureMode = AVCaptureExposureModeLocked;
+        }
+        
+        if ([device isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeLocked]) {
+            device.whiteBalanceMode = AVCaptureWhiteBalanceModeLocked;
+        }
+        [device unlockForConfiguration];
     }
     
     __weak typeof(self)weakSelf = self;
@@ -728,23 +799,50 @@
         _session = [AVCaptureSession new];
         _session.sessionPreset = AVCaptureSessionPresetPhoto;
         
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(_sessionRuntimeError:)
+                                                     name:AVCaptureSessionRuntimeErrorNotification
+                                                   object:_session];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(_sessionWasInterrupted:)
+                                                     name:AVCaptureSessionWasInterruptedNotification
+                                                   object:_session];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(_sessionInterruptionEnded:)
+                                                     name:AVCaptureSessionInterruptionEndedNotification
+                                                   object:_session];
+        
         AVCaptureDevice *device = [AVCaptureDevice cameraDevice:self.cameraDevice];
         
         if (!device) {
             device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
         }
         
-        if ([device lockForConfiguration:nil]) {
-            if([device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]){
-                device.focusMode = AVCaptureFocusModeContinuousAutoFocus;
+        if (!self.handlesTapFocus) {
+            if ([device lockForConfiguration:nil]) {
+                if ([device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]) {
+                    device.focusMode = AVCaptureFocusModeContinuousAutoFocus;
+                } else if ([device isFocusModeSupported:AVCaptureFocusModeLocked]) {
+                    device.focusMode = AVCaptureFocusModeLocked;
+                }
+                
+                if ([device isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure]) {
+                    device.exposureMode = AVCaptureExposureModeContinuousAutoExposure;
+                } else if ([device isExposureModeSupported:AVCaptureExposureModeLocked]) {
+                    device.exposureMode = AVCaptureExposureModeLocked;
+                }
+                
+                if ([device isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance]) {
+                    device.whiteBalanceMode = AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance;
+                } else if ([device isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeLocked]) {
+                    device.whiteBalanceMode = AVCaptureWhiteBalanceModeLocked;
+                }
+                [device unlockForConfiguration];
             }
             
-            if ([device isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure]) {
-                device.exposureMode = AVCaptureExposureModeContinuousAutoExposure;
-            }
-            
-            [device unlockForConfiguration];
-        }
+        } //Else, we're handling this on viewDidAppear or on applicationDidBecomeActive
         
 #if !TARGET_IPHONE_SIMULATOR
         AVCaptureDeviceInput *deviceInput = [AVCaptureDeviceInput deviceInputWithDevice:device error:nil];
@@ -846,11 +944,75 @@
     return NO;
 }
 
+- (void)hasFinishedAdjustingFocusAndExposure
+{
+    if (self.handlesTapFocus && self.isCapturingImage) { //We were waiting for the focus to finish, but now we can snap the picture
+        self.isCapturingImage = NO;
+        [self _takePhoto];
+    }
+}
+
 #pragma mark - FastttZoomDelegate
 
 - (BOOL)handlePinchZoomWithScale:(CGFloat)zoomScale
 {
     return ([self zoomToScale:zoomScale] && self.showsZoomView);
+}
+
+#pragma mark - Error handling
+
+/*  
+    These three methods were based on Apple's AVCam.
+    @see https://developer.apple.com/library/ios/samplecode/AVCam/Introduction/Intro.html
+ */
+
+- (void)_sessionRuntimeError:(NSNotification *)notification
+{
+    NSError *error = notification.userInfo[AVCaptureSessionErrorKey];
+    if (error.code == AVErrorMediaServicesWereReset) {
+        if (self.isRunning) {
+            __weak typeof(self)weakSelf = self;
+            [self enqueue:^{
+                [weakSelf startRunning];
+            }];
+        }
+        return;
+    }
+    [self _teardownCaptureSession];
+    if ([self.delegate respondsToSelector:@selector(cameraControllerDidPause:)]) {
+        __weak typeof(self)weakSelf = self;
+        [self toMainThread:^{
+            [[weakSelf delegate] cameraControllerDidPause:weakSelf];
+        }];
+    }
+}
+
+- (void)_sessionWasInterrupted:(NSNotification *)notification
+{
+    if (&AVCaptureSessionInterruptionReasonKey) {
+        AVCaptureSessionInterruptionReason reason = [notification.userInfo[AVCaptureSessionInterruptionReasonKey] integerValue];
+        if (reason == AVCaptureSessionInterruptionReasonVideoDeviceNotAvailableInBackground) {
+            //We're stopping the camera anyway
+            return;
+        }
+    }
+    
+    if ([self.delegate respondsToSelector:@selector(cameraControllerDidPause:)]) {
+        __weak typeof(self)weakSelf = self;
+        [self toMainThread:^{
+            [[weakSelf delegate] cameraControllerDidPause:weakSelf];
+        }];
+    }
+}
+
+- (void)_sessionInterruptionEnded:(NSNotification *)notification
+{
+    if ([self.delegate respondsToSelector:@selector(cameraControllerDidPause:)]) {
+        __weak typeof(self)weakSelf = self;
+        [self toMainThread:^{
+            [[weakSelf delegate] cameraControllerDidResume:weakSelf];
+        }];
+    }
 }
 
 @end
