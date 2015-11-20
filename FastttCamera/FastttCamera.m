@@ -275,17 +275,26 @@
 
 - (void)processImage:(UIImage *)image withMaxDimension:(CGFloat)maxDimension
 {
-    [self _processImage:image withCropRect:CGRectNull maxDimension:maxDimension fromCamera:NO needsPreviewRotation:NO previewOrientation:UIDeviceOrientationUnknown];
+    __weak typeof(self)weakSelf = self;
+    [self enqueue:^{
+        [weakSelf _processImage:image withCropRect:CGRectNull maxDimension:maxDimension fromCamera:NO needsPreviewRotation:NO previewOrientation:UIDeviceOrientationUnknown];
+    }];
 }
 
 - (void)processImage:(UIImage *)image withCropRect:(CGRect)cropRect
 {
-    [self _processImage:image withCropRect:cropRect maxDimension:0.f fromCamera:NO needsPreviewRotation:NO previewOrientation:UIDeviceOrientationUnknown];
+    __weak typeof(self)weakSelf = self;
+    [self enqueue:^{
+        [weakSelf _processImage:image withCropRect:cropRect maxDimension:0.f fromCamera:NO needsPreviewRotation:NO previewOrientation:UIDeviceOrientationUnknown];
+    }];
 }
 
 - (void)processImage:(UIImage *)image withCropRect:(CGRect)cropRect maxDimension:(CGFloat)maxDimension
 {
-    [self _processImage:image withCropRect:cropRect maxDimension:maxDimension fromCamera:NO needsPreviewRotation:NO previewOrientation:UIDeviceOrientationUnknown];
+    __weak typeof(self)weakSelf = self;
+    [self enqueue:^{
+        [weakSelf _processImage:image withCropRect:cropRect maxDimension:maxDimension fromCamera:NO needsPreviewRotation:NO previewOrientation:UIDeviceOrientationUnknown];
+    }];
 }
 
 #pragma mark - Camera State
@@ -453,75 +462,9 @@
         
         _deviceAuthorized = isAuthorized;
         
-        if (!_deviceAuthorized && [[weakSelf delegate] respondsToSelector:@selector(userDeniedCameraPermissionsForCameraController:)]) {
-            [weakSelf toMainThread:^{
-                [[weakSelf delegate] userDeniedCameraPermissionsForCameraController:weakSelf];
-            }];
-        }
-        
-        if (_deviceAuthorized) {
-            
-            [weakSelf enqueue:^{
-                _session = [AVCaptureSession new];
-                _session.sessionPreset = AVCaptureSessionPresetPhoto;
-                
-                AVCaptureDevice *device = [AVCaptureDevice cameraDevice:self.cameraDevice];
-                
-                if (!device) {
-                    device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
-                }
-                
-                if ([device lockForConfiguration:nil]) {
-                    if([device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]){
-                        device.focusMode = AVCaptureFocusModeContinuousAutoFocus;
-                    }
-                    
-                    if ([device isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure]) {
-                        device.exposureMode = AVCaptureExposureModeContinuousAutoExposure;
-                    }
-                    
-                    [device unlockForConfiguration];
-                }
-                
-#if !TARGET_IPHONE_SIMULATOR
-                AVCaptureDeviceInput *deviceInput = [AVCaptureDeviceInput deviceInputWithDevice:device error:nil];
-                [_session addInput:deviceInput];
-                
-                switch (device.position) {
-                    case AVCaptureDevicePositionBack:
-                        _cameraDevice = FastttCameraDeviceRear;
-                        break;
-                        
-                    case AVCaptureDevicePositionFront:
-                        _cameraDevice = FastttCameraDeviceFront;
-                        break;
-                        
-                    default:
-                        break;
-                }
-                
-                [weakSelf setCameraFlashMode:_cameraFlashMode];
-#endif
-                
-                NSDictionary *outputSettings = @{AVVideoCodecKey:AVVideoCodecJPEG};
-                
-                _stillImageOutput = [AVCaptureStillImageOutput new];
-                _stillImageOutput.outputSettings = outputSettings;
-                
-                [_session addOutput:_stillImageOutput];
-                
-                _deviceOrientation = [IFTTTDeviceOrientation new];
-                
-                if ([weakSelf isViewLoaded] && [[weakSelf view] window]) {
-                    [weakSelf startRunning];
-                    [weakSelf toMainThread:^{
-                        [weakSelf _insertPreviewLayer];
-                        [weakSelf _setPreviewVideoOrientation];
-                        [weakSelf _resetZoom];
-                    }];
-                }
-            }];
-        }
+        [weakSelf enqueue:^{
+            [weakSelf _postAuthorizationSetup];
+        }];
     }];
 }
 
@@ -625,72 +568,70 @@
 
 - (void)_processImage:(UIImage *)image withCropRect:(CGRect)cropRect maxDimension:(CGFloat)maxDimension fromCamera:(BOOL)fromCamera needsPreviewRotation:(BOOL)needsPreviewRotation previewOrientation:(UIDeviceOrientation)previewOrientation
 {
+    if (fromCamera && !self.isCapturingImage) {
+        return;
+    }
+    
     __weak typeof(self)weakSelf = self;
     
-    [self enqueue:^{
-        if (fromCamera && ![weakSelf isCapturingImage]) {
+    FastttCapturedImage *capturedImage = [FastttCapturedImage fastttCapturedFullImage:image];
+    
+    [capturedImage cropToRect:cropRect
+               returnsPreview:(fromCamera && self.returnsRotatedPreview)
+         needsPreviewRotation:needsPreviewRotation
+       withPreviewOrientation:previewOrientation
+                 withCallback:^(FastttCapturedImage *capturedImage){
+                     if (fromCamera && !self.isCapturingImage) {
+                         return;
+                     }
+                     if ([self.delegate respondsToSelector:@selector(cameraController:didFinishCapturingImage:)]) {
+                         [self toMainThread:^{
+                             [[weakSelf delegate] cameraController:weakSelf didFinishCapturingImage:capturedImage];
+                         }];
+                     }
+                 }];
+    
+    void (^scaleCallback)(FastttCapturedImage *capturedImage) = ^(FastttCapturedImage *capturedImage) {
+        if (fromCamera && !self.isCapturingImage) {
             return;
         }
-        
-        FastttCapturedImage *capturedImage = [FastttCapturedImage fastttCapturedFullImage:image];
-        
-        [capturedImage cropToRect:cropRect
-                   returnsPreview:(fromCamera && [weakSelf returnsRotatedPreview])
-             needsPreviewRotation:needsPreviewRotation
-           withPreviewOrientation:previewOrientation
-                     withCallback:^(FastttCapturedImage *capturedImage){
-                         if (fromCamera && ![weakSelf isCapturingImage]) {
-                             return;
-                         }
-                         if ([[weakSelf delegate] respondsToSelector:@selector(cameraController:didFinishCapturingImage:)]) {
-                             [weakSelf toMainThread:^{
-                                 [[weakSelf delegate] cameraController:weakSelf didFinishCapturingImage:capturedImage];
-                             }];
-                         }
-                     }];
-        
-        void (^scaleCallback)(FastttCapturedImage *capturedImage) = ^(FastttCapturedImage *capturedImage) {
-            if (fromCamera && ![weakSelf isCapturingImage]) {
-                return;
-            }
-            if ([[weakSelf delegate] respondsToSelector:@selector(cameraController:didFinishScalingCapturedImage:)]) {
-                [weakSelf toMainThread:^{
-                    [[weakSelf delegate] cameraController:weakSelf didFinishScalingCapturedImage:capturedImage];
-                }];
-            }
-        };
-        
-        if (fromCamera && ![weakSelf isCapturingImage]) {
-            return;
-        }
-        
-        if (maxDimension > 0.f) {
-            [capturedImage scaleToMaxDimension:maxDimension
-                                  withCallback:scaleCallback];
-        } else if (fromCamera && [weakSelf scalesImage]) {
-            [capturedImage scaleToSize:[weakSelf view].bounds.size
-                          withCallback:scaleCallback];
-        }
-        
-        if (fromCamera && ![weakSelf isCapturingImage]) {
-            return;
-        }
-        
-        if ([weakSelf normalizesImageOrientations]) {
-            [capturedImage normalizeWithCallback:^(FastttCapturedImage *capturedImage){
-                if (fromCamera && ![weakSelf isCapturingImage]) {
-                    return;
-                }
-                if ([[weakSelf delegate] respondsToSelector:@selector(cameraController:didFinishNormalizingCapturedImage:)]) {
-                    [weakSelf toMainThread:^{
-                        [[weakSelf delegate] cameraController:weakSelf didFinishNormalizingCapturedImage:capturedImage];
-                    }];
-                }
+        if ([self.delegate respondsToSelector:@selector(cameraController:didFinishScalingCapturedImage:)]) {
+            [self toMainThread:^{
+                [[weakSelf delegate] cameraController:weakSelf didFinishScalingCapturedImage:capturedImage];
             }];
         }
-        
-        [weakSelf setIsCapturingImage:NO];
-    }];
+    };
+    
+    if (fromCamera && !self.isCapturingImage) {
+        return;
+    }
+    
+    if (maxDimension > 0.f) {
+        [capturedImage scaleToMaxDimension:maxDimension
+                              withCallback:scaleCallback];
+    } else if (fromCamera && self.scalesImage) {
+        [capturedImage scaleToSize:self.view.bounds.size
+                      withCallback:scaleCallback];
+    }
+    
+    if (fromCamera && !self.isCapturingImage) {
+        return;
+    }
+    
+    if (self.normalizesImageOrientations) {
+        [capturedImage normalizeWithCallback:^(FastttCapturedImage *capturedImage){
+            if (fromCamera && !self.isCapturingImage) {
+                return;
+            }
+            if ([self.delegate respondsToSelector:@selector(cameraController:didFinishNormalizingCapturedImage:)]) {
+                [self toMainThread:^{
+                    [[weakSelf delegate] cameraController:weakSelf didFinishNormalizingCapturedImage:capturedImage];
+                }];
+            }
+        }];
+    }
+    
+    self.isCapturingImage = NO;
 }
 
 #pragma mark - AV Orientation
@@ -770,6 +711,79 @@
         }
     }];
 #endif
+}
+
+- (void)_postAuthorizationSetup
+{
+    __weak typeof(self)weakSelf = self;
+    
+    if (!_deviceAuthorized && [[weakSelf delegate] respondsToSelector:@selector(userDeniedCameraPermissionsForCameraController:)]) {
+        [self toMainThread:^{
+            [[weakSelf delegate] userDeniedCameraPermissionsForCameraController:weakSelf];
+        }];
+    }
+    
+    if (_deviceAuthorized) {
+        
+        _session = [AVCaptureSession new];
+        _session.sessionPreset = AVCaptureSessionPresetPhoto;
+        
+        AVCaptureDevice *device = [AVCaptureDevice cameraDevice:self.cameraDevice];
+        
+        if (!device) {
+            device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+        }
+        
+        if ([device lockForConfiguration:nil]) {
+            if([device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]){
+                device.focusMode = AVCaptureFocusModeContinuousAutoFocus;
+            }
+            
+            if ([device isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure]) {
+                device.exposureMode = AVCaptureExposureModeContinuousAutoExposure;
+            }
+            
+            [device unlockForConfiguration];
+        }
+        
+#if !TARGET_IPHONE_SIMULATOR
+        AVCaptureDeviceInput *deviceInput = [AVCaptureDeviceInput deviceInputWithDevice:device error:nil];
+        [_session addInput:deviceInput];
+        
+        switch (device.position) {
+            case AVCaptureDevicePositionBack:
+                _cameraDevice = FastttCameraDeviceRear;
+                break;
+                
+            case AVCaptureDevicePositionFront:
+                _cameraDevice = FastttCameraDeviceFront;
+                break;
+                
+            default:
+                break;
+        }
+        
+        [self setCameraFlashMode:_cameraFlashMode];
+#endif
+        
+        NSDictionary *outputSettings = @{AVVideoCodecKey:AVVideoCodecJPEG};
+        
+        _stillImageOutput = [AVCaptureStillImageOutput new];
+        _stillImageOutput.outputSettings = outputSettings;
+        
+        [_session addOutput:_stillImageOutput];
+        
+        _deviceOrientation = [IFTTTDeviceOrientation new];
+        
+        if (self.isViewLoaded && self.view.window) {
+            [self startRunning];
+            [self toMainThread:^{
+                [weakSelf _insertPreviewLayer];
+                [weakSelf _setPreviewVideoOrientation];
+                [weakSelf _resetZoom];
+            }];
+        }
+    }
 }
 
 #pragma mark - FastttCameraDevice
