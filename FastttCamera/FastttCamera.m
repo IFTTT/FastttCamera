@@ -393,13 +393,10 @@
         return;
     }
     
-#if !TARGET_IPHONE_SIMULATOR
     [self _checkDeviceAuthorizationWithCompletion:^(BOOL isAuthorized) {
         
         _deviceAuthorized = isAuthorized;
-#else
-        _deviceAuthorized = YES;
-#endif
+        
         if (!_deviceAuthorized && [self.delegate respondsToSelector:@selector(userDeniedCameraPermissionsForCameraController:)]) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self.delegate userDeniedCameraPermissionsForCameraController:self];
@@ -466,9 +463,7 @@
                 }
             });
         }
-#if !TARGET_IPHONE_SIMULATOR
     }];
-#endif
 }
 
 - (void)_teardownCaptureSession
@@ -698,11 +693,17 @@
 
 - (void)_checkDeviceAuthorizationWithCompletion:(void (^)(BOOL isAuthorized))completion
 {
+#if TARGET_IPHONE_SIMULATOR
+    if (completion) {
+        completion(YES);
+    }
+#else
     [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
         if (completion) {
             completion(granted);
         }
     }];
+#endif
 }
 
 #pragma mark - FastttCameraDevice
