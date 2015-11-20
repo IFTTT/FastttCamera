@@ -27,6 +27,14 @@
 @property (nonatomic, assign) BOOL deviceAuthorized;
 @property (nonatomic, assign) BOOL isCapturingImage;
 
+//Background
+@property (nonatomic, strong) NSOperationQueue *queue;
+- (void)enqueue:(void(^)())block;
+- (void)toMainThread:(void(^)())block;
+@property (nonatomic, assign) UIBackgroundTaskIdentifier bgTaskId;
+- (void)startBackgroundTask;
+- (void)endBackgroundTask;
+
 @end
 
 @implementation FastttCamera
@@ -53,6 +61,7 @@
 - (instancetype)init
 {
     if ((self = [super init])) {
+        _bgTaskId = UIBackgroundTaskInvalid;
         
         [self _setupCaptureSession];
         
@@ -104,6 +113,50 @@
     [self _teardownCaptureSession];
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+#pragma mark - Background
+
+- (NSOperationQueue *)queue
+{
+    if (!_queue) {
+        _queue = [NSOperationQueue new];
+        _queue.name = @"FastttQueue";
+        _queue.maxConcurrentOperationCount = 1;
+    }
+    return _queue;
+}
+
+- (void)enqueue:(void (^)())block
+{
+    [self.queue addOperationWithBlock:block];
+}
+
+- (void)toMainThread:(void (^)())block
+{
+    [[NSOperationQueue mainQueue] addOperationWithBlock:block];
+}
+
+- (void)startBackgroundTask
+{
+    if (self.bgTaskId != UIBackgroundTaskInvalid) {
+        return;
+    }
+    
+    self.bgTaskId = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
+        [self setBgTaskId:UIBackgroundTaskInvalid];
+        [self startBackgroundTask];
+    }];
+}
+
+- (void)endBackgroundTask
+{
+    if (self.bgTaskId == UIBackgroundTaskInvalid) {
+        return;
+    }
+    
+    [[UIApplication sharedApplication] endBackgroundTask:self.bgTaskId];
+    self.bgTaskId = UIBackgroundTaskInvalid;
 }
 
 #pragma mark - View Events
@@ -393,20 +446,22 @@
         return;
     }
     
+    [self startBackgroundTask];
+    
+    __weak typeof(self)weakSelf = self;
     [self _checkDeviceAuthorizationWithCompletion:^(BOOL isAuthorized) {
         
         _deviceAuthorized = isAuthorized;
         
-        if (!_deviceAuthorized && [self.delegate respondsToSelector:@selector(userDeniedCameraPermissionsForCameraController:)]) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self.delegate userDeniedCameraPermissionsForCameraController:self];
-            });
+        if (!_deviceAuthorized && [[weakSelf delegate] respondsToSelector:@selector(userDeniedCameraPermissionsForCameraController:)]) {
+            [weakSelf toMainThread:^{
+                [[weakSelf delegate] userDeniedCameraPermissionsForCameraController:weakSelf];
+            }];
         }
         
         if (_deviceAuthorized) {
             
-            dispatch_async(dispatch_get_main_queue(), ^{
-                
+            [weakSelf enqueue:^{
                 _session = [AVCaptureSession new];
                 _session.sessionPreset = AVCaptureSessionPresetPhoto;
                 
@@ -445,7 +500,7 @@
                         break;
                 }
                 
-                [self setCameraFlashMode:_cameraFlashMode];
+                [weakSelf setCameraFlashMode:_cameraFlashMode];
 #endif
                 
                 NSDictionary *outputSettings = @{AVVideoCodecKey:AVVideoCodecJPEG};
@@ -457,13 +512,15 @@
                 
                 _deviceOrientation = [IFTTTDeviceOrientation new];
                 
-                if (self.isViewLoaded && self.view.window) {
-                    [self startRunning];
-                    [self _insertPreviewLayer];
-                    [self _setPreviewVideoOrientation];
-                    [self _resetZoom];
+                if ([weakSelf isViewLoaded] && [[weakSelf view] window]) {
+                    [weakSelf startRunning];
+                    [weakSelf toMainThread:^{
+                        [weakSelf _insertPreviewLayer];
+                        [weakSelf _setPreviewVideoOrientation];
+                        [weakSelf _resetZoom];
+                    }];
                 }
-            });
+            }];
         }
     }];
 }
@@ -490,6 +547,8 @@
     [self _removePreviewLayer];
     
     _session = nil;
+    
+    [self endBackgroundTask];
 }
 
 #pragma mark - Capturing a Photo
@@ -513,12 +572,14 @@
         [videoConnection setVideoMirrored:(_cameraDevice == FastttCameraDeviceFront)];
     }
     
+    __weak typeof(self)weakSelf = self;
+    
 #if TARGET_IPHONE_SIMULATOR
     [self _insertPreviewLayer];
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    [self enqueue:^{
         UIImage *fakeImage = [UIImage fastttFakeTestImage];
-        [self _processCameraPhoto:fakeImage needsPreviewRotation:needsPreviewRotation previewOrientation:UIDeviceOrientationPortrait];
-    });
+        [weakSelf _processCameraPhoto:fakeImage needsPreviewRotation:needsPreviewRotation previewOrientation:UIDeviceOrientationPortrait];
+    }];
 #else    
     UIDeviceOrientation previewOrientation = [self _currentPreviewDeviceOrientation];
 
@@ -529,22 +590,23 @@
              return;
          }
          
-         if (!self.isCapturingImage) {
+         if (![weakSelf isCapturingImage]) {
              return;
          }
          
          NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
 
-         if ([self.delegate respondsToSelector:@selector(cameraController:didFinishCapturingImageData:)]) {
-             [self.delegate cameraController:self didFinishCapturingImageData:imageData];
+         if ([[weakSelf delegate] respondsToSelector:@selector(cameraController:didFinishCapturingImageData:)]) {
+             [weakSelf toMainThread:^{
+                 [[weakSelf delegate] cameraController:weakSelf didFinishCapturingImageData:imageData];
+             }];
          }
 
-         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-             
+         [weakSelf enqueue:^{
              UIImage *image = [UIImage imageWithData:imageData];
              
-             [self _processCameraPhoto:image needsPreviewRotation:needsPreviewRotation previewOrientation:previewOrientation];
-         });
+             [weakSelf _processCameraPhoto:image needsPreviewRotation:needsPreviewRotation previewOrientation:previewOrientation];
+         }];
      }];
 #endif
 }
@@ -563,70 +625,72 @@
 
 - (void)_processImage:(UIImage *)image withCropRect:(CGRect)cropRect maxDimension:(CGFloat)maxDimension fromCamera:(BOOL)fromCamera needsPreviewRotation:(BOOL)needsPreviewRotation previewOrientation:(UIDeviceOrientation)previewOrientation
 {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        if (fromCamera && !self.isCapturingImage) {
+    __weak typeof(self)weakSelf = self;
+    
+    [self enqueue:^{
+        if (fromCamera && ![weakSelf isCapturingImage]) {
             return;
         }
         
         FastttCapturedImage *capturedImage = [FastttCapturedImage fastttCapturedFullImage:image];
         
         [capturedImage cropToRect:cropRect
-                   returnsPreview:(fromCamera && self.returnsRotatedPreview)
+                   returnsPreview:(fromCamera && [weakSelf returnsRotatedPreview])
              needsPreviewRotation:needsPreviewRotation
            withPreviewOrientation:previewOrientation
                      withCallback:^(FastttCapturedImage *capturedImage){
-                         if (fromCamera && !self.isCapturingImage) {
+                         if (fromCamera && ![weakSelf isCapturingImage]) {
                              return;
                          }
-                         if ([self.delegate respondsToSelector:@selector(cameraController:didFinishCapturingImage:)]) {
-                             dispatch_async(dispatch_get_main_queue(), ^{
-                                 [self.delegate cameraController:self didFinishCapturingImage:capturedImage];
-                             });
+                         if ([[weakSelf delegate] respondsToSelector:@selector(cameraController:didFinishCapturingImage:)]) {
+                             [weakSelf toMainThread:^{
+                                 [[weakSelf delegate] cameraController:weakSelf didFinishCapturingImage:capturedImage];
+                             }];
                          }
                      }];
         
         void (^scaleCallback)(FastttCapturedImage *capturedImage) = ^(FastttCapturedImage *capturedImage) {
-            if (fromCamera && !self.isCapturingImage) {
+            if (fromCamera && ![weakSelf isCapturingImage]) {
                 return;
             }
-            if ([self.delegate respondsToSelector:@selector(cameraController:didFinishScalingCapturedImage:)]) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.delegate cameraController:self didFinishScalingCapturedImage:capturedImage];
-                });
+            if ([[weakSelf delegate] respondsToSelector:@selector(cameraController:didFinishScalingCapturedImage:)]) {
+                [weakSelf toMainThread:^{
+                    [[weakSelf delegate] cameraController:weakSelf didFinishScalingCapturedImage:capturedImage];
+                }];
             }
         };
         
-        if (fromCamera && !self.isCapturingImage) {
+        if (fromCamera && ![weakSelf isCapturingImage]) {
             return;
         }
         
         if (maxDimension > 0.f) {
             [capturedImage scaleToMaxDimension:maxDimension
                                   withCallback:scaleCallback];
-        } else if (fromCamera && self.scalesImage) {
-            [capturedImage scaleToSize:self.view.bounds.size
+        } else if (fromCamera && [weakSelf scalesImage]) {
+            [capturedImage scaleToSize:[weakSelf view].bounds.size
                           withCallback:scaleCallback];
         }
         
-        if (fromCamera && !self.isCapturingImage) {
+        if (fromCamera && ![weakSelf isCapturingImage]) {
             return;
         }
         
-        if (self.normalizesImageOrientations) {
+        if ([weakSelf normalizesImageOrientations]) {
             [capturedImage normalizeWithCallback:^(FastttCapturedImage *capturedImage){
-                if (fromCamera && !self.isCapturingImage) {
+                if (fromCamera && ![weakSelf isCapturingImage]) {
                     return;
                 }
-                if ([self.delegate respondsToSelector:@selector(cameraController:didFinishNormalizingCapturedImage:)]) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [self.delegate cameraController:self didFinishNormalizingCapturedImage:capturedImage];
-                    });
+                if ([[weakSelf delegate] respondsToSelector:@selector(cameraController:didFinishNormalizingCapturedImage:)]) {
+                    [weakSelf toMainThread:^{
+                        [[weakSelf delegate] cameraController:weakSelf didFinishNormalizingCapturedImage:capturedImage];
+                    }];
                 }
             }];
         }
         
-        self.isCapturingImage = NO;
-    });
+        [weakSelf setIsCapturingImage:NO];
+    }];
 }
 
 #pragma mark - AV Orientation
