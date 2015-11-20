@@ -421,7 +421,9 @@
                         device.focusMode = AVCaptureFocusModeContinuousAutoFocus;
                     }
                     
-                    device.exposureMode = AVCaptureExposureModeContinuousAutoExposure;
+                    if ([device isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure]) {
+                        device.exposureMode = AVCaptureExposureModeContinuousAutoExposure;
+                    }
                     
                     [device unlockForConfiguration];
                 }
