@@ -1,6 +1,6 @@
 source 'https://github.com/CocoaPods/Specs.git'
 
-xcodeproj 'FastttCamera'
+project 'FastttCamera'
 
 platform :ios, '7.0'
 
@@ -9,14 +9,13 @@ def install_pods
   pod 'Masonry', '0.6.1'
 end
 
-target 'FastttCamera', :exclusive => true do
+target 'FastttCamera' do
   install_pods
-end
 
-target 'FastttCameraTests', :exclusive => true do
-  install_pods
-  pod 'Specta'
-  pod 'Expecta'
-  pod 'Expecta+Snapshots'
-  pod 'OCMock'
+  target 'FastttCameraTests' do
+    pod 'Specta'
+    pod 'Expecta'
+    pod 'Expecta+Snapshots'
+    pod 'OCMock'
+  end
 end
