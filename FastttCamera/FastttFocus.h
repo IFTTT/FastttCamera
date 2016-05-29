@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @protocol FastttFocusDelegate;
+@class AVCaptureDevice;
 
 /**
  *  Private class to handle focusing. If you want to manually handle focus, set
@@ -52,6 +53,26 @@
  */
 - (void)showFocusViewAtPoint:(CGPoint)location;
 
+/**
+ *  Tells the caller whether a focus operation is currently running.
+ *
+ *  @discussion By default, FastttFocus KVOs the AVCaptureDevice to know whether a focus operation has finished or not, 
+ *              so KVOing this property is essentially the same thing as KVOing AVFoundation.
+ *
+ *  @note If handlesTapFocus has been set to NO, then this property will never change. 
+ */
+@property (nonatomic, readonly, getter=isFocusing) BOOL focusing;
+
+/**
+ *  The AVCaptureDevice currently associated with the FastttFocus instance.
+ *
+ *  @discussion You tipically call this method to let the FastttFocus instance KVO the Capture Device to know whether 
+ *              a focus operation is being performed.
+ *
+ *  @note If handlesTapFocus has been set to NO, then this property doesn't do anything.
+ */
+@property (nonatomic, weak) AVCaptureDevice *currentDevice;
+
 @end
 
 #pragma mark - FastttFocusDelegate
@@ -67,5 +88,18 @@
  *  @return YES if the current camera is able to focus, NO if not.
  */
 - (BOOL)handleTapFocusAtPoint:(CGPoint)touchPoint;
+
+@optional
+
+/**
+ *  Called when the focus, the exposure and the white balance operations have finished processing.
+ *
+ *  @warning This method may be called multiple times due to the system automatically adjusting the focus, exposure and white balance trio,
+ *              when AVCaptureFocusModeContinuousAutoFocus, AVCaptureExposureModeContinuousAutoExposure or 
+ *              AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance have been set.
+ *
+ *  @note If handlesTapFocus has been set to NO, then this method won't be called.
+ */
+- (void)hasFinishedAdjustingFocusAndExposure;
 
 @end

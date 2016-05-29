@@ -282,6 +282,16 @@
  */
 - (void)stopRunning;
 
+/**
+ *  Tells the caller whether the camera is running or not.
+ *
+ *  @note This property is mainly intented to be used as a guide to know whether we were running before an interruption in the current session
+ *          or not. Although you can still observe this property, it is not equivalent to the AVCaptureSession counterpart.
+ *          An instance of FastttCamera may report isRunning == YES, while we're in the middle of an interruption
+ *          in the session.
+ */
+@property (nonatomic, readonly, getter=isRunning) BOOL running;
+
 @end
 
 
@@ -358,5 +368,22 @@
  *  finds that permission to access the camera has not been granted.
  */
 - (void)userDeniedCameraPermissionsForCameraController:(id<FastttCameraInterface>)cameraController;
+
+/**
+ *  Called when the camera had been running but was interrupted by the system, or when the app is going to the background.
+ *
+ *  @discussion This is a great opportunity to unhide that nice UIVisualEffectView you have laid out on top of the camera, if targeting iOS 8+. 
+ *
+ *  @note If you inspect the camera's isRunning property while executing this method, it may still return YES, meaning that the camera
+ *          has't stopped and will resume automatically as soon as possible. If isRunning returns NO, we have encountered an error.
+ */
+- (void)cameraControllerDidPause:(id<FastttCameraInterface>)cameraController;
+
+/**
+ *  Called when the camera was interrupted but resumed.
+ *
+ *  @discussion This is a great opportunity to hide that nice UIVisualEffectView you have laid out on top of the camera, if targeting iOS 8+. 
+ */
+- (void)cameraControllerDidResume:(id<FastttCameraInterface>)cameraController;
 
 @end
