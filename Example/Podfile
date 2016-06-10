@@ -4,13 +4,9 @@ project 'FastttCamera'
 
 platform :ios, '7.0'
 
-def install_pods
-  pod "FastttCamera", :path => "../FastttCamera.podspec"
-  pod 'Masonry', '0.6.1'
-end
-
 target 'FastttCamera' do
-  install_pods
+  pod 'FastttCamera', :path => '../FastttCamera.podspec'
+  pod 'Masonry', '0.6.1'
 
   target 'FastttCameraTests' do
     pod 'Specta'

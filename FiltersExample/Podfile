@@ -1,22 +1,17 @@
 source 'https://github.com/CocoaPods/Specs.git'
 
-xcodeproj 'FastttCameraDemo'
+project 'FastttCameraDemo'
 
 platform :ios, '7.0'
 
-def install_pods
-  pod "FastttCamera/Filters", :path => "../FastttCamera.podspec"
+target 'FastttCameraDemo' do
+  pod 'FastttCamera/Filters', :path => '../FastttCamera.podspec'
   pod 'Masonry', '0.6.1'
-end
 
-target 'FastttCameraDemo', :exclusive => true do
-  install_pods
-end
-
-target 'FastttCameraDemoTests', :exclusive => true do
-  install_pods
-  pod 'Specta'
-  pod 'Expecta'
-  pod 'Expecta+Snapshots'
-  pod 'OCMock'
+  target 'FastttCameraDemoTests' do
+    pod 'Specta'
+    pod 'Expecta'
+    pod 'Expecta+Snapshots'
+    pod 'OCMock'
+  end
 end
