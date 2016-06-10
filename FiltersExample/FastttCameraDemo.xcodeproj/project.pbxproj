@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		483DDAA9BBF02B077024403A /* libPods-FastttCameraDemo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 584097491FEF9A8DD4FFB985 /* libPods-FastttCameraDemo.a */; };
-		6B51047A6A0945C8D18CDE51 /* libPods-FastttCameraDemoTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0539E4652A206C1051AF65AB /* libPods-FastttCameraDemoTests.a */; };
+		395B203DD381E5203B7EC245 /* libPods-FastttCameraDemo-FastttCameraDemoTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C636EA821A4893EED6F9393E /* libPods-FastttCameraDemo-FastttCameraDemoTests.a */; };
+		6988B273AB931CBC06A9B5D9 /* libPods-FastttCameraDemo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 509D244BF9D486E0CE825B99 /* libPods-FastttCameraDemo.a */; };
 		FAA260301B790CA700A2174A /* FastttCameraTest.png in Resources */ = {isa = PBXBuildFile; fileRef = FAA2602C1B790CA700A2174A /* FastttCameraTest.png */; };
 		FAA260311B790CA700A2174A /* FastttCameraTestLeftMirrored.png in Resources */ = {isa = PBXBuildFile; fileRef = FAA2602D1B790CA700A2174A /* FastttCameraTestLeftMirrored.png */; };
 		FAA260321B790CA700A2174A /* FastttCameraTestRight.png in Resources */ = {isa = PBXBuildFile; fileRef = FAA2602E1B790CA700A2174A /* FastttCameraTestRight.png */; };
@@ -43,12 +43,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		0539E4652A206C1051AF65AB /* libPods-FastttCameraDemoTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FastttCameraDemoTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		401024D4E281DBF8463341AF /* Pods-FastttCameraDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FastttCameraDemo.release.xcconfig"; path = "Pods/Target Support Files/Pods-FastttCameraDemo/Pods-FastttCameraDemo.release.xcconfig"; sourceTree = "<group>"; };
-		5675D70A9EDCBB77E2F3D6F1 /* Pods-FastttCameraDemoTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FastttCameraDemoTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-FastttCameraDemoTests/Pods-FastttCameraDemoTests.release.xcconfig"; sourceTree = "<group>"; };
-		584097491FEF9A8DD4FFB985 /* libPods-FastttCameraDemo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FastttCameraDemo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		DD464D591C1267739978B593 /* Pods-FastttCameraDemoTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FastttCameraDemoTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FastttCameraDemoTests/Pods-FastttCameraDemoTests.debug.xcconfig"; sourceTree = "<group>"; };
-		DFF517813E814CBB00C64ACB /* Pods-FastttCameraDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FastttCameraDemo.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FastttCameraDemo/Pods-FastttCameraDemo.debug.xcconfig"; sourceTree = "<group>"; };
+		27BDAC89A9CC2C6655C09804 /* Pods-FastttCameraDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FastttCameraDemo.release.xcconfig"; path = "Pods/Target Support Files/Pods-FastttCameraDemo/Pods-FastttCameraDemo.release.xcconfig"; sourceTree = "<group>"; };
+		2C116D2A0DB709819EF7A7B7 /* Pods-FastttCameraDemo-FastttCameraDemoTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FastttCameraDemo-FastttCameraDemoTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-FastttCameraDemo-FastttCameraDemoTests/Pods-FastttCameraDemo-FastttCameraDemoTests.release.xcconfig"; sourceTree = "<group>"; };
+		509D244BF9D486E0CE825B99 /* libPods-FastttCameraDemo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FastttCameraDemo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AB0C582F1F3F3129C9AA546B /* Pods-FastttCameraDemo-FastttCameraDemoTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FastttCameraDemo-FastttCameraDemoTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FastttCameraDemo-FastttCameraDemoTests/Pods-FastttCameraDemo-FastttCameraDemoTests.debug.xcconfig"; sourceTree = "<group>"; };
+		B22B90689F6E8ADCA9C64F7E /* Pods-FastttCameraDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FastttCameraDemo.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FastttCameraDemo/Pods-FastttCameraDemo.debug.xcconfig"; sourceTree = "<group>"; };
+		C636EA821A4893EED6F9393E /* libPods-FastttCameraDemo-FastttCameraDemoTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FastttCameraDemo-FastttCameraDemoTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		FAA2602C1B790CA700A2174A /* FastttCameraTest.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = FastttCameraTest.png; sourceTree = "<group>"; };
 		FAA2602D1B790CA700A2174A /* FastttCameraTestLeftMirrored.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = FastttCameraTestLeftMirrored.png; sourceTree = "<group>"; };
 		FAA2602E1B790CA700A2174A /* FastttCameraTestRight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = FastttCameraTestRight.png; sourceTree = "<group>"; };
@@ -87,7 +87,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				483DDAA9BBF02B077024403A /* libPods-FastttCameraDemo.a in Frameworks */,
+				6988B273AB931CBC06A9B5D9 /* libPods-FastttCameraDemo.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -95,29 +95,29 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6B51047A6A0945C8D18CDE51 /* libPods-FastttCameraDemoTests.a in Frameworks */,
+				395B203DD381E5203B7EC245 /* libPods-FastttCameraDemo-FastttCameraDemoTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		2BF746406D5E0AC10D082974 /* Pods */ = {
+		69C62677A724B41A3795DEA3 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				DFF517813E814CBB00C64ACB /* Pods-FastttCameraDemo.debug.xcconfig */,
-				401024D4E281DBF8463341AF /* Pods-FastttCameraDemo.release.xcconfig */,
-				DD464D591C1267739978B593 /* Pods-FastttCameraDemoTests.debug.xcconfig */,
-				5675D70A9EDCBB77E2F3D6F1 /* Pods-FastttCameraDemoTests.release.xcconfig */,
+				B22B90689F6E8ADCA9C64F7E /* Pods-FastttCameraDemo.debug.xcconfig */,
+				27BDAC89A9CC2C6655C09804 /* Pods-FastttCameraDemo.release.xcconfig */,
+				AB0C582F1F3F3129C9AA546B /* Pods-FastttCameraDemo-FastttCameraDemoTests.debug.xcconfig */,
+				2C116D2A0DB709819EF7A7B7 /* Pods-FastttCameraDemo-FastttCameraDemoTests.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
 		};
-		D7B78F50656EC97599AAB575 /* Frameworks */ = {
+		CB73AD65E1C7529DD73D319C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				584097491FEF9A8DD4FFB985 /* libPods-FastttCameraDemo.a */,
-				0539E4652A206C1051AF65AB /* libPods-FastttCameraDemoTests.a */,
+				509D244BF9D486E0CE825B99 /* libPods-FastttCameraDemo.a */,
+				C636EA821A4893EED6F9393E /* libPods-FastttCameraDemo-FastttCameraDemoTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -139,8 +139,8 @@
 				FAC593EF1B7909A800EBAA93 /* FastttCameraDemo */,
 				FAC594091B7909A900EBAA93 /* FastttCameraDemoTests */,
 				FAC593EE1B7909A800EBAA93 /* Products */,
-				2BF746406D5E0AC10D082974 /* Pods */,
-				D7B78F50656EC97599AAB575 /* Frameworks */,
+				69C62677A724B41A3795DEA3 /* Pods */,
+				CB73AD65E1C7529DD73D319C /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -216,11 +216,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = FAC594101B7909A900EBAA93 /* Build configuration list for PBXNativeTarget "FastttCameraDemo" */;
 			buildPhases = (
-				5E596DF4A084E3C491BC7AA3 /* Check Pods Manifest.lock */,
+				060A2E1D988B5A4745251EC4 /* [CP] Check Pods Manifest.lock */,
 				FAC593E91B7909A800EBAA93 /* Sources */,
 				FAC593EA1B7909A800EBAA93 /* Frameworks */,
 				FAC593EB1B7909A800EBAA93 /* Resources */,
-				38B461BBB27EBFBFA8CB1620 /* Copy Pods Resources */,
+				18D4F4228C4DD77B66C8ACB2 /* [CP] Embed Pods Frameworks */,
+				CC46D2792AC1974A5B09FDA7 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -235,11 +236,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = FAC594131B7909A900EBAA93 /* Build configuration list for PBXNativeTarget "FastttCameraDemoTests" */;
 			buildPhases = (
-				1C0E9F11DDC2AD391A26FF9E /* Check Pods Manifest.lock */,
+				C4460B7B64CFB736C48E408B /* [CP] Check Pods Manifest.lock */,
 				FAC594021B7909A900EBAA93 /* Sources */,
 				FAC594031B7909A900EBAA93 /* Frameworks */,
 				FAC594041B7909A900EBAA93 /* Resources */,
-				DA1E845DA2CCE50D4C1232FD /* Copy Pods Resources */,
+				56CF9D598DCEAFEF11F6A18A /* [CP] Embed Pods Frameworks */,
+				01709451747754475CD51ED4 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -311,14 +313,29 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		1C0E9F11DDC2AD391A26FF9E /* Check Pods Manifest.lock */ = {
+		01709451747754475CD51ED4 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Check Pods Manifest.lock";
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-FastttCameraDemo-FastttCameraDemoTests/Pods-FastttCameraDemo-FastttCameraDemoTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		060A2E1D988B5A4745251EC4 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -326,49 +343,64 @@
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		38B461BBB27EBFBFA8CB1620 /* Copy Pods Resources */ = {
+		18D4F4228C4DD77B66C8ACB2 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Copy Pods Resources";
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-FastttCameraDemo/Pods-FastttCameraDemo-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		56CF9D598DCEAFEF11F6A18A /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-FastttCameraDemo-FastttCameraDemoTests/Pods-FastttCameraDemo-FastttCameraDemoTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		C4460B7B64CFB736C48E408B /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		CC46D2792AC1974A5B09FDA7 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-FastttCameraDemo/Pods-FastttCameraDemo-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		5E596DF4A084E3C491BC7AA3 /* Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Check Pods Manifest.lock";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
-			showEnvVarsInLog = 0;
-		};
-		DA1E845DA2CCE50D4C1232FD /* Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-FastttCameraDemoTests/Pods-FastttCameraDemoTests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -499,7 +531,7 @@
 		};
 		FAC594111B7909A900EBAA93 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DFF517813E814CBB00C64ACB /* Pods-FastttCameraDemo.debug.xcconfig */;
+			baseConfigurationReference = B22B90689F6E8ADCA9C64F7E /* Pods-FastttCameraDemo.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = FastttCameraDemo/Info.plist;
@@ -511,7 +543,7 @@
 		};
 		FAC594121B7909A900EBAA93 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 401024D4E281DBF8463341AF /* Pods-FastttCameraDemo.release.xcconfig */;
+			baseConfigurationReference = 27BDAC89A9CC2C6655C09804 /* Pods-FastttCameraDemo.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = FastttCameraDemo/Info.plist;
@@ -523,7 +555,7 @@
 		};
 		FAC594141B7909A900EBAA93 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DD464D591C1267739978B593 /* Pods-FastttCameraDemoTests.debug.xcconfig */;
+			baseConfigurationReference = AB0C582F1F3F3129C9AA546B /* Pods-FastttCameraDemo-FastttCameraDemoTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -543,7 +575,7 @@
 		};
 		FAC594151B7909A900EBAA93 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5675D70A9EDCBB77E2F3D6F1 /* Pods-FastttCameraDemoTests.release.xcconfig */;
+			baseConfigurationReference = 2C116D2A0DB709819EF7A7B7 /* Pods-FastttCameraDemo-FastttCameraDemoTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				FRAMEWORK_SEARCH_PATHS = (
