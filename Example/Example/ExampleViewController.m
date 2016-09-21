@@ -8,12 +8,14 @@
 
 #import "ExampleViewController.h"
 #import <FastttCamera/FastttCamera.h>
+#import <FastttCamera/CYNCamera.h>
 #import <Masonry/Masonry.h>
 #import "ConfirmViewController.h"
 
 @interface ExampleViewController () <FastttCameraDelegate, ConfirmControllerDelegate>
 
-@property (nonatomic, strong) FastttCamera *fastCamera;
+//@property (nonatomic, strong) FastttCamera *fastCamera;
+@property (nonatomic, strong) CYNCamera *fastCamera;
 @property (nonatomic, strong) UIButton *takePhotoButton;
 @property (nonatomic, strong) UIButton *flashButton;
 @property (nonatomic, strong) UIButton *torchButton;
@@ -39,18 +41,20 @@
 {
     [super viewDidLoad];
         
-    _fastCamera = [FastttCamera new];
+//    _fastCamera = [FastttCamera new];
+    _fastCamera = [CYNCamera new];
     self.fastCamera.delegate = self;
     self.fastCamera.maxScaledDimension = 600.f;
+    self.fastCamera.showsFocusView = YES;
     
     [self fastttAddChildViewController:self.fastCamera];
     
     [self.fastCamera.view mas_makeConstraints:^(MASConstraintMaker *make) {
         make.center.equalTo(self.view);
-        make.height.and.width.lessThanOrEqualTo(self.view.mas_width).with.priorityHigh();
-        make.height.and.width.lessThanOrEqualTo(self.view.mas_height).with.priorityHigh();
-        make.height.and.width.equalTo(self.view.mas_width).with.priorityLow();
-        make.height.and.width.equalTo(self.view.mas_height).with.priorityLow();
+//        make.height.and.width.lessThanOrEqualTo(self.view.mas_width).with.priorityHigh();
+//        make.height.and.width.lessThanOrEqualTo(self.view.mas_height).with.priorityHigh();
+        make.width.equalTo(self.view.mas_width).with.priorityLow();
+        make.height.equalTo(self.view.mas_height).with.priorityLow();
     }];
     
     _takePhotoButton = [UIButton new];

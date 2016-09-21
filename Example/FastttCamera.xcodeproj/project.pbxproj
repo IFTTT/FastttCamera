@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4A1C079C1D914E6A00C6F9EA /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4A1C079B1D914E6A00C6F9EA /* Launch Screen.storyboard */; };
 		4C919A752452D6B889592318 /* libPods-FastttCamera.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D67EFF1504E0A50EB57D1275 /* libPods-FastttCamera.a */; };
 		DC0A33DB4A0EE2F1F41FA5B0 /* libPods-FastttCamera-FastttCameraTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6F9AB7CE82B7818B5AD9623F /* libPods-FastttCamera-FastttCameraTests.a */; };
 		FA1916571AA68D1F00C51681 /* FastttFocusSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = FA1916561AA68D1F00C51681 /* FastttFocusSpec.m */; };
@@ -43,6 +44,7 @@
 
 /* Begin PBXFileReference section */
 		027C9048D236E26032130398 /* Pods-FastttCamera.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FastttCamera.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FastttCamera/Pods-FastttCamera.debug.xcconfig"; sourceTree = "<group>"; };
+		4A1C079B1D914E6A00C6F9EA /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = "Launch Screen.storyboard"; path = "../Launch Screen.storyboard"; sourceTree = "<group>"; };
 		6F9AB7CE82B7818B5AD9623F /* libPods-FastttCamera-FastttCameraTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FastttCamera-FastttCameraTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B34120259D718FF104495E4E /* Pods-FastttCamera-FastttCameraTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FastttCamera-FastttCameraTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-FastttCamera-FastttCameraTests/Pods-FastttCamera-FastttCameraTests.release.xcconfig"; sourceTree = "<group>"; };
 		B382500DAE4F9FCE2C3784FD /* Pods-FastttCamera.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FastttCamera.release.xcconfig"; path = "Pods/Target Support Files/Pods-FastttCamera/Pods-FastttCamera.release.xcconfig"; sourceTree = "<group>"; };
@@ -174,6 +176,7 @@
 		FAC389961A8928440005EFDD /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				4A1C079B1D914E6A00C6F9EA /* Launch Screen.storyboard */,
 				FAC389971A8928440005EFDD /* Info.plist */,
 				FAC389981A8928440005EFDD /* main.m */,
 			);
@@ -255,14 +258,16 @@
 		FAC3898B1A8928440005EFDD /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0610;
+				LastUpgradeCheck = 0800;
 				ORGANIZATIONNAME = IFTTT;
 				TargetAttributes = {
 					FAC389921A8928440005EFDD = {
 						CreatedOnToolsVersion = 6.1.1;
+						DevelopmentTeam = DNG3JLER88;
 					};
 					FAC389AB1A8928440005EFDD = {
 						CreatedOnToolsVersion = 6.1.1;
+						DevelopmentTeam = DNG3JLER88;
 						TestTargetID = FAC389921A8928440005EFDD;
 					};
 				};
@@ -291,6 +296,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4A1C079C1D914E6A00C6F9EA /* Launch Screen.storyboard in Resources */,
 				FA28C5461A9BB488009DBB83 /* FastttCameraTestLeftMirrored.png in Resources */,
 				FA58AAA11A9BEB2B002CB34B /* FastttCameraTestRight.png in Resources */,
 				FA5A120B1A9C309900C8A236 /* LargeTestPhoto.jpg in Resources */,
@@ -454,17 +460,21 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -497,8 +507,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -508,6 +520,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -540,6 +553,7 @@
 				CLANG_WARN__EXIT_TIME_DESTRUCTORS = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = DNG3JLER88;
 				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
@@ -557,11 +571,13 @@
 				GCC_WARN_UNKNOWN_PRAGMAS = YES;
 				GCC_WARN_UNUSED_LABEL = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/Example/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "ifttt.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				RUN_CLANG_STATIC_ANALYZER = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -584,6 +600,7 @@
 				CLANG_WARN__EXIT_TIME_DESTRUCTORS = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = DNG3JLER88;
 				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
@@ -601,11 +618,13 @@
 				GCC_WARN_UNKNOWN_PRAGMAS = YES;
 				GCC_WARN_UNUSED_LABEL = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/Example/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "ifttt.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				RUN_CLANG_STATIC_ANALYZER = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -614,6 +633,7 @@
 			baseConfigurationReference = E067B6C029ECAA7B4C5AE191 /* Pods-FastttCamera-FastttCameraTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = DNG3JLER88;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -624,6 +644,7 @@
 				);
 				INFOPLIST_FILE = FastttCameraTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "ifttt.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FastttCamera.app/FastttCamera";
 			};
@@ -634,12 +655,14 @@
 			baseConfigurationReference = B34120259D718FF104495E4E /* Pods-FastttCamera-FastttCameraTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = DNG3JLER88;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = FastttCameraTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "ifttt.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FastttCamera.app/FastttCamera";
 			};
