@@ -453,6 +453,7 @@
                 
                 _stillImageOutput = [AVCaptureStillImageOutput new];
                 _stillImageOutput.outputSettings = outputSettings;
+                _stillImageOutput.highResolutionStillImageOutputEnabled = YES;
                 
                 [_session addOutput:_stillImageOutput];
                 
@@ -507,6 +508,8 @@
     BOOL needsPreviewRotation = ![self.deviceOrientation deviceOrientationMatchesInterfaceOrientation];
     
     AVCaptureConnection *videoConnection = [self _currentCaptureConnection];
+    if (!videoConnection.isActive)
+        return;
     
     if ([videoConnection isVideoOrientationSupported]) {
         [videoConnection setVideoOrientation:[self _currentCaptureVideoOrientationForDevice]];
