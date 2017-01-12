@@ -48,7 +48,8 @@
             scalesImage = _scalesImage,
             cameraDevice = _cameraDevice,
             cameraFlashMode = _cameraFlashMode,
-            cameraTorchMode = _cameraTorchMode;
+            cameraTorchMode = _cameraTorchMode,
+            mirrorsOutput = _mirrorsOutput;
 
 - (instancetype)init
 {
@@ -144,6 +145,7 @@
     [self _insertPreviewLayer];
     
     [self _setPreviewVideoOrientation];
+    [self _setPreviewVideoMirroring];
 }
 
 - (void)viewDidDisappear:(BOOL)animated
@@ -516,7 +518,7 @@
     }
     
     if ([videoConnection isVideoMirroringSupported]) {
-        [videoConnection setVideoMirrored:(_cameraDevice == FastttCameraDeviceFront)];
+        [videoConnection setVideoMirrored:self.mirrorsOutput];
     }
     
 #if TARGET_IPHONE_SIMULATOR
@@ -643,6 +645,14 @@
     
     if ([videoConnection isVideoOrientationSupported]) {
         [videoConnection setVideoOrientation:[self _currentPreviewVideoOrientationForDevice]];
+    }
+}
+
+- (void)_setPreviewVideoMirroring {
+    AVCaptureConnection *videoConnection = [_previewLayer connection];
+    videoConnection.automaticallyAdjustsVideoMirroring = NO;
+    if ([videoConnection isVideoMirroringSupported]) {
+        [videoConnection setVideoMirrored:self.mirrorsOutput];
     }
 }
 

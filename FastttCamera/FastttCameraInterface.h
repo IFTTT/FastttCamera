@@ -120,6 +120,12 @@
  */
 @property (nonatomic, assign) UIDeviceOrientation fixedInterfaceOrientation;
 
+/**
+ * Whether the output of the camera is mirrored or not. Earlier versions of FastttCamera automatically mirrored if the front camera
+ * was used, here you need to set this property instead.
+ */
+@property (nonatomic, assign) BOOL mirrorsOutput;
+
 #pragma mark - Camera State
 
 /**
