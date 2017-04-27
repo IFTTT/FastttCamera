@@ -27,7 +27,15 @@
     [childViewController didMoveToParentViewController:self];
     [childViewController endAppearanceTransition];
 }
-
+    
+- (void)fastttAddChildViewController:(UIViewController *)childViewController inView:(UIView*)view belowSubview:(UIView *)subview {
+    [childViewController beginAppearanceTransition:YES animated:NO];
+    [self addChildViewController:childViewController];
+    [view insertSubview:childViewController.view belowSubview:subview];
+    [childViewController didMoveToParentViewController:self];
+    [childViewController endAppearanceTransition];
+}
+    
 - (void)fastttRemoveChildViewController:(UIViewController *)childViewController
 {
     [childViewController willMoveToParentViewController:nil];
