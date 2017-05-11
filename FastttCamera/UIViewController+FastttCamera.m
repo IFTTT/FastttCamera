@@ -28,10 +28,26 @@
     [childViewController endAppearanceTransition];
 }
     
+- (void)fastttAddChildViewController:(UIViewController *)childViewController inView:(UIView*)view {
+    [childViewController beginAppearanceTransition:YES animated:NO];
+    [self addChildViewController:childViewController];
+    [view addSubview:childViewController.view];
+    [childViewController didMoveToParentViewController:self];
+    [childViewController endAppearanceTransition];
+}
+    
 - (void)fastttAddChildViewController:(UIViewController *)childViewController inView:(UIView*)view belowSubview:(UIView *)subview {
     [childViewController beginAppearanceTransition:YES animated:NO];
     [self addChildViewController:childViewController];
     [view insertSubview:childViewController.view belowSubview:subview];
+    [childViewController didMoveToParentViewController:self];
+    [childViewController endAppearanceTransition];
+}
+    
+- (void)fastttAddChildViewController:(UIViewController *)childViewController inView:(UIView*)view aboveSubview:(UIView *)subview {
+    [childViewController beginAppearanceTransition:YES animated:NO];
+    [self addChildViewController:childViewController];
+    [view insertSubview:childViewController.view aboveSubview:subview];
     [childViewController didMoveToParentViewController:self];
     [childViewController endAppearanceTransition];
 }
