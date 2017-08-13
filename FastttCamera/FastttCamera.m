@@ -510,7 +510,7 @@
     BOOL needsPreviewRotation = ![self.deviceOrientation deviceOrientationMatchesInterfaceOrientation];
     
     AVCaptureConnection *videoConnection = [self _currentCaptureConnection];
-    if (!videoConnection.isActive)
+    if (!videoConnection.isActive || !videoConnection.isEnabled)
         return;
     
     if ([videoConnection isVideoOrientationSupported]) {
