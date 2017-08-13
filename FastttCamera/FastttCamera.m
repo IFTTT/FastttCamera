@@ -347,6 +347,8 @@
 
 - (void)startRunning
 {
+    if (!_session)
+        return;
     if (![_session isRunning]) {
         [_session startRunning];
     }
@@ -354,6 +356,8 @@
 
 - (void)stopRunning
 {
+    if (!_session)
+        return;
     if ([_session isRunning]) {
         [_session stopRunning];
     }
@@ -361,7 +365,7 @@
 
 - (void)_insertPreviewLayer
 {
-    if (!_deviceAuthorized) {
+    if (!_deviceAuthorized || !_session) {
         return;
     }
     
@@ -433,6 +437,10 @@
                 
 #if !TARGET_IPHONE_SIMULATOR
                 AVCaptureDeviceInput *deviceInput = [AVCaptureDeviceInput deviceInputWithDevice:device error:nil];
+                if (!deviceInput) {
+                    _session = nil;
+                    return;
+                }
                 [_session addInput:deviceInput];
                 
                 switch (device.position) {
