@@ -224,9 +224,9 @@
 - (BOOL)isReadyToCapturePhoto;
 
 /**
- *  Triggers the camera to take a photo.
+ *  Triggers the camera to take a photo. Returns false if picture was not taken.
  */
-- (void)takePicture;
+- (BOOL)takePicture;
 
 
 #pragma mark - Process a photo

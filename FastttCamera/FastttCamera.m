@@ -204,13 +204,13 @@
     return !self.isCapturingImage;
 }
 
-- (void)takePicture
+- (BOOL)takePicture
 {
     if (!_deviceAuthorized) {
-        return;
+        return NO;
     }
     
-    [self _takePhoto];
+    return [self _takePhoto];
 }
 
 - (void)cancelImageProcessing
@@ -508,18 +508,18 @@
 
 #pragma mark - Capturing a Photo
 
-- (void)_takePhoto
+- (BOOL)_takePhoto
 {
     if (self.isCapturingImage) {
-        return;
+        return NO;
     }
     self.isCapturingImage = YES;
     
-    BOOL needsPreviewRotation = ![self.deviceOrientation deviceOrientationMatchesInterfaceOrientation];
-    
     AVCaptureConnection *videoConnection = [self _currentCaptureConnection];
-    if (!videoConnection.isActive || !videoConnection.isEnabled)
-        return;
+    if (!videoConnection.isActive || !videoConnection.isEnabled) {
+        self.isCapturingImage = NO;
+        return NO;
+    }
     
     if ([videoConnection isVideoOrientationSupported]) {
         [videoConnection setVideoOrientation:[self _currentCaptureVideoOrientationForDevice]];
@@ -528,6 +528,8 @@
     if ([videoConnection isVideoMirroringSupported]) {
         [videoConnection setVideoMirrored:self.mirrorsOutput];
     }
+
+    BOOL needsPreviewRotation = ![self.deviceOrientation deviceOrientationMatchesInterfaceOrientation];
     
 #if TARGET_IPHONE_SIMULATOR
     [self _insertPreviewLayer];
@@ -539,13 +541,15 @@
     UIDeviceOrientation previewOrientation = [self _currentPreviewDeviceOrientation];
 
     if ([UIApplication sharedApplication].applicationState != UIApplicationStateActive) {
-        NSLog(@"FastttCamera: must be showing video to take photo");
-        return;
+        self.isCapturingImage = NO;
+        NSLog(@"FastttCamera: must be UIApplicationStateActive to take photo");
+        return NO;
     }
     [_stillImageOutput captureStillImageAsynchronouslyFromConnection:videoConnection
                                                    completionHandler:^(CMSampleBufferRef imageDataSampleBuffer, NSError *error)
      {
          if (!imageDataSampleBuffer) {
+             self.isCapturingImage = NO;
              return;
          }
          
@@ -567,6 +571,7 @@
          });
      }];
 #endif
+    return YES;
 }
 
 #pragma mark - Processing a Photo
