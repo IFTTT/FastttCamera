@@ -55,6 +55,7 @@
             mirrorsOutput = _mirrorsOutput;
 
 - (instancetype)initWithSendIndividualVideoFrames:(BOOL)sendIndividualVideoFrames {
+    _sampleBufferQueue = dispatch_queue_create("com.xaphod.fastttcamera.samplebuffer", NULL);
     _sendIndividualVideoFrames = sendIndividualVideoFrames;
     return [self init];
 }
@@ -63,7 +64,6 @@
 {
     if ((self = [super init])) {
         
-        _sampleBufferQueue = dispatch_queue_create("com.xaphod.fastttcamera.samplebuffer", NULL);
         [self _setupCaptureSession]; // warning, concurrent/multi-threaded
         
         _handlesTapFocus = YES;

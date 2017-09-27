@@ -298,7 +298,7 @@
 @optional
 
 // Added by Tim - called when a frame of the video (via sample buffer) is ready
-// requires sendIndividualVideoFrames = true
+// requires using the init for FasttCamera that specifies sendIndividualVideoFrames as true
 - (void)cameraController:(id<FastttCameraInterface>)cameraController didCaptureVideoFrame:(UIImage*)videoFrame;
 
 /**
