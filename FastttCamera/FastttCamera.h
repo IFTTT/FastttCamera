@@ -18,6 +18,9 @@
  *  @note If you want to use filters with your live camera preview,
  *  use an instance of FastttFilterCamera instead.
  */
-@interface FastttCamera : UIViewController <FastttCameraInterface>
+@interface FastttCamera : UIViewController <FastttCameraInterface, AVCaptureVideoDataOutputSampleBufferDelegate>
+
+// use this if you want the delegate to receive video frames
+- (instancetype)initWithSendIndividualVideoFrames:(BOOL)sendIndividualVideoFrames;
 
 @end

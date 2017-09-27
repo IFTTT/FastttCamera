@@ -26,6 +26,9 @@
 @property (nonatomic, strong) AVCaptureStillImageOutput *stillImageOutput;
 @property (nonatomic, assign) BOOL deviceAuthorized;
 @property (nonatomic, assign) BOOL isCapturingImage;
+@property (nonatomic, strong) dispatch_queue_t sampleBufferQueue;
+@property (nonatomic, strong) AVCaptureVideoDataOutput *videoOutput;
+@property (nonatomic, assign) BOOL sendIndividualVideoFrames;
 
 @end
 
@@ -51,11 +54,17 @@
             cameraTorchMode = _cameraTorchMode,
             mirrorsOutput = _mirrorsOutput;
 
+- (instancetype)initWithSendIndividualVideoFrames:(BOOL)sendIndividualVideoFrames {
+    _sendIndividualVideoFrames = sendIndividualVideoFrames;
+    return [self init];
+}
+
 - (instancetype)init
 {
     if ((self = [super init])) {
         
-        [self _setupCaptureSession];
+        _sampleBufferQueue = dispatch_queue_create("com.xaphod.fastttcamera.samplebuffer", NULL);
+        [self _setupCaptureSession]; // warning, concurrent/multi-threaded
         
         _handlesTapFocus = YES;
         _showsFocusView = YES;
@@ -464,10 +473,16 @@
                 _stillImageOutput = [AVCaptureStillImageOutput new];
                 _stillImageOutput.outputSettings = outputSettings;
                 _stillImageOutput.highResolutionStillImageOutputEnabled = YES;
-                
                 [_session addOutput:_stillImageOutput];
                 
                 _deviceOrientation = [IFTTTDeviceOrientation new];
+                
+                if (self.sendIndividualVideoFrames) {
+                    self.videoOutput = [[AVCaptureVideoDataOutput alloc] init];
+                    self.videoOutput.videoSettings = @{ (NSString *)kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_32BGRA) };
+                    [self.videoOutput setSampleBufferDelegate:self queue:self.sampleBufferQueue];
+                    [_session addOutput:self.videoOutput];
+                }
                 
                 if (self.isViewLoaded && self.view.window) {
                     [self startRunning];
@@ -500,6 +515,11 @@
     
     [_session removeOutput:_stillImageOutput];
     _stillImageOutput = nil;
+    
+    if (self.videoOutput) {
+        [_session removeOutput:self.videoOutput];
+        self.videoOutput = nil;
+    }
     
     [self _removePreviewLayer];
     
@@ -659,9 +679,17 @@
 - (void)_setPreviewVideoOrientation
 {
     AVCaptureConnection *videoConnection = [_previewLayer connection];
+    AVCaptureVideoOrientation orientation = [self _currentPreviewVideoOrientationForDevice];
     
     if ([videoConnection isVideoOrientationSupported]) {
-        [videoConnection setVideoOrientation:[self _currentPreviewVideoOrientationForDevice]];
+        [videoConnection setVideoOrientation:orientation];
+    }
+    
+    if (self.sendIndividualVideoFrames) {
+        AVCaptureConnection* connection = self.videoOutput.connections.firstObject;
+        if ([connection isVideoOrientationSupported]) {
+            [connection setVideoOrientation:orientation];
+        }
     }
 }
 
@@ -670,6 +698,14 @@
     videoConnection.automaticallyAdjustsVideoMirroring = NO;
     if ([videoConnection isVideoMirroringSupported]) {
         [videoConnection setVideoMirrored:self.mirrorsOutput];
+    }
+
+    if (self.sendIndividualVideoFrames) {
+        AVCaptureConnection* connection = self.videoOutput.connections.firstObject;
+        connection.automaticallyAdjustsVideoMirroring = NO;
+        if ([connection isVideoMirroringSupported]) {
+            [connection setVideoMirrored:self.mirrorsOutput];
+        }
     }
 }
 
@@ -823,6 +859,61 @@
 - (BOOL)handlePinchZoomWithScale:(CGFloat)zoomScale
 {
     return ([self zoomToScale:zoomScale] && self.showsZoomView);
+}
+
+#pragma mark - AVCaptureVideoDataOutputSampleBufferDelegate
+
+- (void)captureOutput:(AVCaptureOutput *)output didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
+    if (self.sendIndividualVideoFrames && self.delegate) {
+        // Get a CMSampleBuffer's Core Video image buffer for the media data
+        CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+        // Lock the base address of the pixel buffer
+        CVPixelBufferLockBaseAddress(imageBuffer, 0);
+        
+        // Get the number of bytes per row for the pixel buffer
+        void *baseAddress = CVPixelBufferGetBaseAddress(imageBuffer);
+        
+        // Get the number of bytes per row for the pixel buffer
+        size_t bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
+        // Get the pixel buffer width and height
+        size_t width = CVPixelBufferGetWidth(imageBuffer);
+        size_t height = CVPixelBufferGetHeight(imageBuffer);
+        
+        // Create a device-dependent RGB color space
+        CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+        
+        // Create a bitmap graphics context with the sample buffer data
+        CGContextRef context = CGBitmapContextCreate(baseAddress, width, height, 8,
+                                                     bytesPerRow, colorSpace, kCGBitmapByteOrder32Little | kCGImageAlphaPremultipliedFirst);
+        // Create a Quartz image from the pixel data in the bitmap graphics context
+        CGImageRef quartzImage = CGBitmapContextCreateImage(context);
+        // Unlock the pixel buffer
+        CVPixelBufferUnlockBaseAddress(imageBuffer,0);
+        
+        // Free up the context and color space
+        CGContextRelease(context);
+        CGColorSpaceRelease(colorSpace);
+        
+        // Create an image object from the Quartz image
+        UIImage *image = [UIImage imageWithCGImage:quartzImage];
+        FastttCapturedImage *capturedImage = [FastttCapturedImage fastttCapturedFullImage: image];
+
+        // Release the Quartz image
+        CGImageRelease(quartzImage);
+        
+        BOOL needsPreviewRotation = ![self.deviceOrientation deviceOrientationMatchesInterfaceOrientation] || !self.interfaceRotatesWithOrientation;
+        UIDeviceOrientation previewOrientation = [self _currentPreviewDeviceOrientation];
+
+        if (needsPreviewRotation) {
+            capturedImage.fullImage = [capturedImage.fullImage fastttRotatedImageMatchingCameraViewWithOrientation:previewOrientation];
+        }
+
+        [capturedImage normalizeWithCallback:^(FastttCapturedImage *capturedImage){
+            if (capturedImage) {
+                [self.delegate cameraController:self didCaptureVideoFrame:capturedImage.fullImage];
+            }
+        }];
+    }
 }
 
 @end

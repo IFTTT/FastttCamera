@@ -297,6 +297,10 @@
 
 @optional
 
+// Added by Tim - called when a frame of the video (via sample buffer) is ready
+// requires sendIndividualVideoFrames = true
+- (void)cameraController:(id<FastttCameraInterface>)cameraController didCaptureVideoFrame:(UIImage*)videoFrame;
+
 /**
  *  Called when the camera controller has obtained the raw data containing the image and metadata.
  *
