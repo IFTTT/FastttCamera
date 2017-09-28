@@ -190,12 +190,11 @@ CG_INLINE CGFLOAT_TYPE FastttRound(CGFLOAT_TYPE f) {
                                 FastttRound(self.size.width),
                                 FastttRound(self.size.height));
     
-    CGImageRef imageRef = CGImageRetain(CGImageCreateWithImageInRect([self CGImage], newRect));
-    UIImage *normalized =
-    [UIImage imageWithCGImage:imageRef
-                        scale:[self scale]
-                  orientation: self.imageOrientation];
-    CGImageRelease(imageRef);
+    UIGraphicsBeginImageContextWithOptions(newRect.size, YES, self.scale);
+    [self drawInRect:newRect];
+    
+    UIImage *normalized = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
     
     return normalized;
 }
