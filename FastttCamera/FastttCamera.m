@@ -16,6 +16,10 @@
 #import "FastttZoom.h"
 #import "FastttCapturedImage+Process.h"
 
+NSString* const FastttCameraStateNotificationName = @"stateNotification";
+NSString* const FastttCameraStateNotificationErrorKey = @"errorKey";
+NSString* const FastttCameraStateNotificationStateKey = @"stateKey";
+
 @interface FastttCamera () <FastttFocusDelegate, FastttZoomDelegate>
 
 @property (nonatomic, strong) IFTTTDeviceOrientation *deviceOrientation;
@@ -60,8 +64,7 @@
     return [self init];
 }
 
-- (instancetype)init
-{
+- (instancetype)init {
     if ((self = [super init])) {
         
         [self _setupCaptureSession]; // warning, concurrent/multi-threaded
@@ -114,6 +117,37 @@
     [self _teardownCaptureSession];
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)sessionRuntimeError:(NSNotification *)notification {
+    NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+    dict[FastttCameraStateNotificationStateKey] = @"sessionRuntimeError";
+    NSError *error = notification.userInfo[AVCaptureSessionErrorKey];
+    if (error)
+        dict[FastttCameraStateNotificationErrorKey] = error;
+    [[NSNotificationCenter defaultCenter] postNotificationName:FastttCameraStateNotificationName object:nil userInfo:dict];
+    
+    [self _teardownCaptureSession];
+}
+
+- (void)sessionWasInterrupted:(NSNotification *)notification {
+    NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+    dict[FastttCameraStateNotificationStateKey] = @"sessionWasInterrupted";
+    id reason = notification.userInfo[AVCaptureSessionInterruptionReasonKey];
+    if (reason)
+        dict[FastttCameraStateNotificationErrorKey] = reason;
+    [[NSNotificationCenter defaultCenter] postNotificationName:FastttCameraStateNotificationName object:nil userInfo:dict];
+
+    [self _teardownCaptureSession];
+}
+
+- (void)sessionInterruptionEnded:(NSNotification *)notification {
+    NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+    dict[FastttCameraStateNotificationStateKey] = @"sessionInterruptionEnded";
+    [[NSNotificationCenter defaultCenter] postNotificationName:FastttCameraStateNotificationName object:nil userInfo:dict];
+
+    [self _teardownCaptureSession];
+    [self _setupCaptureSession];
 }
 
 #pragma mark - View Events
@@ -427,7 +461,11 @@
                 
                 _session = [AVCaptureSession new];
                 _session.sessionPreset = AVCaptureSessionPresetPhoto;
-                
+
+                [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sessionRuntimeError:) name:AVCaptureSessionRuntimeErrorNotification object:self.session];
+                [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sessionWasInterrupted:) name:AVCaptureSessionWasInterruptedNotification object:self.session];
+                [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sessionInterruptionEnded:) name:AVCaptureSessionInterruptionEndedNotification object:self.session];
+
                 AVCaptureDevice *device = [AVCaptureDevice cameraDevice:self.cameraDevice];
                 
                 if (!device) {
@@ -533,13 +571,27 @@
     if (self.isCapturingImage) {
         return NO;
     }
-    self.isCapturingImage = YES;
+    
+    if (!_session.isRunning) {
+        return NO;
+    }
     
     AVCaptureConnection *videoConnection = [self _currentCaptureConnection];
     if (!videoConnection.isActive || !videoConnection.isEnabled) {
-        self.isCapturingImage = NO;
         return NO;
     }
+    
+    BOOL stillImageOutputConnected = NO;
+    for (AVCaptureConnection *conn in _stillImageOutput.connections) {
+        if (conn == videoConnection) {
+            stillImageOutputConnected = YES;
+        }
+    }
+    if (!stillImageOutputConnected) {
+        return NO;
+    }
+    
+    self.isCapturingImage = YES;
     
     if ([videoConnection isVideoOrientationSupported]) {
         [videoConnection setVideoOrientation:[self _currentCaptureVideoOrientationForDevice]];
