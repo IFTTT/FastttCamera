@@ -9,10 +9,6 @@
 #import <UIKit/UIKit.h>
 #import "FastttCameraInterface.h"
 
-FOUNDATION_EXPORT NSString* const FastttCameraStateNotificationName;
-FOUNDATION_EXPORT NSString* const FastttCameraStateNotificationErrorKey;
-FOUNDATION_EXPORT NSString* const FastttCameraStateNotificationStateKey;
-
 /**
  *  Public class for you to use to create a standard FastttCamera!
  *

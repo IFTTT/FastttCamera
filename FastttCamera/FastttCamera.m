@@ -16,10 +16,6 @@
 #import "FastttZoom.h"
 #import "FastttCapturedImage+Process.h"
 
-NSString* const FastttCameraStateNotificationName = @"stateNotification";
-NSString* const FastttCameraStateNotificationErrorKey = @"errorKey";
-NSString* const FastttCameraStateNotificationStateKey = @"stateKey";
-
 @interface FastttCamera () <FastttFocusDelegate, FastttZoomDelegate>
 
 @property (nonatomic, strong) IFTTTDeviceOrientation *deviceOrientation;
@@ -117,37 +113,6 @@ NSString* const FastttCameraStateNotificationStateKey = @"stateKey";
     [self _teardownCaptureSession];
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
-
-- (void)sessionRuntimeError:(NSNotification *)notification {
-    NSMutableDictionary *dict = [NSMutableDictionary dictionary];
-    dict[FastttCameraStateNotificationStateKey] = @"sessionRuntimeError";
-    NSError *error = notification.userInfo[AVCaptureSessionErrorKey];
-    if (error)
-        dict[FastttCameraStateNotificationErrorKey] = error;
-    [[NSNotificationCenter defaultCenter] postNotificationName:FastttCameraStateNotificationName object:nil userInfo:dict];
-    
-    [self _teardownCaptureSession];
-}
-
-- (void)sessionWasInterrupted:(NSNotification *)notification {
-    NSMutableDictionary *dict = [NSMutableDictionary dictionary];
-    dict[FastttCameraStateNotificationStateKey] = @"sessionWasInterrupted";
-    id reason = notification.userInfo[AVCaptureSessionInterruptionReasonKey];
-    if (reason)
-        dict[FastttCameraStateNotificationErrorKey] = reason;
-    [[NSNotificationCenter defaultCenter] postNotificationName:FastttCameraStateNotificationName object:nil userInfo:dict];
-
-    [self _teardownCaptureSession];
-}
-
-- (void)sessionInterruptionEnded:(NSNotification *)notification {
-    NSMutableDictionary *dict = [NSMutableDictionary dictionary];
-    dict[FastttCameraStateNotificationStateKey] = @"sessionInterruptionEnded";
-    [[NSNotificationCenter defaultCenter] postNotificationName:FastttCameraStateNotificationName object:nil userInfo:dict];
-
-    [self _teardownCaptureSession];
-    [self _setupCaptureSession];
 }
 
 #pragma mark - View Events
@@ -461,10 +426,6 @@ NSString* const FastttCameraStateNotificationStateKey = @"stateKey";
                 
                 _session = [AVCaptureSession new];
                 _session.sessionPreset = AVCaptureSessionPresetPhoto;
-
-                [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sessionRuntimeError:) name:AVCaptureSessionRuntimeErrorNotification object:self.session];
-                [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sessionWasInterrupted:) name:AVCaptureSessionWasInterruptedNotification object:self.session];
-                [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sessionInterruptionEnded:) name:AVCaptureSessionInterruptionEndedNotification object:self.session];
 
                 AVCaptureDevice *device = [AVCaptureDevice cameraDevice:self.cameraDevice];
                 
