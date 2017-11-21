@@ -28,7 +28,6 @@
 @property (nonatomic, assign) BOOL isCapturingImage;
 @property (nonatomic, strong) dispatch_queue_t sampleBufferQueue;
 @property (nonatomic, strong) AVCaptureVideoDataOutput *videoOutput;
-@property (nonatomic, assign) BOOL sendIndividualVideoFrames;
 
 @end
 
@@ -54,17 +53,10 @@
             cameraTorchMode = _cameraTorchMode,
             mirrorsOutput = _mirrorsOutput;
 
-- (instancetype)initWithSendIndividualVideoFrames:(BOOL)sendIndividualVideoFrames {
-    _sampleBufferQueue = dispatch_queue_create("com.xaphod.fastttcamera.samplebuffer", NULL);
-    _sendIndividualVideoFrames = sendIndividualVideoFrames;
-    return [self init];
-}
-
 - (instancetype)init {
     if ((self = [super init])) {
         
-        [self _setupCaptureSession]; // warning, concurrent/multi-threaded
-        
+        _sampleBufferQueue = dispatch_queue_create("com.xaphod.fastttcamera.samplebuffer", NULL);
         _handlesTapFocus = YES;
         _showsFocusView = YES;
         _handlesZoom = YES;
@@ -102,6 +94,17 @@
                                                    object:nil];
     }
     
+#if !TARGET_IPHONE_SIMULATOR
+    [self _checkDeviceAuthorizationWithCompletion:^(BOOL isAuthorized) {
+        
+        _deviceAuthorized = isAuthorized;
+#else
+        _deviceAuthorized = YES;
+#endif
+        
+#if !TARGET_IPHONE_SIMULATOR
+    }];
+#endif
     return self;
 }
 
@@ -120,7 +123,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
+    [self _setupCaptureSession];
     [self _insertPreviewLayer];
     
     UIView *viewForGestures = self.view;
@@ -209,15 +212,29 @@
 
 - (BOOL)isReadyToCapturePhoto
 {
+    if (!_deviceAuthorized) {
+        if ([self.delegate respondsToSelector:@selector(userDeniedCameraPermissionsForCameraController:)]) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.delegate userDeniedCameraPermissionsForCameraController:self];
+            });
+        }
+        return NO;
+    }
+
     return !self.isCapturingImage;
 }
 
 - (BOOL)takePicture
 {
     if (!_deviceAuthorized) {
+        if ([self.delegate respondsToSelector:@selector(userDeniedCameraPermissionsForCameraController:)]) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.delegate userDeniedCameraPermissionsForCameraController:self];
+            });
+        }
         return NO;
     }
-    
+
     return [self _takePhoto];
 }
 
@@ -355,8 +372,15 @@
 
 - (void)startRunning
 {
-    if (!_session)
+    if (!_deviceAuthorized) {
+        if ([self.delegate respondsToSelector:@selector(userDeniedCameraPermissionsForCameraController:)]) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.delegate userDeniedCameraPermissionsForCameraController:self];
+            });
+        }
         return;
+    }
+
     if (![_session isRunning]) {
         [_session startRunning];
     }
@@ -364,8 +388,6 @@
 
 - (void)stopRunning
 {
-    if (!_session)
-        return;
     if ([_session isRunning]) {
         [_session stopRunning];
     }
@@ -407,93 +429,73 @@
         return;
     }
     
-#if !TARGET_IPHONE_SIMULATOR
-    [self _checkDeviceAuthorizationWithCompletion:^(BOOL isAuthorized) {
-        
-        _deviceAuthorized = isAuthorized;
-#else
-        _deviceAuthorized = YES;
-#endif
-        if (!_deviceAuthorized && [self.delegate respondsToSelector:@selector(userDeniedCameraPermissionsForCameraController:)]) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self.delegate userDeniedCameraPermissionsForCameraController:self];
-            });
-        }
-        
-        if (_deviceAuthorized) {
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
-                
-                _session = [AVCaptureSession new];
-                _session.sessionPreset = AVCaptureSessionPresetPhoto;
+    NSAssert([NSThread currentThread].isMainThread, @"ERROR must be main thread here");
 
-                AVCaptureDevice *device = [AVCaptureDevice cameraDevice:self.cameraDevice];
-                
-                if (!device) {
-                    device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
-                }
-                
-                if ([device lockForConfiguration:nil]) {
-                    if([device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]){
-                        device.focusMode = AVCaptureFocusModeContinuousAutoFocus;
-                    }
-                    
-                    device.exposureMode = AVCaptureExposureModeContinuousAutoExposure;
-                    
-                    [device unlockForConfiguration];
-                }
-                
-#if !TARGET_IPHONE_SIMULATOR
-                AVCaptureDeviceInput *deviceInput = [AVCaptureDeviceInput deviceInputWithDevice:device error:nil];
-                if (!deviceInput) {
-                    _session = nil;
-                    return;
-                }
-                [_session addInput:deviceInput];
-                
-                switch (device.position) {
-                    case AVCaptureDevicePositionBack:
-                        _cameraDevice = FastttCameraDeviceRear;
-                        break;
-                        
-                    case AVCaptureDevicePositionFront:
-                        _cameraDevice = FastttCameraDeviceFront;
-                        break;
-                        
-                    default:
-                        break;
-                }
-                
-                [self setCameraFlashMode:_cameraFlashMode];
-#endif
-                
-                NSDictionary *outputSettings = @{AVVideoCodecKey:AVVideoCodecJPEG};
-                
-                _stillImageOutput = [AVCaptureStillImageOutput new];
-                _stillImageOutput.outputSettings = outputSettings;
-                _stillImageOutput.highResolutionStillImageOutputEnabled = YES;
-                [_session addOutput:_stillImageOutput];
-                
-                _deviceOrientation = [IFTTTDeviceOrientation new];
-                
-                if (self.sendIndividualVideoFrames) {
-                    self.videoOutput = [[AVCaptureVideoDataOutput alloc] init];
-                    self.videoOutput.videoSettings = @{ (NSString *)kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_32BGRA) };
-                    [self.videoOutput setSampleBufferDelegate:self queue:self.sampleBufferQueue];
-                    [_session addOutput:self.videoOutput];
-                }
-                
-                if (self.isViewLoaded && self.view.window) {
-                    [self startRunning];
-                    [self _insertPreviewLayer];
-                    [self _setPreviewVideoOrientation];
-                    [self _resetZoom];
-                }
-            });
+    _session = [AVCaptureSession new];
+    _session.sessionPreset = AVCaptureSessionPresetPhoto;
+    
+    AVCaptureDevice *device = [AVCaptureDevice cameraDevice:self.cameraDevice];
+    
+    if (!device) {
+        device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+    }
+    
+    if ([device lockForConfiguration:nil]) {
+        if([device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]){
+            device.focusMode = AVCaptureFocusModeContinuousAutoFocus;
         }
+        
+        device.exposureMode = AVCaptureExposureModeContinuousAutoExposure;
+        
+        [device unlockForConfiguration];
+    }
+    
 #if !TARGET_IPHONE_SIMULATOR
-    }];
+    AVCaptureDeviceInput *deviceInput = [AVCaptureDeviceInput deviceInputWithDevice:device error:nil];
+    if (!deviceInput) {
+        _session = nil;
+        return;
+    }
+    [_session addInput:deviceInput];
+    
+    switch (device.position) {
+        case AVCaptureDevicePositionBack:
+            _cameraDevice = FastttCameraDeviceRear;
+            break;
+            
+        case AVCaptureDevicePositionFront:
+            _cameraDevice = FastttCameraDeviceFront;
+            break;
+            
+        default:
+            break;
+    }
+    
+    [self setCameraFlashMode:_cameraFlashMode];
 #endif
+    
+    NSDictionary *outputSettings = @{AVVideoCodecKey:AVVideoCodecJPEG};
+    
+    _stillImageOutput = [AVCaptureStillImageOutput new];
+    _stillImageOutput.outputSettings = outputSettings;
+    _stillImageOutput.highResolutionStillImageOutputEnabled = YES;
+    [_session addOutput:_stillImageOutput];
+    
+    _deviceOrientation = [IFTTTDeviceOrientation new];
+    
+    if (self.sendIndividualVideoFrames) {
+        self.videoOutput = [[AVCaptureVideoDataOutput alloc] init];
+        self.videoOutput.videoSettings = @{ (NSString *)kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_32BGRA) };
+        [self.videoOutput setSampleBufferDelegate:self queue:self.sampleBufferQueue];
+        [_session addOutput:self.videoOutput];
+    }
+    
+    if (self.isViewLoaded && self.view.window) {
+        [self startRunning];
+        [self _insertPreviewLayer];
+        [self _setPreviewVideoOrientation];
+        [self _resetZoom];
+    }
 }
 
 - (void)_teardownCaptureSession
@@ -536,7 +538,13 @@
     if (!_session.isRunning) {
         return NO;
     }
-    
+
+    if ([UIApplication sharedApplication].applicationState != UIApplicationStateActive) {
+        self.isCapturingImage = NO;
+        NSLog(@"FastttCamera: must be UIApplicationStateActive to take photo");
+        return NO;
+    }
+
     AVCaptureConnection *videoConnection = [self _currentCaptureConnection];
     if (!videoConnection.isActive || !videoConnection.isEnabled) {
         return NO;
@@ -573,11 +581,6 @@
 #else    
     UIDeviceOrientation previewOrientation = [self _currentPreviewDeviceOrientation];
 
-    if ([UIApplication sharedApplication].applicationState != UIApplicationStateActive) {
-        self.isCapturingImage = NO;
-        NSLog(@"FastttCamera: must be UIApplicationStateActive to take photo");
-        return NO;
-    }
     [_stillImageOutput captureStillImageAsynchronouslyFromConnection:videoConnection
                                                    completionHandler:^(CMSampleBufferRef imageDataSampleBuffer, NSError *error)
      {
@@ -596,12 +599,8 @@
              [self.delegate cameraController:self didFinishCapturingImageData:imageData];
          }
 
-         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-             
-             UIImage *image = [UIImage imageWithData:imageData];
-             
-             [self _processCameraPhoto:image needsPreviewRotation:needsPreviewRotation previewOrientation:previewOrientation];
-         });
+         UIImage *image = [UIImage imageWithData:imageData];
+         [self _processCameraPhoto:image needsPreviewRotation:needsPreviewRotation previewOrientation:previewOrientation];
      }];
 #endif
     return YES;
@@ -621,7 +620,7 @@
 
 - (void)_processImage:(UIImage *)image withCropRect:(CGRect)cropRect maxDimension:(CGFloat)maxDimension fromCamera:(BOOL)fromCamera needsPreviewRotation:(BOOL)needsPreviewRotation previewOrientation:(UIDeviceOrientation)previewOrientation
 {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
         if (fromCamera && !self.isCapturingImage) {
             return;
         }
@@ -926,6 +925,16 @@
                 [self.delegate cameraController:self didCaptureVideoFrame:capturedImage.fullImage];
             }
         }];
+    }
+}
+
+// if the property for sending invidiual video frames changes, then the session needs to be rebuilt
+- (void)setSendIndividualVideoFrames:(BOOL)sendIndividualVideoFrames {
+    BOOL restartSession = !_sendIndividualVideoFrames && sendIndividualVideoFrames;
+    _sendIndividualVideoFrames = sendIndividualVideoFrames;
+    if (restartSession && _session) {
+        [self _teardownCaptureSession];
+        [self _setupCaptureSession];
     }
 }
 

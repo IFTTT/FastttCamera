@@ -20,7 +20,7 @@
  */
 @interface FastttCamera : UIViewController <FastttCameraInterface, AVCaptureVideoDataOutputSampleBufferDelegate>
 
-// use this if you want the delegate to receive video frames
-- (instancetype)initWithSendIndividualVideoFrames:(BOOL)sendIndividualVideoFrames;
+// if you want the delegate to receive video frames
+@property (nonatomic, assign) BOOL sendIndividualVideoFrames;
 
 @end
