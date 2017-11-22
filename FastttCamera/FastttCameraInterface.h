@@ -224,9 +224,12 @@
 - (BOOL)isReadyToCapturePhoto;
 
 /**
- *  Triggers the camera to take a photo. Returns false if picture was not taken.
+ *  Triggers the camera to take a photo.
+ *  To use completionBlock, you must set normalizesImageOrientations to YES, otherwise use delegate callbacks
+ *  The completionBlock is optional - you can use it, or the delegate callbacks, or both
+ *  CompletionBlock will be called (potentially immediately) with nil if there's an error
  */
-- (BOOL)takePicture;
+- (void)takePicture:(void(^)(UIImage*))completionBlock;
 
 
 #pragma mark - Process a photo
