@@ -933,13 +933,39 @@
 
 // if the property for sending invidiual video frames changes, then the session needs to be rebuilt
 - (void)setSendIndividualVideoFrames:(BOOL)sendIndividualVideoFrames {
-    BOOL restartSession = !_sendIndividualVideoFrames && sendIndividualVideoFrames;
-    _sendIndividualVideoFrames = sendIndividualVideoFrames;
-    if (restartSession && _session) {
-        NSLog(@"FastttCamera: restarting session due to change in sendIndividualVideoFrames");
-        [self _teardownCaptureSession];
-        [self _setupCaptureSession];
+    if (_session) {
+        NSLog(@"FastttCamera: updating existing session for change to sendIndividualVideoFrames");
+        if (sendIndividualVideoFrames) {
+            // turn it on
+            for (AVCaptureOutput *output in _session.outputs) {
+                if ([output isKindOfClass:AVCaptureVideoDataOutput.class]) {
+                    if (output == self.videoOutput) {
+                        NSLog(@"FastttCamera: ... no-op");
+                        return;
+                    } else {
+                        NSAssert(false, @"ERROR");
+                        [_session removeOutput:output];
+                    }
+                }
+            }
+            self.videoOutput = [[AVCaptureVideoDataOutput alloc] init];
+            self.videoOutput.videoSettings = @{ (NSString *)kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_32BGRA) };
+            [self.videoOutput setSampleBufferDelegate:self queue:self.sampleBufferQueue];
+            [_session addOutput:self.videoOutput];
+        } else {
+            // turn it off
+            self.videoOutput = nil;
+            for (AVCaptureOutput *output in _session.outputs) {
+                if ([output isKindOfClass:AVCaptureVideoDataOutput.class]) {
+                    [(AVCaptureVideoDataOutput*)output setSampleBufferDelegate:nil queue:nil];
+                    [_session removeOutput:output];
+                    break;
+                }
+            }
+        }
     }
+    
+    _sendIndividualVideoFrames = sendIndividualVideoFrames;
 }
 
 @end
