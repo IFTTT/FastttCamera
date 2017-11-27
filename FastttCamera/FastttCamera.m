@@ -435,6 +435,8 @@
                     [device unlockForConfiguration];
                 }
                 
+                [_session beginConfiguration];
+                
 #if !TARGET_IPHONE_SIMULATOR
                 AVCaptureDeviceInput *deviceInput = [AVCaptureDeviceInput deviceInputWithDevice:device error:nil];
                 [_session addInput:deviceInput];
@@ -458,8 +460,6 @@
                 
                 [self setCameraFlashMode:_cameraFlashMode];
 #endif
-
-                [_session beginConfiguration];
 
                 NSDictionary *outputSettings = @{AVVideoCodecKey : AVVideoCodecJPEG};
 
