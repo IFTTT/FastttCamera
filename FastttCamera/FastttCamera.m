@@ -506,6 +506,8 @@
     
     [_session removeOutput:_stillImageOutput];
     _stillImageOutput = nil;
+    [_session removeOutput:_movieFileOutput];
+    _movieFileOutput = nil;
     
     [self _removePreviewLayer];
     
