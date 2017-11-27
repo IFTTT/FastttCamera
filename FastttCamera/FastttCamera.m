@@ -574,6 +574,12 @@
 #pragma mark - Capturing Video
 
 - (void)startRecordingVideo {
+    [_session beginConfiguration];
+    for (AVCaptureOutput *captureOutput in _session.outputs) {
+        [_session removeOutput:captureOutput];
+    }
+    [_session addOutput:_movieFileOutput];
+    [_session commitConfiguration];
 
     AVCaptureConnection *videoConnection = nil;
 
