@@ -582,7 +582,7 @@
         }
         
         if (isAudioInput) {
-            [_session remx@oveInput:captureInput];
+            [_session removeInput:captureInput];
         }
     }
     
