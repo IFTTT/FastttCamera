@@ -441,10 +441,6 @@
                 AVCaptureDeviceInput *deviceInput = [AVCaptureDeviceInput deviceInputWithDevice:device error:nil];
                 [_session addInput:deviceInput];
 
-                AVCaptureDevice *audioDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
-                AVCaptureDeviceInput *audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioDevice error:nil];
-                [_session addInput:audioInput];
-
                 switch (device.position) {
                     case AVCaptureDevicePositionBack:
                         _cameraDevice = FastttCameraDeviceRear;
@@ -470,7 +466,7 @@
 
                 _movieFileOutput = [AVCaptureMovieFileOutput new];
                 [_session addOutput:_movieFileOutput];
-
+                
                 [_session commitConfiguration];
 
                 _deviceOrientation = [IFTTTDeviceOrientation new];
@@ -574,13 +570,27 @@
 #pragma mark - Capturing Video
 
 - (void)startRecordingVideo {
+    
     [_session beginConfiguration];
-    for (AVCaptureOutput *captureOutput in _session.outputs) {
-        [_session removeOutput:captureOutput];
+    for (AVCaptureInput *captureInput in [_session inputs]) {
+        BOOL isAudioInput = NO;
+        for (AVCaptureInputPort *port in [captureInput ports]) {
+            if ([[port mediaType] isEqual:AVMediaTypeAudio]) {
+                isAudioInput = YES;
+                break;
+            }
+        }
+        
+        if (isAudioInput) {
+            [_session remx@oveInput:captureInput];
+        }
     }
-    [_session addOutput:_movieFileOutput];
+    
+    AVCaptureDevice *audioDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
+    AVCaptureDeviceInput *audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioDevice error:nil];
+    [_session addInput:audioInput];
     [_session commitConfiguration];
-
+    
     AVCaptureConnection *videoConnection = nil;
 
     for (AVCaptureConnection *connection in [_movieFileOutput connections]) {
