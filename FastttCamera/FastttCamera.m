@@ -393,6 +393,10 @@
 
 - (void)_insertPreviewLayer
 {
+#if TARGET_IPHONE_SIMULATOR
+    return;
+#endif
+
     if (!_deviceAuthorized || !_session) {
         return;
     }
@@ -430,6 +434,8 @@
     NSAssert([NSThread currentThread].isMainThread, @"ERROR must be main thread here");
 
     _session = [AVCaptureSession new];
+
+#if !TARGET_IPHONE_SIMULATOR
     _session.sessionPreset = AVCaptureSessionPresetPhoto;
     
     AVCaptureDevice *device = [AVCaptureDevice cameraDevice:self.cameraDevice];
@@ -448,7 +454,6 @@
         [device unlockForConfiguration];
     }
     
-#if !TARGET_IPHONE_SIMULATOR
     AVCaptureDeviceInput *deviceInput = [AVCaptureDeviceInput deviceInputWithDevice:device error:nil];
     if (!deviceInput) {
         _session = nil;
@@ -470,7 +475,6 @@
     }
     
     [self setCameraFlashMode:_cameraFlashMode];
-#endif
     
     NSDictionary *outputSettings = @{AVVideoCodecKey:AVVideoCodecJPEG};
     
@@ -487,7 +491,8 @@
         [self.videoOutput setSampleBufferDelegate:self queue:self.sampleBufferQueue];
         [_session addOutput:self.videoOutput];
     }
-    
+#endif
+
     if (self.isViewLoaded && self.view.window) {
         [self startRunning];
         [self _insertPreviewLayer];
