@@ -51,7 +51,8 @@
             cameraDevice = _cameraDevice,
             cameraFlashMode = _cameraFlashMode,
             cameraTorchMode = _cameraTorchMode,
-            mirrorsOutput = _mirrorsOutput;
+            mirrorsVideo = _mirrorsVideo,
+            mirrorsTakePhoto = _mirrorsTakePhoto;
 
 - (instancetype)init {
     if ((self = [super init])) {
@@ -572,7 +573,7 @@
     }
     
     if ([videoConnection isVideoMirroringSupported]) {
-        [videoConnection setVideoMirrored:self.mirrorsOutput];
+        [videoConnection setVideoMirrored:self.mirrorsTakePhoto];
     }
 
     BOOL needsPreviewRotation = ![self.deviceOrientation deviceOrientationMatchesInterfaceOrientation];
@@ -724,14 +725,14 @@
     AVCaptureConnection *videoConnection = [_previewLayer connection];
     videoConnection.automaticallyAdjustsVideoMirroring = NO;
     if ([videoConnection isVideoMirroringSupported]) {
-        [videoConnection setVideoMirrored:self.mirrorsOutput];
+        [videoConnection setVideoMirrored:self.mirrorsVideo];
     }
 
     if (self.sendIndividualVideoFrames) {
         AVCaptureConnection* connection = self.videoOutput.connections.firstObject;
         connection.automaticallyAdjustsVideoMirroring = NO;
         if ([connection isVideoMirroringSupported]) {
-            [connection setVideoMirrored:self.mirrorsOutput];
+            [connection setVideoMirrored:self.mirrorsVideo];
         }
     }
 }
