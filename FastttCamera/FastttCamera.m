@@ -52,7 +52,8 @@
             cameraTorchMode = _cameraTorchMode,
             movieFileOutput = _movieFileOutput,
             normalizesVideoOrientation = _normalizesVideoOrientation,
-            cropsVideoToVisibleAspectRatio = _cropsVideoToVisibleAspectRatio;
+            cropsVideoToVisibleAspectRatio = _cropsVideoToVisibleAspectRatio,
+            sessionPreset = _sessionPreset;
 
 - (instancetype)init
 {
@@ -77,6 +78,7 @@
         _cameraDevice = FastttCameraDeviceRear;
         _cameraFlashMode = FastttCameraFlashModeOff;
         _cameraTorchMode = FastttCameraTorchModeOff;
+        _sessionPreset = AVCaptureSessionPresetMedium;
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(applicationWillEnterForeground:)
@@ -417,7 +419,7 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 
                 _session = [AVCaptureSession new];
-                _session.sessionPreset = AVCaptureSessionPresetMedium;
+                _session.sessionPreset = _sessionPreset;
                 
                 AVCaptureDevice *device = [AVCaptureDevice cameraDevice:self.cameraDevice];
                 

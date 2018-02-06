@@ -129,6 +129,12 @@
  */
 @property(nonatomic, assign) BOOL cropsVideoToVisibleAspectRatio;
 
+/**
+ * Default to AVCaptureSessionPresetMedium.
+ */
+
+@property (nonatomic, assign) AVCaptureSessionPreset sessionPreset;
+
 #pragma mark - Camera State
 
 /**
