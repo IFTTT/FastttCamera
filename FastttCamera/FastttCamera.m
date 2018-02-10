@@ -53,7 +53,8 @@
             movieFileOutput = _movieFileOutput,
             normalizesVideoOrientation = _normalizesVideoOrientation,
             cropsVideoToVisibleAspectRatio = _cropsVideoToVisibleAspectRatio,
-            sessionPreset = _sessionPreset;
+            sessionPreset = _sessionPreset,
+            forcedDeviceOrientationForVideo = _forcedDeviceOrientationForVideo;
 
 - (instancetype)init
 {
@@ -79,6 +80,7 @@
         _cameraFlashMode = FastttCameraFlashModeOff;
         _cameraTorchMode = FastttCameraTorchModeOff;
         _sessionPreset = AVCaptureSessionPresetMedium;
+        _forcedDeviceOrientationForVideo = nil;
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(applicationWillEnterForeground:)
@@ -608,7 +610,9 @@
         }
     }
 
-    if ([videoConnection isVideoOrientationSupported]) {
+    if (self.forcedDeviceOrientationForVideo) {
+        [videoConnection setVideoOrientation: self.forcedDeviceOrientationForVideo];
+    } else if ([videoConnection isVideoOrientationSupported]) {
         [videoConnection setVideoOrientation:[self _currentCaptureVideoOrientationForDevice]];
     }
 

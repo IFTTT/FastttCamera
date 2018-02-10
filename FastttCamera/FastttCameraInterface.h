@@ -135,6 +135,11 @@
 
 @property (nonatomic, assign) AVCaptureSessionPreset sessionPreset;
 
+/**
+ * Default to nil.
+ */
+@property (nonatomic, assign) UIDeviceOrientation forcedDeviceOrientationForVideo;
+
 #pragma mark - Camera State
 
 /**
