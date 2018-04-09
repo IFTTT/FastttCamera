@@ -421,6 +421,7 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 
                 _session = [AVCaptureSession new];
+                _session.automaticallyConfiguresApplicationAudioSession = false;
                 _session.sessionPreset = _sessionPreset;
                 
                 AVCaptureDevice *device = [AVCaptureDevice cameraDevice:self.cameraDevice];
