@@ -120,6 +120,13 @@
  */
 @property (nonatomic, assign) UIDeviceOrientation fixedInterfaceOrientation;
 
+/**
+ * Whether the output of the camera is mirrored or not. Earlier versions of FastttCamera automatically mirrored if the front camera
+ * was used, here you need to set this property instead.
+ */
+@property (nonatomic, assign) BOOL mirrorsVideo;
+@property (nonatomic, assign) BOOL mirrorsTakePhoto;
+
 #pragma mark - Camera State
 
 /**
@@ -219,8 +226,11 @@
 
 /**
  *  Triggers the camera to take a photo.
+ *  To use completionBlock, you must set normalizesImageOrientations to YES, otherwise use delegate callbacks
+ *  The completionBlock is optional - you can use it, or the delegate callbacks, or both
+ *  CompletionBlock will be called (potentially immediately) with nil if there's an error
  */
-- (void)takePicture;
+- (void)takePicture:(void(^)(UIImage*))completionBlock;
 
 
 #pragma mark - Process a photo
@@ -290,6 +300,10 @@
 @protocol FastttCameraDelegate <NSObject>
 
 @optional
+
+// Added by Tim - called when a frame of the video (via sample buffer) is ready
+// requires using the init for FasttCamera that specifies sendIndividualVideoFrames as true
+- (void)cameraController:(id<FastttCameraInterface>)cameraController didCaptureVideoFrame:(UIImage*)videoFrame;
 
 /**
  *  Called when the camera controller has obtained the raw data containing the image and metadata.

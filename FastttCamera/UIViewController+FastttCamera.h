@@ -32,6 +32,14 @@
 - (void)fastttAddChildViewController:(UIViewController *)childViewController belowSubview:(UIView *)siblingSubview;
 
 /**
+ *  Allows specifying which view the subview belongs to, not just self.view
+ *
+ */
+- (void)fastttAddChildViewController:(UIViewController *)childViewController inView:(UIView*)view;
+- (void)fastttAddChildViewController:(UIViewController *)childViewController inView:(UIView*)view belowSubview:(UIView *)subview;
+- (void)fastttAddChildViewController:(UIViewController *)childViewController inView:(UIView*)view aboveSubview:(UIView *)subview;
+    
+/**
  *  Removes the given child view controller from this view controller and handles
  *  view appearance transition event calls.
  *
