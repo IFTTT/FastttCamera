@@ -923,17 +923,13 @@
         CGColorSpaceRelease(colorSpace);
         
         // Create an image object from the Quartz image
-        UIImage *image = [UIImage imageWithCGImage:quartzImage];
-        FastttCapturedImage *capturedImage = [FastttCapturedImage fastttCapturedFullImage: image];
+        NSAssert([connection isVideoOrientationSupported], @"This code assumes up-oriented images");
+        UIImage *image = [UIImage imageWithCGImage:quartzImage scale:1 orientation:(self.mirrorsVideo ? UIImageOrientationUpMirrored : UIImageOrientationUp)];
 
         // Release the Quartz image
         CGImageRelease(quartzImage);
         
-        [capturedImage normalizeWithCallback:^(FastttCapturedImage *capturedImage){
-            if (capturedImage) {
-                [self.delegate cameraController:self didCaptureVideoFrame:capturedImage.fullImage];
-            }
-        }];
+        [self.delegate cameraController:self didCaptureVideoFrame:image];
     }
 }
 
