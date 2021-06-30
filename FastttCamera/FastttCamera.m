@@ -607,8 +607,10 @@
             [capturedImage scaleToMaxDimension:maxDimension
                                   withCallback:scaleCallback];
         } else if (fromCamera && self.scalesImage) {
-            [capturedImage scaleToSize:self.view.bounds.size
-                          withCallback:scaleCallback];
+            dispatch_async(dispatch_get_main_queue(), ^(void) {
+                            //Run UI Updates
+                [capturedImage scaleToSize:self.view.bounds.size withCallback:scaleCallback];
+            });
         }
         
         if (fromCamera && !self.isCapturingImage) {
