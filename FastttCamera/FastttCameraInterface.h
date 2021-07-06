@@ -119,6 +119,26 @@
  *  Make sure to also set interfaceRotatesWithOrientation = YES, otherwise this property will be ignored.
  */
 @property (nonatomic, assign) UIDeviceOrientation fixedInterfaceOrientation;
+/**
+ *  Defaults to YES. If this property is set to YES, the video orientation will match that of the preview video.
+ */
+@property(nonatomic, assign) BOOL normalizesVideoOrientation;
+
+/**
+ *  Defaults to YES. If this property is set to YES, the video's size will crop to that of the preview video.
+ */
+@property(nonatomic, assign) BOOL cropsVideoToVisibleAspectRatio;
+
+/**
+ * Default to AVCaptureSessionPresetMedium.
+ */
+
+@property (nonatomic, assign) AVCaptureSessionPreset sessionPreset;
+
+/**
+ * Default to nil.
+ */
+@property (nonatomic, assign) UIDeviceOrientation forcedDeviceOrientationForVideo;
 
 #pragma mark - Camera State
 
@@ -222,6 +242,17 @@
  */
 - (void)takePicture;
 
+#pragma mark - Take a video!
+
+/**
+ *  Triggers the camera to start recording a video.
+ */
+- (void)startRecordingVideo;
+
+/**
+ *  Triggers the camera to stop recording a video.
+ */
+- (void)stopRecordingVideo;
 
 #pragma mark - Process a photo
 
@@ -358,5 +389,23 @@
  *  finds that permission to access the camera has not been granted.
  */
 - (void)userDeniedCameraPermissionsForCameraController:(id<FastttCameraInterface>)cameraController;
+
+/**
+ *  Called when the camera controller has finished recording video
+ *
+ *  @param cameraController The FastttCamera instance that captured the photo.
+ *
+ *  @param videoURL Location of the video without the proper cropping and orientation
+ */
+- (void)cameraController:(id<FastttCameraInterface>)cameraController didFinishRecordingVideo:(NSURL *)videoURL;
+
+/**
+ *  Called when the camera controller has finished recording video
+ *
+ *  @param cameraController The FastttCamera instance that captured the photo.
+ *
+ *  @param videoURL Location of the video with the proper cropping and orientation
+ */
+- (void)cameraController:(id<FastttCameraInterface>)cameraController didFinishNormalizedCapturedVideo:(NSURL *)videoURL;
 
 @end

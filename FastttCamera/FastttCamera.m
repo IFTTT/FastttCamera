@@ -16,7 +16,7 @@
 #import "FastttZoom.h"
 #import "FastttCapturedImage+Process.h"
 
-@interface FastttCamera () <FastttFocusDelegate, FastttZoomDelegate>
+@interface FastttCamera () <FastttFocusDelegate, FastttZoomDelegate, AVCaptureFileOutputRecordingDelegate>
 
 @property (nonatomic, strong) IFTTTDeviceOrientation *deviceOrientation;
 @property (nonatomic, strong) FastttFocus *fastFocus;
@@ -25,6 +25,7 @@
 @property (nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
 @property (nonatomic, strong) AVCaptureStillImageOutput *stillImageOutput;
 @property (nonatomic, assign) BOOL deviceAuthorized;
+@property(nonatomic, retain) AVCaptureMovieFileOutput *movieFileOutput;
 @property (nonatomic, assign) BOOL isCapturingImage;
 
 @end
@@ -48,7 +49,12 @@
             scalesImage = _scalesImage,
             cameraDevice = _cameraDevice,
             cameraFlashMode = _cameraFlashMode,
-            cameraTorchMode = _cameraTorchMode;
+            cameraTorchMode = _cameraTorchMode,
+            movieFileOutput = _movieFileOutput,
+            normalizesVideoOrientation = _normalizesVideoOrientation,
+            cropsVideoToVisibleAspectRatio = _cropsVideoToVisibleAspectRatio,
+            sessionPreset = _sessionPreset,
+            forcedDeviceOrientationForVideo = _forcedDeviceOrientationForVideo;
 
 - (instancetype)init
 {
@@ -65,12 +71,16 @@
         _maxScaledDimension = 0.f;
         _maxZoomFactor = 1.f;
         _normalizesImageOrientations = YES;
+        _normalizesVideoOrientation = YES;
+        _cropsVideoToVisibleAspectRatio = YES;
         _returnsRotatedPreview = YES;
         _interfaceRotatesWithOrientation = YES;
         _fixedInterfaceOrientation = UIDeviceOrientationPortrait;
         _cameraDevice = FastttCameraDeviceRear;
         _cameraFlashMode = FastttCameraFlashModeOff;
         _cameraTorchMode = FastttCameraTorchModeOff;
+        _sessionPreset = AVCaptureSessionPresetMedium;
+        _forcedDeviceOrientationForVideo = nil;
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(applicationWillEnterForeground:)
@@ -302,7 +312,7 @@
     if (_cameraDevice != cameraDevice) {
         _cameraDevice = cameraDevice;
         
-        AVCaptureDeviceInput *oldInput = [_session.inputs lastObject];
+        AVCaptureDeviceInput *oldInput = [self _currentCameraInput];
         AVCaptureDeviceInput *newInput = [AVCaptureDeviceInput deviceInputWithDevice:device error:nil];
         
         [_session beginConfiguration];
@@ -411,7 +421,8 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 
                 _session = [AVCaptureSession new];
-                _session.sessionPreset = AVCaptureSessionPresetPhoto;
+                _session.automaticallyConfiguresApplicationAudioSession = false;
+                _session.sessionPreset = _sessionPreset;
                 
                 AVCaptureDevice *device = [AVCaptureDevice cameraDevice:self.cameraDevice];
                 
@@ -429,10 +440,12 @@
                     [device unlockForConfiguration];
                 }
                 
+                [_session beginConfiguration];
+                
 #if !TARGET_IPHONE_SIMULATOR
                 AVCaptureDeviceInput *deviceInput = [AVCaptureDeviceInput deviceInputWithDevice:device error:nil];
                 [_session addInput:deviceInput];
-                
+
                 switch (device.position) {
                     case AVCaptureDevicePositionBack:
                         _cameraDevice = FastttCameraDeviceRear;
@@ -448,14 +461,19 @@
                 
                 [self setCameraFlashMode:_cameraFlashMode];
 #endif
-                
-                NSDictionary *outputSettings = @{AVVideoCodecKey:AVVideoCodecJPEG};
-                
+
+                NSDictionary *outputSettings = @{AVVideoCodecKey : AVVideoCodecJPEG};
+
                 _stillImageOutput = [AVCaptureStillImageOutput new];
                 _stillImageOutput.outputSettings = outputSettings;
                 
                 [_session addOutput:_stillImageOutput];
+
+                _movieFileOutput = [AVCaptureMovieFileOutput new];
+                [_session addOutput:_movieFileOutput];
                 
+                [_session commitConfiguration];
+
                 _deviceOrientation = [IFTTTDeviceOrientation new];
                 
                 if (self.isViewLoaded && self.view.window) {
@@ -489,6 +507,8 @@
     
     [_session removeOutput:_stillImageOutput];
     _stillImageOutput = nil;
+    [_session removeOutput:_movieFileOutput];
+    _movieFileOutput = nil;
     
     [self _removePreviewLayer];
     
@@ -551,6 +571,87 @@
      }];
 #endif
 }
+
+#pragma mark - Capturing Video
+
+- (void)startRecordingVideo {
+    
+    [_session beginConfiguration];
+    for (AVCaptureInput *captureInput in [_session inputs]) {
+        BOOL isAudioInput = NO;
+        for (AVCaptureInputPort *port in [captureInput ports]) {
+            if ([[port mediaType] isEqual:AVMediaTypeAudio]) {
+                isAudioInput = YES;
+                break;
+            }
+        }
+        
+        if (isAudioInput) {
+            [_session removeInput:captureInput];
+        }
+    }
+    
+    AVCaptureDevice *audioDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
+    AVCaptureDeviceInput *audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioDevice error:nil];
+    [_session addInput:audioInput];
+    [_session commitConfiguration];
+    
+    AVCaptureConnection *videoConnection = nil;
+
+    for (AVCaptureConnection *connection in [_movieFileOutput connections]) {
+        for (AVCaptureInputPort *port in [connection inputPorts]) {
+            if ([[port mediaType] isEqual:AVMediaTypeVideo]) {
+                videoConnection = connection;
+                break;
+            }
+        }
+
+        if (videoConnection) {
+            break;
+        }
+    }
+
+    if (self.forcedDeviceOrientationForVideo) {
+        [videoConnection setVideoOrientation: self.forcedDeviceOrientationForVideo];
+    } else if ([videoConnection isVideoOrientationSupported]) {
+        [videoConnection setVideoOrientation:[self _currentCaptureVideoOrientationForDevice]];
+    }
+
+    if ([videoConnection isVideoMirroringSupported]) {
+        [videoConnection setVideoMirrored:(_cameraDevice == FastttCameraDeviceFront)];
+    }
+
+    NSString *plistPath;
+    NSString *rootPath;
+    rootPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+    plistPath = [rootPath stringByAppendingPathComponent:@"temp.mov"];
+    NSURL *fileURL = [[NSURL alloc] initFileURLWithPath:plistPath];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if ([fileManager fileExistsAtPath:plistPath]) {
+        NSError *error;
+
+        [fileManager removeItemAtPath:[fileURL absoluteString] error:&error];
+    }
+    [_movieFileOutput startRecordingToOutputFileURL:fileURL recordingDelegate:self];
+}
+
+- (void)stopRecordingVideo {
+    [_movieFileOutput stopRecording];
+}
+
+#pragma mark - AVCaptureFileOutputRecordingDelegate
+
+- (void)captureOutput:(AVCaptureFileOutput *)captureOutput
+    didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
+                        fromConnections:(NSArray *)connections
+                                  error:(NSError *)error {
+
+    if ([self.delegate respondsToSelector:@selector(cameraController:didFinishRecordingVideo:)]) {
+        [self.delegate cameraController:self didFinishRecordingVideo:outputFileURL];
+    }
+}
+
+#pragma mark - Capturing
 
 #pragma mark - Processing a Photo
 
@@ -709,9 +810,22 @@
 
 #pragma mark - FastttCameraDevice
 
+- (AVCaptureDeviceInput *)_currentCameraInput {
+    AVCaptureDeviceInput *currentCameraInput;
+    
+    for (AVCaptureDeviceInput *captureInput in _session.inputs) {
+        NSArray<AVMediaType> *mediaTypes = [captureInput.ports valueForKey:@"mediaType"];
+        if ([mediaTypes containsObject:AVMediaTypeVideo]) {
+            currentCameraInput = captureInput;
+        }
+    }
+    return currentCameraInput;
+
+}
+
 - (AVCaptureDevice *)_currentCameraDevice
 {
-    return [_session.inputs.lastObject device];
+    return [[self _currentCameraInput] device];
 }
 
 - (AVCaptureConnection *)_currentCaptureConnection
