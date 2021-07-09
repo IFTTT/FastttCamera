@@ -9,11 +9,11 @@ def install_pods
   pod 'Masonry', '0.6.1'
 end
 
-target 'FastttCameraDemo', :exclusive => true do
+target 'FastttCameraDemo' do
   install_pods
 end
 
-target 'FastttCameraDemoTests', :exclusive => true do
+target 'FastttCameraDemoTests' do
   install_pods
   pod 'Specta'
   pod 'Expecta'
