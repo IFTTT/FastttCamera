@@ -529,6 +529,7 @@
                                                    completionHandler:^(CMSampleBufferRef imageDataSampleBuffer, NSError *error)
      {
          if (!imageDataSampleBuffer) {
+             [self cancelImageProcessing];
              return;
          }
          
