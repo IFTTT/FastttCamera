@@ -83,7 +83,7 @@
 /**
  *  Scales the image to the given maximum dimension.
  *
- *  @param size The destination maximum dimension of the image.
+ *  @param maxDimension The destination maximum dimension of the image.
  *
  *  @return The scaled image.
  */
