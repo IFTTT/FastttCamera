@@ -453,7 +453,8 @@
                 
                 _stillImageOutput = [AVCaptureStillImageOutput new];
                 _stillImageOutput.outputSettings = outputSettings;
-                
+                _stillImageOutput.highResolutionStillImageOutputEnabled = YES;
+                        
                 [_session addOutput:_stillImageOutput];
                 
                 _deviceOrientation = [IFTTTDeviceOrientation new];
