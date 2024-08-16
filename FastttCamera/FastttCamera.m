@@ -161,26 +161,22 @@
 
 - (void)applicationWillEnterForeground:(NSNotification *)notification
 {
-    [self _setupCaptureSession];
+    // No need to perform any actions here; frequent session operations can increase the risk of camera freezing.
 }
 
 - (void)applicationDidBecomeActive:(NSNotification *)notification
 {
-    if (self.isViewLoaded && self.view.window) {
-        [self startRunning];
-        [self _insertPreviewLayer];
-        [self _setPreviewVideoOrientation];
-    }
+    // No need to perform any actions here; frequent session operations can increase the risk of camera freezing.
 }
 
 - (void)applicationWillResignActive:(NSNotification *)notification
 {
-    [self stopRunning];
+    // No need to perform any actions here; frequent session operations can increase the risk of camera freezing.
 }
 
 - (void)applicationDidEnterBackground:(NSNotification *)notification
 {
-    [self _teardownCaptureSession];
+    // No need to perform any actions here; frequent session operations can increase the risk of camera freezing.
 }
 
 #pragma mark - Autorotation
